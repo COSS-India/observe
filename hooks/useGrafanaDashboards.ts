@@ -59,6 +59,35 @@ export function useGrafanaDashboards() {
     }
   }, []);
 
+  const fetchUserDashboards = useCallback(async (userId: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await grafanaAPI.getUserDashboards(userId);
+      setDashboards(Array.isArray(data) ? data : []);
+    } catch (err: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to fetch user dashboards';
+      setError(errorMessage);
+      
+      // Show helpful toast for permission errors
+      if (error?.response?.status === 403) {
+        toast.error('Permission Error', {
+          description: error?.response?.data?.hint || 'Your Grafana API key lacks the required permissions to fetch user dashboards.',
+        });
+      } else {
+        toast.error('Error', {
+          description: errorMessage,
+        });
+      }
+      
+      console.error('Error fetching user dashboards:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const deleteDashboard = useCallback(async (uid: string) => {
     try {
       await grafanaAPI.deleteDashboard(uid);
@@ -82,6 +111,7 @@ export function useGrafanaDashboards() {
     loading,
     error,
     fetchDashboards,
+    fetchUserDashboards,
     searchDashboards,
     deleteDashboard,
   };

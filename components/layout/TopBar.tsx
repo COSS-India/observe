@@ -10,12 +10,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Bell, LogOut, User } from 'lucide-react';
+import { Bell, LogOut, User, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { isSuperAdmin } from '@/lib/utils/permissions';
 
 export function TopBar() {
   const { user, logout } = useAuth();
+  const isUserSuperAdmin = isSuperAdmin(user);
 
   const getInitials = (name?: string, email?: string) => {
     if (name) {
@@ -33,10 +35,15 @@ export function TopBar() {
   };
 
   return (
-    <header className="h-16 border-b bg-white dark:bg-gray-950 flex items-center justify-between px-6">
+    <header className="h-16 border-b bg-white dark:bg-gray-950 flex items-center justify-between px-6 lg:px-8">
       <div className="flex items-center space-x-4">
         <h1 className="text-xl font-semibold">Welcome back, {user?.username || 'User'}</h1>
-        {user?.role && (
+        {isUserSuperAdmin ? (
+          <Badge variant="destructive" className="flex items-center gap-1">
+            <Shield className="h-3 w-3" />
+            Super Admin
+          </Badge>
+        ) : user?.role && (
           <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
             {user.role}
           </Badge>
@@ -66,6 +73,12 @@ export function TopBar() {
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium">{user?.username}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email}</p>
+                {isUserSuperAdmin && (
+                  <Badge variant="destructive" className="w-fit text-xs flex items-center gap-1 mt-1">
+                    <Shield className="h-3 w-3" />
+                    Super Admin
+                  </Badge>
+                )}
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

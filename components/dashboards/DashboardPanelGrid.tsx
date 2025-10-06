@@ -49,14 +49,14 @@ export function DashboardPanelGrid({
   const fullscreenGridClass = fullscreenPanel ? 'grid-cols-1' : gridColsClass;
 
   return (
-    <div className={`grid ${fullscreenGridClass} gap-4`}>
+    <div className={`grid ${fullscreenGridClass} gap-6`}>
       {displayPanels.map((panel) => {
         const isFullscreen = fullscreenPanel === panel.id;
         const panelHeight = isFullscreen ? 'calc(100vh - 250px)' : `${panel.height || defaultHeight}px`;
 
         return (
-          <Card key={panel.id} className="overflow-hidden">
-            <CardHeader className="pb-3">
+          <Card key={panel.id} className="overflow-hidden p-0 shadow-sm">
+            {/* <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-base font-medium">
                   {panel.title}
@@ -75,7 +75,7 @@ export function DashboardPanelGrid({
                   )}
                 </Button>
               </div>
-            </CardHeader>
+            </CardHeader> */}
             <CardContent className="p-0">
               <iframe
                 src={panel.src}

@@ -12,12 +12,28 @@ const grafanaClient = axios.create({
   },
 });
 
+interface Folder {
+  uid: string;
+  title: string;
+  [key: string]: unknown;
+}
+
 // GET /api/grafana/folders - List all folders
 export async function GET() {
   try {
     // Folders API is organization-scoped by default
     const response = await grafanaClient.get('/api/folders');
-    return NextResponse.json(response.data);
+    
+    // Filter out the "General" folder (uid is empty string or "general")
+    const folders = Array.isArray(response.data) 
+      ? response.data.filter((folder: Folder) => 
+          folder.uid !== '' && 
+          folder.uid !== 'general' && 
+          folder.title?.toLowerCase() !== 'general'
+        )
+      : [];
+    
+    return NextResponse.json(folders);
   } catch (error) {
     console.error('Error fetching folders:', error);
     if (axios.isAxiosError(error)) {

@@ -1,0 +1,28 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "karmayogi",
+      "password": "admin123",
+      "email": "karmayogi@example.com",
+      "role": "admin",
+      "organization": "karmayogi"
+    },
+    {
+      "id": "2",
+      "username": "irctc",
+      "password": "irctc123",
+      "email": "irctc@example.com",
+      "role": "viewer",
+      "organization": "irctc"
+    },
+    {
+      "id": "3",
+      "username": "kisanmitra",
+      "password": "karmayogi",
+      "email": "kisanmitra@karmayogi.com",
+      "role": "admin",
+      "organization": "kisanmitra"
+    }
+  ]
+}

@@ -13,7 +13,15 @@ export function useGrafanaFolders() {
       setLoading(true);
       setError(null);
       const data = await grafanaAPI.listFolders();
-      setFolders(Array.isArray(data) ? data : []);
+      // Filter out the "General" folder
+      const filteredFolders = Array.isArray(data) 
+        ? data.filter((folder) => 
+            folder.uid !== '' && 
+            folder.uid !== 'general' && 
+            folder.title?.toLowerCase() !== 'general'
+          )
+        : [];
+      setFolders(filteredFolders);
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error = err as any;
@@ -32,6 +40,43 @@ export function useGrafanaFolders() {
       }
       
       console.error('Error fetching folders:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchUserFolders = useCallback(async (userId: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await grafanaAPI.getUserFolders(userId);
+      // Filter out the "General" folder
+      const filteredFolders = Array.isArray(data) 
+        ? data.filter((folder) => 
+            folder.uid !== '' && 
+            folder.uid !== 'general' && 
+            folder.title?.toLowerCase() !== 'general'
+          )
+        : [];
+      setFolders(filteredFolders);
+    } catch (err: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to fetch user folders';
+      setError(errorMessage);
+      
+      // Show helpful toast for permission errors
+      if (error?.response?.status === 403) {
+        toast.error('Permission Error', {
+          description: error?.response?.data?.hint || 'Your Grafana API key lacks the required permissions to fetch user folders.',
+        });
+      } else {
+        toast.error('Error', {
+          description: errorMessage,
+        });
+      }
+      
+      console.error('Error fetching user folders:', err);
     } finally {
       setLoading(false);
     }
@@ -95,6 +140,7 @@ export function useGrafanaFolders() {
     loading,
     error,
     fetchFolders,
+    fetchUserFolders,
     createFolder,
     updateFolder,
     deleteFolder,

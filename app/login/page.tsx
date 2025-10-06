@@ -1,29 +1,36 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { getDemoCredentialsForDisplay } from "@/lib/utils/demo-users";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await login({ username, password });
     } catch {
-      setError('Invalid username or password');
+      setError("Invalid username or password");
     } finally {
       setLoading(false);
     }
@@ -31,11 +38,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-sm">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Grafana Admin</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">
+            Bhashini
+          </CardTitle>
           <CardDescription className="text-center">
-            Sign in to manage your Grafana instance
+            Observability Platform
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -45,7 +54,7 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            
+
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
               <Input
@@ -73,13 +82,14 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? "Signing in..." : "Sign in"}
             </Button>
 
             <div className="text-sm text-gray-500 dark:text-gray-400 text-center mt-4">
               <p>Demo credentials:</p>
-              <p>Admin: admin / admin123</p>
-              <p>Viewer: viewer / viewer123</p>
+              {getDemoCredentialsForDisplay().map((credential, index) => (
+                <p key={index}>{credential}</p>
+              ))}
             </div>
           </form>
         </CardContent>

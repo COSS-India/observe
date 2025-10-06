@@ -66,6 +66,29 @@ class GrafanaAPIClient {
     return response.data;
   }
 
+  async getUserTeams(userId: number): Promise<Team[]> {
+    const response = await this.client.get<Team[]>(`/users/${userId}/teams`);
+    return response.data;
+  }
+
+  async getUserDashboards(userId: number): Promise<Dashboard[]> {
+    const response = await this.client.get<Dashboard[]>(`/users/${userId}/dashboards`);
+    return response.data;
+  }
+
+  async getUserFolders(userId: number): Promise<DashboardFolder[]> {
+    const response = await this.client.get<DashboardFolder[]>(`/users/${userId}/folders`);
+    // Filter out the "General" folder (uid is empty string or "general")
+    const folders = Array.isArray(response.data)
+      ? response.data.filter((folder) =>
+          folder.uid !== '' &&
+          folder.uid !== 'general' &&
+          folder.title?.toLowerCase() !== 'general'
+        )
+      : [];
+    return folders;
+  }
+
   // Organization Management
   async listOrganizations(): Promise<Organization[]> {
     const response = await this.client.get<Organization[]>('/orgs');
@@ -190,7 +213,15 @@ class GrafanaAPIClient {
   // Folder Management
   async listFolders(): Promise<DashboardFolder[]> {
     const response = await this.client.get<DashboardFolder[]>('/folders');
-    return response.data;
+    // Filter out the "General" folder (uid is empty string or "general")
+    const folders = Array.isArray(response.data)
+      ? response.data.filter((folder) =>
+          folder.uid !== '' &&
+          folder.uid !== 'general' &&
+          folder.title?.toLowerCase() !== 'general'
+        )
+      : [];
+    return folders;
   }
 
   async createFolder(folderData: CreateFolderPayload): Promise<DashboardFolder> {
@@ -258,6 +289,11 @@ class GrafanaAPIClient {
 
   async deleteDashboard(uid: string): Promise<{ message: string }> {
     const response = await this.client.delete(`/dashboards/${uid}`);
+    return response.data;
+  }
+
+  async moveDashboard(uid: string, folderUid: string): Promise<{ message: string }> {
+    const response = await this.client.post(`/dashboards/${uid}/move`, { folderUid });
     return response.data;
   }
 

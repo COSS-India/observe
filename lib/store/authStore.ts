@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User, LoginCredentials } from '@/types/auth';
-import { useUserMappingStore } from './userMappingStore';
 
 interface AuthState {
   user: User | null;
@@ -41,18 +40,6 @@ export const useAuthStore = create<AuthState>()(
             token: data.token,
             isAuthenticated: true,
           });
-
-          // Initialize user-organization mapping context
-          try {
-            await useUserMappingStore.getState().initializeUserContext(
-              data.user.username,
-              data.user.email
-            );
-            console.log('✅ User context initialized successfully');
-          } catch (error) {
-            console.error('⚠️ Failed to initialize user context:', error);
-            // Don't fail login if context initialization fails
-          }
         } catch (error) {
           console.error('Login error:', error);
           throw error;
@@ -60,9 +47,6 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
-        // Clear user mapping context
-        useUserMappingStore.getState().clearContext();
-        
         set({
           user: null,
           token: null,
@@ -80,6 +64,16 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
+      // Add error handling for storage failures
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          console.log('Auth state rehydrated successfully');
+        } else {
+          console.warn('Failed to rehydrate auth state');
+        }
+      },
+      // Skip hydration errors to prevent logouts
+      skipHydration: false,
     }
   )
 );

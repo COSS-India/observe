@@ -4,6 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Users, Building2, UsersRound, Layout } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { isSuperAdmin } from '@/lib/utils/permissions';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const stats = [
   {
@@ -12,6 +16,7 @@ const stats = [
     icon: Users,
     href: '/dashboard/users',
     description: 'Manage Grafana users',
+    requiresSuperAdmin: true,
   },
   {
     title: 'Organizations',
@@ -19,6 +24,7 @@ const stats = [
     icon: Building2,
     href: '/dashboard/organizations',
     description: 'Manage organizations',
+    requiresSuperAdmin: true,
   },
   {
     title: 'Teams',
@@ -26,6 +32,7 @@ const stats = [
     icon: UsersRound,
     href: '/dashboard/teams',
     description: 'Manage teams',
+    requiresSuperAdmin: true,
   },
   {
     title: 'Dashboards',
@@ -33,10 +40,35 @@ const stats = [
     icon: Layout,
     href: '/dashboard/my-dashboards',
     description: 'View dashboards',
+    requiresSuperAdmin: false,
   },
 ];
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const isUserSuperAdmin = isSuperAdmin(user);
+
+  // Redirect non-superadmin users to My Dashboards
+  useEffect(() => {
+    if (!isUserSuperAdmin) {
+      router.push('/dashboard/my-dashboards');
+    }
+  }, [isUserSuperAdmin, router]);
+
+  // Filter stats based on permissions
+  const visibleStats = stats.filter(stat => {
+    if (stat.requiresSuperAdmin) {
+      return isUserSuperAdmin;
+    }
+    return true;
+  });
+
+  // If not superadmin, don't render (they'll be redirected)
+  if (!isUserSuperAdmin) {
+    return null;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -47,7 +79,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {visibleStats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card key={stat.title} className="hover:shadow-lg transition-shadow">
@@ -84,6 +116,12 @@ export default function DashboardPage() {
               <Button variant="outline" className="w-full justify-start">
                 <Users className="mr-2 h-4 w-4" />
                 Create New User
+              </Button>
+            </Link>
+            <Link href="/dashboard/organization-users">
+              <Button variant="outline" className="w-full justify-start">
+                <Users className="mr-2 h-4 w-4" />
+                View Organization Users
               </Button>
             </Link>
             <Link href="/dashboard/organizations/create">

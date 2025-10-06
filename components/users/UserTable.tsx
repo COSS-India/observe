@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -10,8 +11,9 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, Trash2, Power, PowerOff } from 'lucide-react';
+import { Pencil, Trash2, Power, PowerOff, ChevronDown, ChevronRight, Users } from 'lucide-react';
 import type { GrafanaUser } from '@/types/grafana';
+import { useUserTeams } from '@/hooks/useUserTeams';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +34,73 @@ interface UserTableProps {
   loading?: boolean;
 }
 
+function UserTeamsBadge({ userId }: { userId: number }) {
+  const { teams, loading, fetchUserTeams } = useUserTeams(userId);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (expanded && teams.length === 0 && !loading) {
+      fetchUserTeams();
+    }
+  }, [expanded, teams.length, loading, fetchUserTeams]);
+
+  if (loading) {
+    return <Badge variant="outline">Loading...</Badge>;
+  }
+
+  if (teams.length === 0 && !expanded) {
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setExpanded(true)}
+        className="h-6 px-2 text-xs"
+      >
+        <Users className="h-3 w-3 mr-1" />
+        Check Teams
+      </Button>
+    );
+  }
+
+  if (teams.length === 0 && expanded) {
+    return <Badge variant="outline">No teams</Badge>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1 items-center">
+      {!expanded && teams.length > 0 ? (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setExpanded(true)}
+        className="h-6 px-2 text-xs"
+      >
+        <Users className="h-3 w-3 mr-1" />
+        {teams.length} {teams.length === 1 ? 'team' : 'teams'}
+        <ChevronRight className="h-3 w-3 ml-1" />
+      </Button>
+      ) : (
+      <>
+        {teams.map((team) => (
+        <Badge key={team.id} variant="secondary" className="text-xs">
+          {team.name}
+        </Badge>
+        ))}
+        <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setExpanded(false)}
+        className="h-6 px-2 text-xs ml-auto"
+        >
+        <ChevronDown className="h-3 w-3 mr-1" />
+        Hide
+        </Button>
+      </>
+      )}
+    </div>
+  );
+}
+
 export function UserTable({ users, onDelete, onEdit, onToggleStatus, loading = false }: UserTableProps) {
   if (users.length === 0) {
     return (
@@ -42,7 +111,7 @@ export function UserTable({ users, onDelete, onEdit, onToggleStatus, loading = f
   }
 
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-lg shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>
@@ -50,6 +119,7 @@ export function UserTable({ users, onDelete, onEdit, onToggleStatus, loading = f
             <TableHead>Email</TableHead>
             <TableHead>Login</TableHead>
             <TableHead>Role</TableHead>
+            <TableHead>Teams</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -61,9 +131,14 @@ export function UserTable({ users, onDelete, onEdit, onToggleStatus, loading = f
               <TableCell>{user.email}</TableCell>
               <TableCell>{user.login}</TableCell>
               <TableCell>
-                <Badge variant={user.isGrafanaAdmin ? 'default' : 'secondary'}>
-                  {user.isGrafanaAdmin ? 'Admin' : 'User'}
+                <Badge variant={user.role === 'Admin' ? 'default' : user.role === 'Editor' ? 'secondary' : 'outline'}>
+                  {user.role || (user.isGrafanaAdmin ? 'Admin' : 'Viewer')}
                 </Badge>
+              </TableCell>
+              <TableCell className="p-0">
+                <div className="flex flex-wrap gap-2 items-center min-h-[2.5rem] px-2 py-1">
+                  <UserTeamsBadge userId={user.id} />
+                </div>
               </TableCell>
               <TableCell>
                 <Badge variant={user.isDisabled ? 'destructive' : 'default'}>

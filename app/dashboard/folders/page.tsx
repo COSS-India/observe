@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, RefreshCw } from 'lucide-react';
+import { Plus, RefreshCw, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderTable } from '@/components/folders/FolderTable';
 import { FolderFormDialog } from '@/components/folders/FolderFormDialog';
+import { FolderTeamsManager } from '@/components/folders/FolderTeamsManager';
+import { FolderDashboardsManager } from '@/components/folders/FolderDashboardsManager';
+import { FolderManagementGuide } from '@/components/folders/FolderManagementGuide';
 import { useGrafanaFolders } from '@/hooks/useGrafanaFolders';
-import { useUserDashboardMapping } from '@/hooks/useUserDashboardMapping';
 import { useAuthStore } from '@/lib/store/authStore';
 import type { DashboardFolder } from '@/types/grafana';
 import {
@@ -21,6 +23,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+type ViewMode = 'list' | 'manage-teams' | 'manage-dashboards';
+
 export default function FoldersPage() {
   const { user } = useAuthStore();
   const {
@@ -32,17 +36,14 @@ export default function FoldersPage() {
     deleteFolder,
   } = useGrafanaFolders();
 
-  // Get user-filtered folders
-  const {
-    filteredFolders: userAccessibleFolders,
-    isReady: isMappingReady,
-  } = useUserDashboardMapping();
-
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFolder, setSelectedFolder] = useState<DashboardFolder | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState<DashboardFolder | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [managingFolder, setManagingFolder] = useState<DashboardFolder | null>(null);
+  const [showGuide, setShowGuide] = useState(true);
 
   useEffect(() => {
     fetchFolders();
@@ -51,8 +52,8 @@ export default function FoldersPage() {
   // Determine if user is admin
   const isAdmin = user?.role === 'admin';
 
-  // Get folders filtered by user permissions (admins see all folders)
-  const displayFolders = isAdmin ? folders : userAccessibleFolders;
+  // All users can see all folders now (no user mapping filtering)
+  const displayFolders = folders;
 
   const handleCreateOrUpdate = async (data: { title: string }) => {
     if (selectedFolder) {
@@ -85,13 +86,39 @@ export default function FoldersPage() {
     }
   };
 
-  // Apply search filter to the folders the user can access
-  const filteredFolders = displayFolders.filter((folder) =>
+  const handleManageTeams = (folder: DashboardFolder) => {
+    setManagingFolder(folder);
+    setViewMode('manage-teams');
+  };
+
+  const handleManageDashboards = (folder: DashboardFolder) => {
+    setManagingFolder(folder);
+    setViewMode('manage-dashboards');
+  };
+
+  const handleBackToList = () => {
+    setViewMode('list');
+    setManagingFolder(null);
+    fetchFolders(); // Refresh the list
+  };
+
+  // Apply search filter to the folders
+  const filteredFolders = displayFolders.filter((folder: DashboardFolder) =>
     folder.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Show loading indicator if either folders or mapping is not ready
-  const isLoading = loading || !isMappingReady;
+  // Show loading indicator
+  const isLoading = loading;
+
+  // Show team manager if in that mode
+  if (viewMode === 'manage-teams' && managingFolder) {
+    return <FolderTeamsManager folder={managingFolder} onBack={handleBackToList} />;
+  }
+
+  // Show dashboard manager if in that mode
+  if (viewMode === 'manage-dashboards' && managingFolder) {
+    return <FolderDashboardsManager folder={managingFolder} onBack={handleBackToList} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -99,9 +126,7 @@ export default function FoldersPage() {
         <div>
           <h1 className="text-3xl font-bold">Dashboard Folders</h1>
           <p className="text-muted-foreground">
-            {isAdmin 
-              ? 'Manage your Grafana dashboard folders' 
-              : 'Your accessible dashboard folders'}
+            Manage your Grafana dashboard folders
           </p>
         </div>
         <div className="flex gap-2">
@@ -134,7 +159,18 @@ export default function FoldersPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="max-w-sm"
         />
+        {/* <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowGuide(!showGuide)}
+        >
+          <Info className="mr-2 h-4 w-4" />
+          {showGuide ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+          Guide
+        </Button> */}
       </div>
+
+      {/* {showGuide && <FolderManagementGuide />} */}
 
       {isLoading && displayFolders.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
@@ -149,6 +185,8 @@ export default function FoldersPage() {
           folders={filteredFolders}
           onEdit={isAdmin ? handleEdit : undefined}
           onDelete={isAdmin ? handleDeleteClick : undefined}
+          onManageTeams={handleManageTeams}
+          onManageDashboards={handleManageDashboards}
         />
       )}
 
