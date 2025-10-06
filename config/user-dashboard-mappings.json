@@ -1,0 +1,91 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-10-06T14:12:08.114Z",
+  "organizationMappings": [
+    {
+      "orgId": "org-karmayogi",
+      "orgName": "Karmayogi Bharat",
+      "grafanaTeamIds": [
+        1
+      ],
+      "description": "Karmayogi Bharat organization",
+      "dashboardMappings": {
+        "teamId": 1,
+        "accessibleFolderUids": [],
+        "accessibleDashboardUids": [
+          "dhruva-ceo-executive-dashboardv3",
+          "Zj4zOgA7z",
+          "dhruva-ceo-real-metrics",
+          "dhruva-business-dashboard-v3"
+        ]
+      }
+    },
+    {
+      "orgId": "org-ministry-education",
+      "orgName": "Ministry of Education",
+      "grafanaTeamIds": [
+        2
+      ],
+      "description": "Ministry of Education organization",
+      "dashboardMappings": {
+        "teamId": 2,
+        "accessibleFolderUids": [],
+        "accessibleDashboardUids": []
+      }
+    },
+    {
+      "orgId": "org-ministry-health",
+      "orgName": "Ministry of Health",
+      "grafanaTeamIds": [
+        3
+      ],
+      "description": "Ministry of Health organization",
+      "dashboardMappings": {
+        "teamId": 3,
+        "accessibleFolderUids": [],
+        "accessibleDashboardUids": []
+      }
+    }
+  ],
+  "superAdmins": [
+    "admin@example.com"
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2025-10-06T12:11:49.398Z",
+      "action": "ASSIGN_DASHBOARD",
+      "user": "admin@example.com",
+      "details": {
+        "orgId": "org-karmayogi",
+        "dashboardUid": "dhruva-ceo-executive-dashboardv3"
+      }
+    },
+    {
+      "timestamp": "2025-10-06T12:14:46.540Z",
+      "action": "ASSIGN_DASHBOARD",
+      "user": "admin@example.com",
+      "details": {
+        "orgId": "org-karmayogi",
+        "dashboardUid": "Zj4zOgA7z"
+      }
+    },
+    {
+      "timestamp": "2025-10-06T14:11:09.628Z",
+      "action": "ASSIGN_DASHBOARD",
+      "user": "admin@example.com",
+      "details": {
+        "orgId": "org-karmayogi",
+        "dashboardUid": "dhruva-ceo-real-metrics"
+      }
+    },
+    {
+      "timestamp": "2025-10-06T14:12:08.111Z",
+      "action": "ASSIGN_DASHBOARD",
+      "user": "admin@example.com",
+      "details": {
+        "orgId": "org-karmayogi",
+        "dashboardUid": "dhruva-business-dashboard-v3"
+      }
+    }
+  ]
+}
