@@ -119,7 +119,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean;
               </div>
             </Link>
           )}
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             onClick={() => setCollapsed(!collapsed)}
@@ -130,7 +130,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean;
             ) : (
               <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
             )}
-          </Button>
+          </Button> */}
         </div>
 
         <nav className="flex-1 space-y-1 sm:space-y-2 px-3 sm:px-6 py-4 sm:py-8 overflow-y-auto">
