@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -16,6 +16,7 @@ export default function DashboardLayout({
   const { isAuthenticated, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Add a small delay to allow Zustand to rehydrate from localStorage
@@ -50,11 +51,11 @@ export default function DashboardLayout({
 
   return (
     <div className="h-screen flex overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar />
-        <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-950">
-          <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <TopBar setSidebarOpen={setSidebarOpen} />
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-white dark:bg-gray-950">
+          <div className="px-3 py-3 sm:px-4 sm:py-4 md:px-6 md:py-4 lg:px-8 lg:py-6 max-w-full">
             {children}
           </div>
         </main>

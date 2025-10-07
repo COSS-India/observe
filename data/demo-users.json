@@ -2,18 +2,18 @@
   "users": [
     {
       "id": "1",
-      "username": "karmayogi",
+      "username": "bashini",
       "password": "admin123",
-      "email": "karmayogi@example.com",
-      "role": "admin",
-      "organization": "karmayogi"
+      "email": "bashini@example.com",
+      "role": "superadmin",
+      "organization": "bashini"
     },
     {
       "id": "2",
       "username": "irctc",
       "password": "irctc123",
       "email": "irctc@example.com",
-      "role": "viewer",
+      "role": "admin",
       "organization": "irctc"
     },
     {
@@ -23,6 +23,22 @@
       "email": "kisanmitra@karmayogi.com",
       "role": "admin",
       "organization": "kisanmitra"
+    },
+    {
+      "id": "4",
+      "username": "bashadaan",
+      "password": "basha123",
+      "email": "bashadaan@karmayogi.com",
+      "role": "admin",
+      "organization": "bashadaan"
+    },
+    {
+      "id": "5",
+      "username": "beml",
+      "password": "beml1234",
+      "email": "beml@karmayogi.com",
+      "role": "admin",
+      "organization": "beml"
     }
   ]
 }

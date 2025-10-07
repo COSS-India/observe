@@ -94,31 +94,41 @@ export function OrganizationFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Organization Name</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Organization Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="My Organization" {...field} />
+                    <Input
+                      placeholder="My Organization"
+                      {...field}
+                      disabled={isSubmitting}
+                      className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="h-11 px-6 border-input hover:bg-accent rounded-lg"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+              >
                 {isSubmitting ? 'Saving...' : organization ? 'Update Organization' : 'Create Organization'}
               </Button>
             </DialogFooter>

@@ -134,7 +134,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Organization Users</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-muted-foreground mt-2">
             Manage users in &quot;{organization.name}&quot;
           </p>
         </div>
@@ -150,8 +150,8 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
               </CardDescription>
             </div>
             <Button onClick={() => setIsAddDialogOpen(true)}>
-              <UserPlus className="mr-2 h-4 w-4" />
               Add User
+              <UserPlus className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
@@ -161,7 +161,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
               <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
             </div>
           ) : users.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-muted-foreground">
               No users in this organization. Add users to get started.
             </div>
           ) : (
@@ -221,7 +221,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
             <div>
               <label className="text-sm font-medium">User</label>
               <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full h-11 border-input rounded-lg focus:ring-2 focus:ring-ring">
                   <SelectValue placeholder="Select a user" />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,7 +241,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
             <div>
               <label className="text-sm font-medium">Role</label>
               <Select value={selectedRole} onValueChange={setSelectedRole}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full h-11 border-input rounded-lg focus:ring-2 focus:ring-ring">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -253,7 +253,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => {
@@ -261,10 +261,16 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
                 setSelectedUserId('');
                 setSelectedRole('Viewer');
               }}
+              disabled={loading}
+              className="h-11 px-6 border-input hover:bg-accent rounded-lg"
             >
               Cancel
             </Button>
-            <Button onClick={handleAddUser} disabled={!selectedUserId || loading}>
+            <Button
+              onClick={handleAddUser}
+              disabled={!selectedUserId || loading}
+              className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+            >
               {loading ? 'Adding...' : 'Add User'}
             </Button>
           </DialogFooter>

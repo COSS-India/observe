@@ -46,11 +46,16 @@ export function UserForm({ onSubmit, loading = false, defaultValues }: UserFormP
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel className="text-sm font-medium text-foreground px-0">Name</FormLabel>
+              <FormDescription className="text-xs text-muted-foreground">Full name of the user</FormDescription>
               <FormControl>
-                <Input placeholder="John Doe" {...field} disabled={loading} />
+                <Input
+                  placeholder="John Doe"
+                  {...field}
+                  disabled={loading}
+                  className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                />
               </FormControl>
-              <FormDescription>Full name of the user</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -61,16 +66,17 @@ export function UserForm({ onSubmit, loading = false, defaultValues }: UserFormP
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-sm font-medium text-foreground px-0">Email</FormLabel>
+              <FormDescription className="text-xs text-muted-foreground">Email address for the user</FormDescription>
               <FormControl>
                 <Input
                   type="email"
                   placeholder="john.doe@example.com"
                   {...field}
                   disabled={loading}
+                  className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
                 />
               </FormControl>
-              <FormDescription>Email address for the user</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -81,11 +87,16 @@ export function UserForm({ onSubmit, loading = false, defaultValues }: UserFormP
           name="login"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Login Username</FormLabel>
+              <FormLabel className="text-sm font-medium text-foreground px-0">Login Username</FormLabel>
+              <FormDescription className="text-xs text-muted-foreground">Username for logging into Grafana</FormDescription>
               <FormControl>
-                <Input placeholder="johndoe" {...field} disabled={loading} />
+                <Input
+                  placeholder="johndoe"
+                  {...field}
+                  disabled={loading}
+                  className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                />
               </FormControl>
-              <FormDescription>Username for logging into Grafana</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -96,17 +107,27 @@ export function UserForm({ onSubmit, loading = false, defaultValues }: UserFormP
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel className="text-sm font-medium text-foreground px-0">Password</FormLabel>
+              <FormDescription className="text-xs text-muted-foreground">Minimum 8 characters</FormDescription>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} disabled={loading} />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  {...field}
+                  disabled={loading}
+                  className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                />
               </FormControl>
-              <FormDescription>Minimum 8 characters</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={loading}>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full h-11 rounded-lg"
+        >
           {loading ? 'Creating...' : 'Create User'}
         </Button>
       </form>

@@ -66,21 +66,26 @@ export function FolderFormDialog({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="My Dashboard Folder" {...field} />
+                    <Input
+                      placeholder="My Dashboard Folder"
+                      {...field}
+                      disabled={form.formState.isSubmitting}
+                      className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <DialogFooter>
+            <DialogFooter className="gap-3">
               <Button
                 type="button"
                 variant="outline"
@@ -88,10 +93,16 @@ export function FolderFormDialog({
                   form.reset();
                   onOpenChange(false);
                 }}
+                disabled={form.formState.isSubmitting}
+                className="h-11 px-6 border-input hover:bg-accent rounded-lg"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
+              <Button
+                type="submit"
+                disabled={form.formState.isSubmitting}
+                className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+              >
                 {form.formState.isSubmitting
                   ? 'Saving...'
                   : folder

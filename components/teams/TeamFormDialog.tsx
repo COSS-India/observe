@@ -98,15 +98,20 @@ export function TeamFormDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Team Name</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Team Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Engineering, Marketing, etc." {...field} />
+                    <Input
+                      placeholder="Engineering, Marketing, etc."
+                      {...field}
+                      disabled={isSubmitting}
+                      className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,12 +123,14 @@ export function TeamFormDialog({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email (Optional)</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Email (Optional)</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="email" 
-                      placeholder="team@example.com" 
-                      {...field} 
+                    <Input
+                      type="email"
+                      placeholder="team@example.com"
+                      {...field}
+                      disabled={isSubmitting}
+                      className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
                     />
                   </FormControl>
                   <FormMessage />
@@ -131,16 +138,21 @@ export function TeamFormDialog({
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="h-11 px-6 border-input hover:bg-accent rounded-lg"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+              >
                 {isSubmitting ? 'Saving...' : team ? 'Update Team' : 'Create Team'}
               </Button>
             </DialogFooter>

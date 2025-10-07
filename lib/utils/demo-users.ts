@@ -5,7 +5,7 @@ export interface DemoUser {
   username: string;
   password: string;
   email: string;
-  role: 'admin' | 'viewer';
+  role: 'superadmin' | 'admin' | 'viewer';
   organization: string;
 }
 
@@ -18,7 +18,7 @@ export interface DemoCredentials {
 export function getDemoUsers(): DemoUser[] {
   return demoUsersData.users.map(user => ({
     ...user,
-    role: user.role as 'admin' | 'viewer'
+    role: user.role as 'superadmin' | 'admin' | 'viewer'
   }));
 }
 

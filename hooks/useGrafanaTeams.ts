@@ -15,7 +15,7 @@ export function useGrafanaTeams() {
       const data = await grafanaAPI.listTeams();
       console.log('Fetched teams data:', data);
       // Handle both array response and object with teams property
-      const teamsArray = Array.isArray(data) ? data : (data as any).teams || [];
+      const teamsArray = Array.isArray(data) ? data : (data as { teams?: Team[] }).teams || [];
       console.log('Teams array:', teamsArray);
       setTeams(teamsArray);
     } catch (err: unknown) {

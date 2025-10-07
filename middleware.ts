@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 // Routes that don't require authentication
 const publicRoutes = ['/login', '/'];
 
-// Routes that require superadmin access (karmayogi only)
+// Routes that require superadmin access (role: 'superadmin')
 const superAdminRoutes = [
   '/dashboard/users',
   '/dashboard/organization-users',
@@ -45,8 +45,8 @@ export function middleware(request: NextRequest) {
         const authData = JSON.parse(authStorage);
         const user = authData?.state?.user;
         
-        // Only allow access if user is karmayogi (superadmin)
-        if (!user || user.username?.toLowerCase() !== 'karmayogi') {
+        // Only allow access if user has superadmin role
+        if (!user || user.role !== 'superadmin') {
           console.log('Non-superadmin user attempted to access:', pathname);
           // Redirect to My Dashboards for non-superadmin users
           return NextResponse.redirect(new URL('/dashboard/my-dashboards', request.url));

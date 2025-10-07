@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Loader2, Users } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { X, Plus, Loader2, Users, Search, FolderOpen, ChevronRight, ArrowLeft } from 'lucide-react';
 import { grafanaAPI } from '@/lib/api/grafana';
 import type { DashboardFolder, Team, Permission } from '@/types/grafana';
 import { toast } from 'sonner';
@@ -22,6 +24,8 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
   const [selectedTeamId, setSelectedTeamId] = useState<string>('');
   const [selectedPermission, setSelectedPermission] = useState<'1' | '2' | '4'>('1');
   const [adding, setAdding] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [removingTeamId, setRemovingTeamId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -94,11 +98,13 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
     }
   };
 
-  const handleRemoveTeam = async (teamId: number) => {
+  const confirmRemoveTeam = async () => {
+    if (!removingTeamId) return;
+
     try {
       // Get existing permissions excluding the team to remove
       const updatedPermissions = permissions
-        .filter((p) => p.teamId !== teamId)
+        .filter((p) => p.teamId !== removingTeamId)
         .map((p) => ({
           teamId: p.teamId,
           userId: p.userId,
@@ -115,13 +121,20 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
     } catch (error) {
       console.error('Error removing team:', error);
       toast.error('Failed to remove team access');
+    } finally {
+      setRemovingTeamId(null);
     }
   };
 
   const teamPermissions = permissions.filter((p) => p.teamId);
   const availableTeams = teams.filter(
-    (team) => !teamPermissions.some((p) => p.teamId === team.id)
+    (team) => !teamPermissions.some((p) => p.teamId === team.id) &&
+              team.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const filteredTeamPermissions = teamPermissions.filter((perm) => {
+    const team = teams.find((t) => t.id === perm.teamId);
+    return team && team.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const getPermissionLabel = (permission: number) => {
     switch (permission) {
@@ -150,30 +163,56 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="w-full overflow-hidden">
+      {/* Breadcrumb */}
+      {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>Folders</span>
+        <ChevronRight className="h-4 w-4" />
+        <span className="font-medium text-foreground">{folder.title}</span>
+        <ChevronRight className="h-4 w-4" />
+        <span>Team Access</span>
+      </div> */}
+
       <div className="flex items-center justify-between">
         <div>
-          <Button variant="outline" onClick={onBack}>
-            ← Back to Folders
+          <Button 
+            variant="outline" 
+            onClick={onBack}
+            className="h-9 sm:h-10 md:!h-11 px-3 sm:px-4 md:px-6 text-xs sm:text-sm border-input hover:bg-accent rounded-lg border-0 shadow-none"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Back to Folders
           </Button>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            Team Access for &quot;{folder.title}&quot;
+      <Card className='border-0 shadow-none'>
+        <CardHeader className="p-3 sm:p-4 md:!px-0">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl !px-0">
+            <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="truncate">Team Access for &quot;{folder.title}&quot;</span>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-xs sm:text-sm">
             Manage which teams can access this folder and its dashboards
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-0">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search teams..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 text-sm"
+            />
+          </div>
+
           {/* Add Team Section */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:grid md:grid-cols-12 md:gap-4">
             <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="flex-1 h-9 sm:h-10 md:!h-11 text-xs sm:text-sm border-input rounded-lg focus:ring-2 focus:ring-ring col-span-7">
                 <SelectValue placeholder="Select a team" />
               </SelectTrigger>
               <SelectContent>
@@ -186,7 +225,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
             </Select>
 
             <Select value={selectedPermission} onValueChange={(v) => setSelectedPermission(v as '1' | '2' | '4')}>
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full col-span-3  h-9 sm:h-10 md:!h-11 text-xs sm:text-sm border-input rounded-lg focus:ring-2 focus:ring-ring">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -196,12 +235,16 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
               </SelectContent>
             </Select>
 
-            <Button onClick={handleAddTeam} disabled={adding || !selectedTeamId}>
+            <Button 
+              onClick={handleAddTeam} 
+              disabled={adding || !selectedTeamId}
+              className="h-9 sm:h-10 md:!h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm bg-primary hover:bg-blue-700 text-white font-medium rounded-lg w-full sm:w-auto whitespace-nowrap col-span-2"
+            >
               {adding ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
               ) : (
                 <>
-                  <Plus className="mr-2 h-4 w-4" />
+                  {/* <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> */}
                   Add
                 </>
               )}
@@ -210,50 +253,82 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
 
           {/* Current Team Permissions */}
           <div>
-            <h3 className="text-sm font-medium mb-3">Current Team Access</h3>
+            <h3 className="text-xs sm:text-sm font-medium mb-2 sm:mb-3">Current Team Access</h3>
             {loading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin" />
+              <div className="flex justify-center py-6 sm:py-8">
+                <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin" />
               </div>
-            ) : teamPermissions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No teams have access to this folder yet
+            ) : filteredTeamPermissions.length === 0 ? (
+              <div className="text-center py-12">
+                <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-semibold text-foreground">
+                  No teams have access
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {searchQuery
+                    ? "Try adjusting your search query"
+                    : "Add teams above to grant access to this folder"}
+                </p>
               </div>
             ) : (
-              <div className="space-y-2">
-                {teamPermissions.map((perm) => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredTeamPermissions.map((perm) => {
                   const team = teams.find((t) => t.id === perm.teamId);
                   return (
-                    <div
-                      key={perm.teamId}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Users className="h-4 w-4 text-muted-foreground" />
+                    <Card key={perm.teamId} className="card-widget hover:shadow-sm">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
+                          Team
+                          <Badge 
+                            variant={getPermissionBadgeVariant(perm.permission)}
+                            className="text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1"
+                          >
+                            {getPermissionLabel(perm.permission)}
+                          </Badge>
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-0 flex flex-col justify-between min-h-[150px]">
                         <div>
-                          <div className="font-medium">
+                          <div className="text-l font-bold text-foreground mb-1 line-clamp-2">
                             {team?.name || perm.team || `Team #${perm.teamId}`}
                           </div>
-                          {team && (
-                            <div className="text-sm text-muted-foreground">
-                              {team.memberCount} members
-                            </div>
-                          )}
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Users className="h-4 w-4" />
+                            {team?.memberCount || 0} members
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={getPermissionBadgeVariant(perm.permission)}>
-                          {getPermissionLabel(perm.permission)}
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveTeam(perm.teamId!)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+                        <div className="flex gap-3 mt-4">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 h-10 px-4 border-border hover:bg-accent rounded-lg"
+                                title="Remove team access"
+                                onClick={() => setRemovingTeamId(perm.teamId!)}
+                              >
+                                <X className="h-4 w-4 mr-2" />
+                                Remove
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remove Team Access</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to remove access for this team? They will no longer be able to access this folder.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={confirmRemoveTeam}>
+                                  Remove
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </CardContent>
+                    </Card>
                   );
                 })}
               </div>

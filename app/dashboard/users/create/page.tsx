@@ -23,31 +23,26 @@ export default function CreateUserPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <Link href="/dashboard/users">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+    <div className="space-y-6">
+      <div className="">
+
+        <Link href="/dashboard/users" className='flex items-center '>
+
+          <Button variant="ghost" size="sm" className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <ArrowLeft className="ml-2 h-4 w-4" />
+
             Back to Users
           </Button>
         </Link>
       </div>
-
-      <div>
-        <h1 className="text-3xl font-bold">Create New User</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">
+      <Card className="border-0 !shadow-none  ">
+        <CardHeader className="pb-6">
+          <CardTitle className="text-lg font-medium">Create New User</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
           Add a new user to your Grafana instance
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>User Details</CardTitle>
-          <CardDescription>
-            Fill in the details below to create a new Grafana user
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <UserForm onSubmit={handleSubmit} loading={loading} />
         </CardContent>
       </Card>

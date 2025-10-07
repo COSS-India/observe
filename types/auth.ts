@@ -2,10 +2,9 @@ export interface User {
   id: string;
   username: string;
   email: string;
-  role: 'admin' | 'viewer';
+  role: 'superadmin' | 'admin' | 'viewer';
   organization: string;
-  isSuperAdmin?: boolean; // True only for karmayogi user with full Grafana API access
-  grafanaUserId?: number; // Grafana user ID for folder-based dashboard access
+  grafanaTeamId?: number; // Grafana team ID for team-based folder access
   createdAt?: string;
 }
 

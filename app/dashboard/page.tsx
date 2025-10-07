@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { isSuperAdmin } from '@/lib/utils/permissions';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { MetricCard } from '@/components/MetricCard';
 
 const stats = [
   {
@@ -70,82 +71,73 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">
+    <div className="space-normal">
+      <div className="space-tight">
+        <h1 className="text-heading-1 text-foreground">Dashboard</h1>
+        <p className="text-body text-gray-600">
           Overview of your Grafana management system
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {visibleStats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.title} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  {stat.title}
-                </CardTitle>
-                <Icon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {stat.description}
-                </p>
-                <Link href={stat.href}>
-                  <Button variant="link" className="px-0 mt-2">
-                    View all →
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          );
-        })}
+      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        {visibleStats.map((stat) => (
+          <MetricCard
+            key={stat.title}
+            sectionLabel={stat.title}
+            primaryMetric={stat.value}
+            metricLabel={stat.description}
+            actionButtons={[
+              {
+                label: 'View all →',
+                href: stat.href,
+                variant: 'outline',
+              },
+            ]}
+          />
+        ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+      <div className="grid gap-8 md:grid-cols-2">
+        <Card className="card-widget">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>Common tasks and operations</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="p-12 space-normal">
             <Link href="/dashboard/users/create">
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="mr-2 h-4 w-4" />
-                Create New User
+              <Button variant="outline" className="w-full justify-start h-12 px-6 border-border hover:bg-accent rounded-lg">
+                <span className="truncate">Create New User</span>
+                <Users className="ml-2 h-4 w-4 flex-shrink-0" />
               </Button>
             </Link>
             <Link href="/dashboard/organization-users">
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="mr-2 h-4 w-4" />
-                View Organization Users
+              <Button variant="outline" className="w-full justify-start h-12 px-6 border-border hover:bg-accent rounded-lg">
+                <span className="truncate">View Organization Users</span>
+                <Users className="ml-2 h-4 w-4 flex-shrink-0" />
               </Button>
             </Link>
             <Link href="/dashboard/organizations/create">
-              <Button variant="outline" className="w-full justify-start">
-                <Building2 className="mr-2 h-4 w-4" />
-                Create Organization
+              <Button variant="outline" className="w-full justify-start h-12 px-6 border-border hover:bg-accent rounded-lg">
+                <span className="truncate">Create Organization</span>
+                <Building2 className="ml-2 h-4 w-4 flex-shrink-0" />
               </Button>
             </Link>
             <Link href="/dashboard/teams/create">
-              <Button variant="outline" className="w-full justify-start">
-                <UsersRound className="mr-2 h-4 w-4" />
-                Create Team
+              <Button variant="outline" className="w-full justify-start h-12 px-6 border-border hover:bg-accent rounded-lg">
+                <span className="truncate">Create Team</span>
+                <UsersRound className="ml-2 h-4 w-4 flex-shrink-0" />
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="card-widget">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>Latest actions and updates</CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <CardContent className="p-12">
+            <p className="text-body text-muted-foreground">
               No recent activity to display
             </p>
           </CardContent>

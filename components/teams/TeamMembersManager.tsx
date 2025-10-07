@@ -129,7 +129,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Team Members</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
+          <p className="text-muted-foreground mt-2">
             Manage members of &quot;{team.name}&quot;
           </p>
         </div>
@@ -145,8 +145,8 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
               </CardDescription>
             </div>
             <Button onClick={() => setIsAddDialogOpen(true)}>
-              <UserPlus className="mr-2 h-4 w-4" />
               Add Member
+              <UserPlus className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
@@ -156,7 +156,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
               <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
             </div>
           ) : members.length === 0 ? (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-muted-foreground">
               No members in this team. Add members to get started.
             </div>
           ) : (
@@ -217,8 +217,8 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
           <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">User</label>
-              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger>
+              <Select value={selectedUserId} onValueChange={setSelectedUserId} >
+                <SelectTrigger className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring w-full">
                   <SelectValue placeholder="Select a user" />
                 </SelectTrigger>
                 <SelectContent>
@@ -238,17 +238,23 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-3">
             <Button
               variant="outline"
               onClick={() => {
                 setIsAddDialogOpen(false);
                 setSelectedUserId('');
               }}
+              disabled={loading}
+              className="h-11 px-6 border-input hover:bg-accent rounded-lg"
             >
               Cancel
             </Button>
-            <Button onClick={handleAddMember} disabled={!selectedUserId || loading}>
+            <Button
+              onClick={handleAddMember}
+              disabled={!selectedUserId || loading}
+              className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+            >
               {loading ? 'Adding...' : 'Add Member'}
             </Button>
           </DialogFooter>

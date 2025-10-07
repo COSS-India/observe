@@ -7,7 +7,7 @@ import { UserEditDialog } from '@/components/users/UserEditDialog';
 import { GrafanaSetupError } from '@/components/GrafanaSetupError';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
+import { PlusCircle, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { GrafanaUser } from '@/types/grafana';
@@ -42,51 +42,46 @@ export default function UsersPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">User Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-1">User Management</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Manage Grafana users and their permissions
           </p>
         </div>
         <Link href="/dashboard/users/create">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button className="px-4 py-2 sm:px-5 sm:py-2 md:px-6 text-xs sm:text-sm h-9 sm:h-10 md:h-11 whitespace-nowrap gap-1">
+            <PlusCircle className="font-black" />
             Create User
           </Button>
         </Link>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Users</CardTitle>
-          <CardDescription>
-            A list of all users in your Grafana instance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className=" border-gray-200 dark:border-gray-800 border-0 shadow-none">
+        <CardContent className="!p-0">
           {error && users.length === 0 && (
             <GrafanaSetupError error={error} />
           )}
 
           {!error && (
             <>
-              <div className="mb-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+              <div className="mb-4 sm:mb-6">
+                <div className="relative w-full sm:max-w-md">
+                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
                   <Input
                     placeholder="Search users by name, email, or login..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-9 sm:pl-12 h-10 sm:h-11 md:h-12 text-xs sm:text-sm border-input rounded-lg w-full"
                   />
                 </div>
               </div>
 
               {loading && users.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                  Loading users...
+                <div className="text-center py-12 sm:py-16 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-xs sm:text-sm">Loading users...</p>
                 </div>
               ) : (
                 <UserTable

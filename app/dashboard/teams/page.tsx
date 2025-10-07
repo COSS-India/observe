@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Loader2 } from 'lucide-react';
+import { PlusCircle, Search } from 'lucide-react';
 import { useGrafanaTeams } from '@/hooks/useGrafanaTeams';
 import { TeamTable } from '@/components/teams/TeamTable';
 import { TeamFormDialog } from '@/components/teams/TeamFormDialog';
@@ -72,61 +72,61 @@ export default function TeamsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Team Management</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Team Management</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Manage teams and their members
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto px-4 py-2 sm:px-5 sm:py-2 md:px-6 text-xs sm:text-sm h-9 sm:h-10 md:h-11 whitespace-nowrap gap-1">
+          <PlusCircle className="font-black" />
           Create Team
         </Button>
       </div>
 
       {error && !error.includes('configuration') && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+        <div className="bg-destructive/10 border border-destructive rounded-lg p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-destructive">{error}</p>
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>All Teams</CardTitle>
-              <CardDescription>
-                A list of all teams in your organization
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search teams..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 w-64"
-                />
+      <Card className=" border-gray-200 dark:border-gray-800 border-0 shadow-none">
+        <CardContent className="!p-0">
+          {error && teams.length === 0 && (
+            <GrafanaSetupError error={error} />
+          )}
+
+          {!error && (
+            <>
+              <div className="mb-4 sm:mb-6">
+                <div className="relative w-full sm:max-w-md">
+                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search teams..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 sm:pl-12 h-10 sm:h-11 md:h-12 text-xs sm:text-sm border-input rounded-lg w-full"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-            </div>
-          ) : (
-            <TeamTable
-              teams={filteredTeams}
-              onDelete={handleDelete}
-              onEdit={handleEdit}
-              onManageMembers={handleManageMembers}
-              loading={loading}
-            />
+
+              {loading && teams.length === 0 ? (
+                <div className="text-center py-12 sm:py-16 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-xs sm:text-sm">Loading teams...</p>
+                </div>
+              ) : (
+                <TeamTable
+                  teams={filteredTeams}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                  onManageMembers={handleManageMembers}
+                  loading={loading}
+                />
+              )}
+            </>
           )}
         </CardContent>
       </Card>

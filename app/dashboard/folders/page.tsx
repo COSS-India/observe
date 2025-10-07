@@ -1,14 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Plus, RefreshCw, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FolderTable } from '@/components/folders/FolderTable';
 import { FolderFormDialog } from '@/components/folders/FolderFormDialog';
 import { FolderTeamsManager } from '@/components/folders/FolderTeamsManager';
 import { FolderDashboardsManager } from '@/components/folders/FolderDashboardsManager';
-import { FolderManagementGuide } from '@/components/folders/FolderManagementGuide';
 import { useGrafanaFolders } from '@/hooks/useGrafanaFolders';
 import { useAuthStore } from '@/lib/store/authStore';
 import type { DashboardFolder } from '@/types/grafana';
@@ -43,14 +43,13 @@ export default function FoldersPage() {
   const [folderToDelete, setFolderToDelete] = useState<DashboardFolder | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [managingFolder, setManagingFolder] = useState<DashboardFolder | null>(null);
-  const [showGuide, setShowGuide] = useState(true);
 
   useEffect(() => {
     fetchFolders();
   }, [fetchFolders]);
 
-  // Determine if user is admin
-  const isAdmin = user?.role === 'admin';
+  // Determine if user is admin or superadmin
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   // All users can see all folders now (no user mapping filtering)
   const displayFolders = folders;
@@ -121,22 +120,23 @@ export default function FoldersPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard Folders</h1>
-          <p className="text-muted-foreground">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <div className="space-y-1 sm:space-y-2">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Dashboard Folders</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Manage your Grafana dashboard folders
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
           <Button
             variant="outline"
             size="icon"
             onClick={fetchFolders}
             disabled={isLoading}
+            className="h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 border-input hover:bg-accent rounded-lg flex-shrink-0"
           >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
           {isAdmin && (
             <Button
@@ -144,51 +144,46 @@ export default function FoldersPage() {
                 setSelectedFolder(null);
                 setIsDialogOpen(true);
               }}
+              className="h-9 sm:h-10 md:h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm bg-primary hover:bg-blue-700 text-white font-medium rounded-lg flex-1 sm:flex-initial whitespace-nowrap"
             >
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               New Folder
             </Button>
           )}
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        <Input
-          placeholder="Search folders..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="max-w-sm"
-        />
-        {/* <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowGuide(!showGuide)}
-        >
-          <Info className="mr-2 h-4 w-4" />
-          {showGuide ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
-          Guide
-        </Button> */}
-      </div>
+      <Card className=" border-gray-200 dark:border-gray-800 border-0 shadow-none">
+        <CardContent className="!p-0">
+          <div className="mb-4 sm:mb-6">
+            <Input
+              placeholder="Search folders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full sm:max-w-md h-10 sm:h-11 md:h-12 text-xs sm:text-sm border-input rounded-lg"
+            />
+          </div>
 
-      {/* {showGuide && <FolderManagementGuide />} */}
-
-      {isLoading && displayFolders.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          Loading folders...
-        </div>
-      ) : filteredFolders.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          {searchQuery ? 'No folders found matching your search.' : 'No folders available.'}
-        </div>
-      ) : (
-        <FolderTable
-          folders={filteredFolders}
-          onEdit={isAdmin ? handleEdit : undefined}
-          onDelete={isAdmin ? handleDeleteClick : undefined}
-          onManageTeams={handleManageTeams}
-          onManageDashboards={handleManageDashboards}
-        />
-      )}
+          {isLoading && displayFolders.length === 0 ? (
+            <div className="text-center py-12 sm:py-16 text-muted-foreground">
+              <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-xs sm:text-sm">Loading folders...</p>
+            </div>
+          ) : filteredFolders.length === 0 ? (
+            <div className="text-center py-12 sm:py-16 text-muted-foreground">
+              {searchQuery ? 'No folders found matching your search.' : 'No folders available.'}
+            </div>
+          ) : (
+            <FolderTable
+              folders={filteredFolders}
+              onEdit={isAdmin ? handleEdit : undefined}
+              onDelete={isAdmin ? handleDeleteClick : undefined}
+              onManageTeams={handleManageTeams}
+              onManageDashboards={handleManageDashboards}
+            />
+          )}
+        </CardContent>
+      </Card>
 
       {isAdmin && (
         <>

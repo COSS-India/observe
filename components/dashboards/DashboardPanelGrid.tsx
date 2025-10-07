@@ -36,9 +36,9 @@ export function DashboardPanelGrid({
 
   const gridColsClass = {
     1: 'grid-cols-1',
-    2: 'grid-cols-1 md:grid-cols-2',
+    2: 'grid-cols-1 lg:grid-cols-2',
     3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-    4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
   }[columns];
 
   // If a panel is in fullscreen mode, only show that panel
@@ -49,42 +49,29 @@ export function DashboardPanelGrid({
   const fullscreenGridClass = fullscreenPanel ? 'grid-cols-1' : gridColsClass;
 
   return (
-    <div className={`grid ${fullscreenGridClass} gap-6`}>
+    <div className={`grid ${fullscreenGridClass} gap-3 sm:gap-4 md:gap-6 w-full`}>
       {displayPanels.map((panel) => {
         const isFullscreen = fullscreenPanel === panel.id;
-        const panelHeight = isFullscreen ? 'calc(100vh - 250px)' : `${panel.height || defaultHeight}px`;
+        const panelHeight = isFullscreen 
+          ? 'calc(100vh - 200px)' 
+          : window.innerWidth < 640 
+            ? `${(panel.height || defaultHeight) * 0.8}px` 
+            : `${panel.height || defaultHeight}px`;
 
         return (
-          <Card key={panel.id} className="overflow-hidden p-0 shadow-sm">
-            {/* <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-medium">
-                  {panel.title}
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => toggleFullscreen(panel.id)}
-                  title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-                >
-                  {isFullscreen ? (
-                    <Minimize2 className="h-4 w-4" />
-                  ) : (
-                    <Maximize2 className="h-4 w-4" />
-                  )}
-                </Button>
+          <Card key={panel.id} className="overflow-hidden p-0 shadow-sm w-full">
+            <CardContent className="p-0 w-full">
+              <div className="w-full overflow-hidden">
+                <iframe
+                  src={panel.src}
+                  width="100%"
+                  height={panelHeight}
+                  frameBorder="0"
+                  className="border-0 w-full"
+                  title={panel.title}
+                  style={{ minHeight: '250px' }}
+                />
               </div>
-            </CardHeader> */}
-            <CardContent className="p-0">
-              <iframe
-                src={panel.src}
-                width="100%"
-                height={panelHeight}
-                frameBorder="0"
-                className="border-0"
-                title={panel.title}
-              />
             </CardContent>
           </Card>
         );

@@ -1,11 +1,27 @@
 import type { User } from '@/types/auth';
 
 /**
- * Check if the user is a superadmin (karmayogi user)
- * Only superadmin has full access to Grafana APIs
+ * Check if the user is a superadmin
+ * Superadmins have full access to all Grafana APIs and administrative features
  */
 export function isSuperAdmin(user: User | null): boolean {
-  return user?.isSuperAdmin === true || user?.username.toLowerCase() === 'karmayogi';
+  return user?.role === 'superadmin';
+}
+
+/**
+ * Check if the user is an admin (organization-level admin)
+ * Admins may have limited administrative capabilities within their organization
+ */
+export function isAdmin(user: User | null): boolean {
+  return user?.role === 'admin';
+}
+
+/**
+ * Check if the user is a viewer
+ * Viewers have read-only access to their dashboards
+ */
+export function isViewer(user: User | null): boolean {
+  return user?.role === 'viewer';
 }
 
 /**

@@ -45,8 +45,8 @@ export function GrafanaSetupError({ error }: GrafanaSetupErrorProps) {
             <div className="flex gap-2">
               <Link href="https://grafana.com/docs/grafana/latest/administration/service-accounts/" target="_blank">
                 <Button variant="outline" size="sm">
-                  <ExternalLink className="mr-2 h-4 w-4" />
                   Service Accounts Docs
+                  <ExternalLink className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>

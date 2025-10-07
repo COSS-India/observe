@@ -100,15 +100,20 @@ export function UserEditDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Name</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Full Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input
+                      placeholder="John Doe"
+                      {...field}
+                      disabled={isSubmitting}
+                      className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,9 +125,15 @@ export function UserEditDialog({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="john@example.com" {...field} />
+                    <Input
+                      type="email"
+                      placeholder="john@example.com"
+                      {...field}
+                      disabled={isSubmitting}
+                      className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -134,9 +145,14 @@ export function UserEditDialog({
               name="login"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Login/Username</FormLabel>
+                  <FormLabel className="text-sm font-medium text-foreground">Login/Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="johndoe" {...field} />
+                    <Input
+                      placeholder="johndoe"
+                      {...field}
+                      disabled={isSubmitting}
+                      className="h-11 border-input rounded-lg focus:ring-2 focus:ring-ring"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -148,10 +164,10 @@ export function UserEditDialog({
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel className="text-sm font-medium text-foreground">Role</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full h-11 border-input rounded-lg focus:ring-2 focus:ring-ring">
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                     </FormControl>
@@ -166,16 +182,21 @@ export function UserEditDialog({
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="h-11 px-6 border-input hover:bg-accent rounded-lg"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+              >
                 {isSubmitting ? 'Updating...' : 'Update User'}
               </Button>
             </DialogFooter>

@@ -29,30 +29,32 @@ export function FolderTable({
 }: FolderTableProps) {
   if (folders.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        No folders found. Create one to get started.
+      <div className="table-empty">
+        <Layout className="table-empty-icon" />
+        <h3 className="table-empty-title">No folders found</h3>
+        <p className="table-empty-description">Create one to get started.</p>
       </div>
     );
   }
 
   return (
-    <div className="border rounded-lg">
+    <div className="table-container">
       <Table>
-        <TableHeader>
+        <TableHeader className="table-header">
           <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>UID</TableHead>
-            <TableHead>URL</TableHead>
-            <TableHead className="w-[200px]">Actions</TableHead>
+            <TableHead className="table-cell table-cell-text col-flex">Title</TableHead>
+            <TableHead className="table-cell table-cell-text col-medium table-hide-tablet">UID</TableHead>
+            <TableHead className="table-cell table-cell-text col-wide table-hide-mobile">URL</TableHead>
+            <TableHead className="table-cell table-cell-action col-medium">Actions</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="table-body">
           {folders.map((folder) => (
-            <TableRow key={folder.uid}>
-              <TableCell className="font-medium">{folder.title}</TableCell>
-              <TableCell className="font-mono text-sm">{folder.uid}</TableCell>
-              <TableCell className="text-sm text-muted-foreground">{folder.url || '-'}</TableCell>
-              <TableCell>
+            <TableRow key={folder.uid} className="table-row">
+              <TableCell className="table-cell table-cell-text font-medium truncate">{folder.title}</TableCell>
+              <TableCell className="table-cell table-cell-text font-mono text-muted-foreground table-hide-tablet">{folder.uid}</TableCell>
+              <TableCell className="table-cell table-cell-text text-muted-foreground truncate table-hide-mobile">{folder.url || '-'}</TableCell>
+              <TableCell className="table-cell table-cell-action">
                 {(onEdit || onDelete || onManageTeams || onManageDashboards) && (
                   <div className="flex gap-2">
                     {onManageTeams && (
@@ -61,7 +63,7 @@ export function FolderTable({
                         size="icon"
                         onClick={() => onManageTeams(folder)}
                         title="Manage Team Access"
-                        className="hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950 dark:hover:text-blue-400"
+                        className="btn-action btn-action-edit"
                       >
                         <Users className="h-4 w-4" />
                       </Button>
@@ -72,7 +74,7 @@ export function FolderTable({
                         size="icon"
                         onClick={() => onManageDashboards(folder)}
                         title="Manage Dashboards"
-                        className="hover:bg-purple-50 hover:text-purple-600 dark:hover:bg-purple-950 dark:hover:text-purple-400"
+                        className="btn-action"
                       >
                         <Layout className="h-4 w-4" />
                       </Button>
@@ -83,7 +85,7 @@ export function FolderTable({
                         size="icon"
                         onClick={() => onEdit(folder)}
                         title="Edit Folder"
-                        className="hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-950 dark:hover:text-amber-400"
+                        className="btn-action btn-action-edit"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -94,7 +96,7 @@ export function FolderTable({
                         size="icon"
                         onClick={() => onDelete(folder)}
                         title="Delete Folder"
-                        className="hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                        className="btn-action btn-action-delete"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
