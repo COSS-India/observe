@@ -22,12 +22,12 @@ class Settings(BaseSettings):
     SMTP_PASSWORD: Optional[str] = "cqnqawitfbyqvkwr"
     SMTP_TLS: bool = True
     SMTP_SSL: bool = False
-    FROM_EMAIL: str = "noreply@bhashini.gov.in"
-    FROM_NAME: str = "Bhashini Platform"
+    FROM_EMAIL: str = "noreply@adopter.gov.in"
+    FROM_NAME: str = "Adopter Platform"
     FRONTEND_URL: str = "http://localhost:3000"  # Update this to your actual frontend URL
     
     # App settings
-    APP_NAME: str = "Bhashini Login API"
+    APP_NAME: str = "Adopter Login API"
     DEBUG: bool = True
     
     class Config:

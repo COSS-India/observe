@@ -139,10 +139,10 @@ def convert_user_to_profile_response(user: User) -> UserProfileResponse:
         personal_email=user.personal_email,
         phone=user.phone,
         org=org_response,
-        status=user.status,
+        status=user.status or "Engaged",  # Default status
         role=user.role,
-        user_type=user.user_type or [],
-        product_access=user.product_access or [],
+        user_type=user.user_type or [],  # Default empty array
+        product_access=user.product_access or [],  # Default empty array
         mou_info=mou_info,
         supervisor_details=supervisor_details,
         additional_contacts=user.additional_contacts,
@@ -158,7 +158,7 @@ def convert_user_to_profile_response(user: User) -> UserProfileResponse:
         last_login=user.last_login,
         is_exisiting_user=user.is_exisiting_user,
         is_test_user=user.is_test_user,
-        pending_req_count=user.pending_req_count,
+        pending_req_count=user.pending_req_count or 0,  # Default 0
         associated_manager=associated_managers,
         is_parichay=user.is_parichay
     )

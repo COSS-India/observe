@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database initialization script for Bhashini Login API
+Database initialization script for Adopter Login API
 Run this script to create the database tables and add sample data
 """
 
@@ -65,7 +65,7 @@ def create_sample_user():
 
 def main():
     """Main function"""
-    print("Initializing Bhashini Login API Database...")
+    print("Initializing Adopter Login API Database...")
     print("=" * 50)
     
     try:

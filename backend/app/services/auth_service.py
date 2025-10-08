@@ -1,10 +1,8 @@
 from sqlalchemy.orm import Session
-from app.models.user import User
+from app.models.user import User, Organization
 from app.schemas.user import SigninRequest, SignupRequest, SigninResponse, UserInfo
 from app.utils.security import verify_password, get_password_hash, create_access_token
 from app.services.captcha_service import verify_captcha
-from app.services.password_service import password_service
-from app.services.email_service import email_service
 from fastapi import HTTPException, status
 from datetime import datetime
 
@@ -34,9 +32,6 @@ def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninRespo
             detail="Invalid email or password"
         )
     
-    # Check if password change is required
-    password_change_required = password_service.is_password_change_required(user)
-    
     # Create access token
     token_data = {
         "sub": str(user.id),
@@ -53,10 +48,8 @@ def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninRespo
         stage_completed=user.stage_completed
     )
     
-    # Update message based on password change requirement
+    # Simple success message
     message = "Login successful"
-    if password_change_required:
-        message = "Login successful. Please change your password."
     
     # Create response
     response = SigninResponse(
@@ -76,7 +69,7 @@ def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninRespo
 
 
 def create_user(db: Session, signup_request: SignupRequest) -> dict:
-    """Create a new user with dynamic password and email notification"""
+    """Create a new user with complete profile"""
     
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == signup_request.email_id).first()
@@ -86,37 +79,56 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
             detail="User with this email already exists"
         )
     
-    # Prepare user data
-    user_data = {
-        'first_name': signup_request.first_name,
-        'last_name': signup_request.last_name,
-        'email': signup_request.email_id,
-        'role': signup_request.role,
-        'org_type': signup_request.org.org_type,
-        'org_name': signup_request.org.org_name,
-        'org_details': signup_request.org.org_details.dict(),
-        'tnc_url': signup_request.tnc_url
-    }
+    # Create user with simple password (using email as initial password)
+    password_hash = get_password_hash(signup_request.email_id)
     
-    # Create user with temporary password
-    user, temp_password = password_service.create_user_with_temp_password(db, user_data)
-    
-    # Generate password reset token for email
-    reset_token = password_service.create_password_reset_token(db, user.email)
-    
-    # Send welcome email with credentials
-    email_sent = email_service.send_welcome_email(
-        to_email=user.email,
-        first_name=user.first_name,
-        temp_password=temp_password,
-        reset_token=reset_token or ""
+    user = User(
+        first_name=signup_request.first_name,
+        last_name=signup_request.last_name,
+        email=signup_request.email_id,
+        email_id=signup_request.email_id,  # Set email_id field
+        password_hash=password_hash,
+        role=signup_request.role,
+        org_type=signup_request.org.org_type,
+        org_name=signup_request.org.org_name,
+        org_details=signup_request.org.org_details.dict(),
+        tnc_url=signup_request.tnc_url,
+        is_fresh=True,
+        is_profile_updated=False,
+        is_existing_user=False,
+        is_external=False,
+        status="Engaged",
+        user_type=[signup_request.org.org_type.lower()],  # Set user_type based on org_type
+        product_access=[],  # Empty initially
+        tnc_accepted=False,  # Will be true after they accept
+        pending_req_count=0,
+        is_test_user=False,
+        is_parichay=False
     )
     
-    if not email_sent:
-        # Log warning but don't fail the signup
-        print(f"Warning: Failed to send welcome email to {user.email}")
+    db.add(user)
+    db.commit()
+    db.refresh(user)
     
-    return {"message": "Your request is received. Kindly Check your email inbox for credentials"}
+    # Create organization record for complete profile
+    organization = Organization(
+        user_id=user.id,
+        org_name=signup_request.org.org_name,
+        org_type=signup_request.org.org_type,
+        org_website=None,  # Can be added later
+        ministry_name=getattr(signup_request.org.org_details, 'ministry_name', None),
+        department_name=getattr(signup_request.org.org_details, 'department_name', None),
+        address_type="Primary",
+        address=None,  # Can be added later
+        pincode=None,
+        state=None,
+        city=None
+    )
+    
+    db.add(organization)
+    db.commit()
+    
+    return {"message": "User created successfully. You can now login with your email as password."}
 
 
 def get_user_by_email(db: Session, email: str) -> User:

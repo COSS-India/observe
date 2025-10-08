@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database setup script for Bhashini Login API
+Database setup script for Adopter Login API
 This script handles different PostgreSQL configurations
 """
 
@@ -27,7 +27,7 @@ def test_postgresql_connection():
             conn = psycopg2.connect(config)
             conn.close()
             print(f"✅ Connection successful with: {config}")
-            return config.replace("/postgres", "/bhashini")
+            return config.replace("/postgres", "/adopter")
         except Exception as e:
             print(f"❌ Failed: {e}")
             continue
@@ -35,23 +35,23 @@ def test_postgresql_connection():
     return None
 
 def create_database(connection_string):
-    """Create the bhashini database"""
+    """Create the adopter database"""
     try:
-        # Connect to postgres database to create bhashini
-        base_conn_str = connection_string.replace("/bhashini", "/postgres")
+        # Connect to postgres database to create adopter
+        base_conn_str = connection_string.replace("/adopter", "/postgres")
         conn = psycopg2.connect(base_conn_str)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = conn.cursor()
         
         # Check if database exists
-        cursor.execute("SELECT 1 FROM pg_database WHERE datname = 'bhashini'")
+        cursor.execute("SELECT 1 FROM pg_database WHERE datname = 'adopter'")
         exists = cursor.fetchone()
         
         if not exists:
-            cursor.execute("CREATE DATABASE bhashini")
-            print("✅ Database 'bhashini' created successfully!")
+            cursor.execute("CREATE DATABASE adopter")
+            print("✅ Database 'adopter' created successfully!")
         else:
-            print("✅ Database 'bhashini' already exists!")
+            print("✅ Database 'adopter' already exists!")
         
         cursor.close()
         conn.close()
@@ -88,7 +88,7 @@ def update_config_file(connection_string):
 
 def main():
     """Main function"""
-    print("PostgreSQL Database Setup for Bhashini Login API")
+    print("PostgreSQL Database Setup for Adopter Login API")
     print("=" * 60)
     
     # Test PostgreSQL connection

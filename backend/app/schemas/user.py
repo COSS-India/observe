@@ -201,26 +201,3 @@ class UsersListResponse(BaseModel):
     total: int
     page: int
     per_page: int
-
-
-# Password reset schemas
-class PasswordResetRequest(BaseModel):
-    email: EmailStr
-
-
-class PasswordResetResponse(BaseModel):
-    message: str
-
-
-class PasswordResetConfirmRequest(BaseModel):
-    token: str
-    new_password: str
-
-
-class PasswordChangeRequest(BaseModel):
-    current_password: str
-    new_password: str
-
-
-class PasswordChangeResponse(BaseModel):
-    message: str
