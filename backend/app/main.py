@@ -10,7 +10,7 @@ Base.metadata.create_all(bind=engine)
 # Create FastAPI app
 app = FastAPI(
     title=settings.APP_NAME,
-    description="Adopter Login API with Captcha Authentication",
+    description="API with Authentication",
     version="1.0.0"
 )
 
@@ -31,7 +31,6 @@ app.include_router(auth_router, prefix="/v1", tags=["Authentication"])
 async def root():
     """Root endpoint"""
     return {
-        "message": "Welcome to Adopter Login API",
         "version": "1.0.0",
         "docs": "/docs"
     }
