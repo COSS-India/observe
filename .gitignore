@@ -91,3 +91,8 @@ backend/**/*.sqlite3
 # OS
 .DS_Store
 Thumbs.db
+
+# Backend documentation files (keep local only)
+backend/Obs-Bhashini-Login/DATABASE_ARCHITECTURE.md
+backend/Obs-Bhashini-Login/PASSWORD_SYSTEM_DOCS.md
+backend/Obs-Bhashini-Login/USER_PROFILE_APIS.md
