@@ -1,36 +1,151 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI4Voice Portal
 
-## Getting Started
+A comprehensive monorepo containing both frontend and backend applications for the AI4Voice Portal project.
 
-First, run the development server:
+## Project Structure
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+AI4Voice_Portal/
+├── app/                    # Next.js Frontend Application
+├── components/             # React Components
+├── hooks/                  # Custom React Hooks
+├── lib/                    # Frontend Utilities & API Clients
+├── types/                  # TypeScript Type Definitions
+├── backend/                # Backend Services
+│   └── Obs-Bhashini-Login/ # FastAPI Authentication Service
+├── package.json            # Frontend Dependencies
+├── next.config.ts          # Next.js Configuration
+└── README.md               # This file
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Frontend (Next.js)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The frontend is a Next.js application providing a Grafana administration portal with user management, dashboard management, and organization features.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Frontend Setup
 
-## Learn More
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Run development server:**
+   ```bash
+   npm run dev
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Build for production:**
+   ```bash
+   npm run build
+   npm start
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Open in browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000)
 
-## Deploy on Vercel
+### Frontend Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Grafana Integration**: Manage dashboards, folders, teams, and users
+- **User Management**: Create, edit, and manage user accounts
+- **Organization Management**: Handle multiple organizations
+- **Team Management**: Organize users into teams
+- **Dashboard Management**: View and organize Grafana dashboards
+- **Modern UI**: Built with Tailwind CSS and Radix UI components
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Backend (FastAPI)
+
+The backend provides authentication services with Bhashini integration, including captcha verification and JWT-based authentication.
+
+### Backend Setup
+
+1. **Navigate to backend directory:**
+   ```bash
+   cd backend/Obs-Bhashini-Login
+   ```
+
+2. **Create virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Set up environment variables:**
+   ```bash
+   cp env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Initialize database:**
+   ```bash
+   python init_db.py
+   ```
+
+6. **Run the server:**
+   ```bash
+   python -m uvicorn app.main:app --reload
+   ```
+
+7. **Access API documentation:**
+   Navigate to [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Backend Features
+
+- **User Authentication**: Signin and signup functionality
+- **Captcha Integration**: Image-based captcha for login security
+- **JWT Tokens**: Secure token-based authentication
+- **PostgreSQL Database**: Robust data persistence
+- **RESTful API**: Clean and well-documented API endpoints
+- **Email Services**: User verification and notifications
+
+## Development Workflow
+
+### Running Both Services
+
+1. **Terminal 1 - Backend:**
+   ```bash
+   cd backend/Obs-Bhashini-Login
+   source venv/bin/activate
+   python -m uvicorn app.main:app --reload --port 8000
+   ```
+
+2. **Terminal 2 - Frontend:**
+   ```bash
+   npm run dev
+   ```
+
+### Environment Configuration
+
+- **Frontend**: Uses Next.js environment variables (`.env.local`)
+- **Backend**: Uses Python environment variables (`.env` in backend folder)
+
+## API Integration
+
+The frontend communicates with the backend through REST API calls. The backend provides authentication endpoints that the frontend uses for user management.
+
+## Deployment
+
+### Frontend Deployment
+- Deploy to Vercel, Netlify, or any Next.js-compatible platform
+- Set environment variables in your deployment platform
+
+### Backend Deployment
+- Deploy to platforms like Railway, Heroku, or AWS
+- Configure database connection and environment variables
+- Ensure PostgreSQL database is accessible
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test both frontend and backend
+5. Submit a pull request
+
+## License
+
+This project is part of the COSS AI4X initiative.
