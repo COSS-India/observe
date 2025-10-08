@@ -68,7 +68,7 @@ class EmailService:
     def send_welcome_email(self, to_email: str, first_name: str, temp_password: str, reset_token: str) -> bool:
         """Send welcome email with temporary credentials"""
         
-        subject = "Welcome to Bhashini Platform - Your Account Credentials"
+        subject = "Welcome to Adopter Platform - Your Account Credentials"
         
         # Create reset URL using configured frontend URL
         reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
@@ -78,7 +78,7 @@ class EmailService:
         <html>
         <head>
             <meta charset="utf-8">
-            <title>Welcome to Bhashini Platform</title>
+            <title>Welcome to Adopter Platform</title>
             <style>
                 body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
                 .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
@@ -92,12 +92,12 @@ class EmailService:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>Welcome to Bhashini Platform</h1>
+                    <h1>Welcome to Adopter Platform</h1>
                 </div>
                 <div class="content">
                     <p>Dear {first_name},</p>
                     
-                    <p>Welcome to the Bhashini Platform! Your account has been successfully created.</p>
+                    <p>Welcome to the Adopter Platform! Your account has been successfully created.</p>
                     
                     <div class="credentials">
                         <h3>Your Login Credentials:</h3>
@@ -125,7 +125,7 @@ class EmailService:
                     <p>If you have any questions or need assistance, please contact our support team.</p>
                     
                     <p>Best regards,<br>
-                    The Bhashini Team</p>
+                    The Adopter Team</p>
                 </div>
                 <div class="footer">
                     <p>This is an automated message. Please do not reply to this email.</p>
@@ -136,7 +136,7 @@ class EmailService:
         """
         
         text_content = f"""
-        Welcome to Bhashini Platform!
+        Welcome to Adopter Platform!
         
         Dear {first_name},
         
@@ -161,7 +161,7 @@ class EmailService:
         If you have any questions, please contact our support team.
         
         Best regards,
-        The Bhashini Team
+        The Adopter Team
         """
         
         return self.send_email(to_email, subject, html_content, text_content)
@@ -169,7 +169,7 @@ class EmailService:
     def send_password_reset_email(self, to_email: str, first_name: str, reset_token: str) -> bool:
         """Send password reset email"""
         
-        subject = "Password Reset Request - Bhashini Platform"
+        subject = "Password Reset Request - Adopter Platform"
         
         # Create reset URL using configured frontend URL
         reset_url = f"{settings.FRONTEND_URL}/reset-password?token={reset_token}"
@@ -198,7 +198,7 @@ class EmailService:
                 <div class="content">
                     <p>Dear {first_name},</p>
                     
-                    <p>We received a request to reset your password for your Bhashini Platform account.</p>
+                    <p>We received a request to reset your password for your Adopter Platform account.</p>
                     
                     <div class="warning">
                         <p><strong>Security Notice:</strong> If you didn't request this password reset, please ignore this email. Your account remains secure.</p>
@@ -226,7 +226,7 @@ class EmailService:
                     <p>If you have any questions or need assistance, please contact our support team.</p>
                     
                     <p>Best regards,<br>
-                    The Bhashini Team</p>
+                    The Adopter Team</p>
                 </div>
                 <div class="footer">
                     <p>This is an automated message. Please do not reply to this email.</p>
@@ -237,11 +237,11 @@ class EmailService:
         """
         
         text_content = f"""
-        Password Reset Request - Bhashini Platform
+        Password Reset Request - Adopter Platform
         
         Dear {first_name},
         
-        We received a request to reset your password for your Bhashini Platform account.
+        We received a request to reset your password for your Adopter Platform account.
         
         Security Notice: If you didn't request this password reset, please ignore this email. Your account remains secure.
         
@@ -257,7 +257,7 @@ class EmailService:
         If you have any questions, please contact our support team.
         
         Best regards,
-        The Bhashini Team
+        The Adopter Team
         """
         
         return self.send_email(to_email, subject, html_content, text_content)

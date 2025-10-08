@@ -34,6 +34,9 @@ class PasswordService:
         if not any(c.isdigit() for c in password):
             password = password[:-1] + secrets.choice(string.digits)
         
+        # Ensure password is not longer than 72 bytes for bcrypt compatibility
+        password = password[:72]
+        
         return password
     
     def generate_reset_token(self) -> str:
@@ -148,8 +151,11 @@ class PasswordService:
         if not user:
             return False
         
+        # Truncate password to 72 bytes for bcrypt compatibility
+        truncated_password = new_password[:72]
+        
         # Update password
-        user.password_hash = get_password_hash(new_password)
+        user.password_hash = get_password_hash(truncated_password)
         user.password_reset_token = None
         user.password_reset_expires_at = None
         user.temp_password_expires_at = None  # Clear temp password expiry
@@ -171,8 +177,11 @@ class PasswordService:
         if not verify_password(current_password, user.password_hash):
             return False
         
+        # Truncate password to 72 bytes for bcrypt compatibility
+        truncated_password = new_password[:72]
+        
         # Update password
-        user.password_hash = get_password_hash(new_password)
+        user.password_hash = get_password_hash(truncated_password)
         user.temp_password_expires_at = None  # Clear temp password expiry
         user.is_fresh = False  # Mark as no longer fresh
         

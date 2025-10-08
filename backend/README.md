@@ -1,6 +1,6 @@
-# Bhashini Login API
+# Adopter Login API
 
-A FastAPI-based authentication system with captcha verification for the Bhashini platform.
+A FastAPI-based authentication system with captcha verification for the Adopter platform.
 
 ## Features
 
@@ -46,7 +46,7 @@ app/
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd Obs-Bhashini-Login
+   cd Obs-Adopter-Login
    ```
 
 2. **Create virtual environment**
@@ -62,7 +62,7 @@ app/
 
 4. **Set up PostgreSQL database**
    - Install PostgreSQL
-   - Create database named `bhashini`
+   - Create database named `adopter`
    - Update database credentials in `env.example` and rename to `.env`
 
 5. **Initialize database**
@@ -141,7 +141,7 @@ app/
         "is_interested_in_api_integration": false
       }
     },
-    "tnc_url": "https://userdatav1.blob.core.windows.net/dashboardblob/Terms_and_Conditions_Bhashini.pdf"
+    "tnc_url": "https://userdatav1.blob.core.windows.net/dashboardblob/Terms_and_Conditions_Adopter.pdf"
   }
   ```
 - **Response**:
@@ -157,7 +157,7 @@ app/
   ```json
   {
     "status": "healthy",
-    "message": "Bhashini Login API is running"
+    "message": "Adopter Login API is running"
   }
   ```
 
@@ -167,7 +167,7 @@ Create a `.env` file based on `env.example`:
 
 ```env
 # Database Configuration
-DATABASE_URL=postgresql://postgres:password@localhost:5432/bhashini
+DATABASE_URL=postgresql://postgres:password@localhost:5432/adopter
 
 # JWT Configuration
 SECRET_KEY=your-secret-key-here-change-in-production
@@ -178,7 +178,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES=30
 CAPTCHA_EXPIRE_MINUTES=5
 
 # App Configuration
-APP_NAME=Bhashini Login API
+APP_NAME=Adopter Login API
 DEBUG=True
 ```
 
@@ -271,4 +271,4 @@ The application uses SQLAlchemy with automatic table creation. For production, c
 
 ## License
 
-This project is part of the Bhashini platform development.
+This project is part of the Adopter platform development.

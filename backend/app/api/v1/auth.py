@@ -78,11 +78,12 @@ async def signup(
 @router.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "message": "Bhashini Login API is running"}
+    return {"status": "healthy", "message": "Adopter Login API is running"}
 
 
 # User Profile APIs
 @router.get("/users", response_model=UsersListResponse)
+@router.get("/users/", response_model=UsersListResponse)
 async def get_all_users(
     skip: int = Query(0, ge=0, description="Number of users to skip"),
     limit: int = Query(100, ge=1, le=1000, description="Number of users to return"),
@@ -100,6 +101,7 @@ async def get_all_users(
 
 
 @router.get("/users/{user_id}", response_model=UserProfileResponse)
+@router.get("/users/{user_id}/", response_model=UserProfileResponse)
 async def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
     """Get user profile by ID"""
     try:
@@ -183,6 +185,7 @@ async def confirm_password_reset(
 
 
 @router.get("/users/email/{email}", response_model=UserProfileResponse)
+@router.get("/users/email/{email}/", response_model=UserProfileResponse)
 async def get_user_by_email(email: str, db: Session = Depends(get_db)):
     """Get user profile by email"""
     try:

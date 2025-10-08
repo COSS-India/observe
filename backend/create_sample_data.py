@@ -37,7 +37,7 @@ def create_sample_data():
             status="Engaged",
             role="customer",
             user_type=["government"],
-            product_access=["Bhashini Translation Plugin", "Udyat"],
+            product_access=["Adopter Translation Plugin", "Udyat"],
             is_fresh=False,
             is_profile_updated=True,
             is_existing_user=False,
@@ -116,7 +116,7 @@ def create_sample_data():
         # Create associated managers for user1
         manager1 = AssociatedManager(
             user_id=user1.id,
-            application_name="Bhashini Translation Plugin",
+            application_name="Adopter Translation Plugin",
             manager_email="manager1@digitalindia.gov.in"
         )
         
@@ -143,7 +143,7 @@ def create_sample_data():
             status="Engaged",
             role="customer",
             user_type=["startup"],
-            product_access=["Bhashini Translation Plugin"],
+            product_access=["Adopter Translation Plugin"],
             is_fresh=True,
             is_profile_updated=False,
             is_existing_user=False,

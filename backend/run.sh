@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Bhashini Login API Run Script
+# Adopter Login API Run Script
 
-echo "Starting Bhashini Login API..."
+echo "Starting Adopter Login API..."
 echo "================================"
 
 # Check if virtual environment exists
