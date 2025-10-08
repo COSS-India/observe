@@ -1,0 +1,20 @@
+{
+    "include": [
+        "app"
+    ],
+    "exclude": [
+        "venv",
+        "**/__pycache__"
+    ],
+    "extraPaths": [
+        "."
+    ],
+    "pythonVersion": "3.10",
+    "typeCheckingMode": "basic"
+}
+
+
+
+
+
+
