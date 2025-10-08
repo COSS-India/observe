@@ -278,7 +278,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
                     <Card key={perm.teamId} className="card-widget hover:shadow-sm">
                       <CardHeader className="pb-3">
                         <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
-                          Team
+                          CUSTOMER
                           <Badge 
                             variant={getPermissionBadgeVariant(perm.permission)}
                             className="text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1"

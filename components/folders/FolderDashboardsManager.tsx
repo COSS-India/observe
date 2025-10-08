@@ -194,9 +194,9 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
                         <div className="text-l font-bold text-foreground mb-1 line-clamp-2">
                           {dashboard.title}
                         </div>
-                        <div className="text-[10px] sm:text-xs text-muted-foreground mb-2">
+                        {/* <div className="text-[10px] sm:text-xs text-muted-foreground mb-2">
                           UID: {dashboard.uid}
-                        </div>
+                        </div> */}
                         {dashboard.tags && dashboard.tags.length > 0 && (
                           <div className="mb-4">
                             <div className="flex flex-wrap gap-1">

@@ -8,6 +8,16 @@ import { DashboardGrid } from "@/components/dashboards/DashboardGrid";
 import { DashboardViewer } from "@/components/dashboards/DashboardViewer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Search, ArrowLeft, Grid3x3, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dashboard } from "@/types/grafana";
@@ -27,6 +37,12 @@ export default function AllDashboardsPage() {
   const [selectedDashboard, setSelectedDashboard] = useState<Dashboard | null>(
     null
   );
+  const [dashboardToDelete, setDashboardToDelete] = useState<Dashboard | null>(
+    null
+  );
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   // Check if user is superadmin
   const isUserSuperAdmin = isSuperAdmin(user);
@@ -61,11 +77,46 @@ export default function AllDashboardsPage() {
     setViewMode("viewer");
   };
 
-  const handleDelete = async (dashboard: Dashboard) => {
-    // Implement delete functionality if needed
-    console.log("Delete dashboard:", dashboard.uid);
-    // For now, just show an alert
-    alert(`Delete functionality for ${dashboard.title} not implemented yet`);
+  const handleDelete = (dashboard: Dashboard) => {
+    setDashboardToDelete(dashboard);
+    setShowDeleteDialog(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!dashboardToDelete) return;
+
+    try {
+      const response = await fetch(
+        `/api/grafana/dashboards/${dashboardToDelete.uid}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete dashboard");
+      }
+
+      // Refresh the dashboards list
+      fetchDashboards();
+
+      // Show success message
+      setDeleteMessage(
+        `Dashboard "${dashboardToDelete.title}" has been deleted successfully`
+      );
+      setShowSuccessDialog(true);
+    } catch (error) {
+      console.error("Error deleting dashboard:", error);
+      setDeleteMessage(
+        `Failed to delete dashboard: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+      setShowSuccessDialog(true);
+    } finally {
+      setShowDeleteDialog(false);
+      setDashboardToDelete(null);
+    }
   };
 
   const handleBackToGrid = () => {
@@ -174,6 +225,47 @@ export default function AllDashboardsPage() {
           )
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Dashboard</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &quot;{dashboardToDelete?.title}
+              &quot;? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDashboardToDelete(null)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Success/Error Message Dialog */}
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {deleteMessage.includes("successfully") ? "Success" : "Error"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>{deleteMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowSuccessDialog(false)}>
+              OK
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

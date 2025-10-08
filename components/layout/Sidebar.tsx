@@ -34,12 +34,7 @@ const navigation = [
     icon: LayoutGrid,
     requiresSuperAdmin: true,
   },
-  {
-    name: "User Management",
-    href: "/dashboard/users",
-    icon: Users,
-    requiresSuperAdmin: true,
-  },
+  
   // {
   //   name: "Organization Users",
   //   href: "/dashboard/organization-users",
@@ -47,21 +42,27 @@ const navigation = [
   //   requiresSuperAdmin: true,
   // },
   {
-    name: "Team Management",
+    name: "Customer organizations",
     href: "/dashboard/teams",
     icon: UsersRound,
     requiresSuperAdmin: true,
   },
+  // {
+  //   name: "Organizations",
+  //   href: "/dashboard/organizations",
+  //   icon: Building2,
+  //   requiresSuperAdmin: true,
+  // },
   {
-    name: "Organizations",
-    href: "/dashboard/organizations",
-    icon: Building2,
+    name: "Customer categories",
+    href: "/dashboard/folders",
+    icon: FolderOpen,
     requiresSuperAdmin: true,
   },
   {
-    name: "Folders",
-    href: "/dashboard/folders",
-    icon: FolderOpen,
+    name: "User Management",
+    href: "/dashboard/users",
+    icon: Users,
     requiresSuperAdmin: true,
   },
   {
