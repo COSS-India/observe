@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models.user import User
+from app.models.user import User, Organization
 from app.schemas.user import SigninRequest, SignupRequest, SigninResponse, UserInfo
 from app.utils.security import verify_password, get_password_hash, create_access_token
 from app.services.captcha_service import verify_captcha
@@ -69,7 +69,7 @@ def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninRespo
 
 
 def create_user(db: Session, signup_request: SignupRequest) -> dict:
-    """Create a new user with simple password"""
+    """Create a new user with complete profile"""
     
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == signup_request.email_id).first()
@@ -86,6 +86,7 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
         first_name=signup_request.first_name,
         last_name=signup_request.last_name,
         email=signup_request.email_id,
+        email_id=signup_request.email_id,  # Set email_id field
         password_hash=password_hash,
         role=signup_request.role,
         org_type=signup_request.org.org_type,
@@ -95,12 +96,37 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
         is_fresh=True,
         is_profile_updated=False,
         is_existing_user=False,
-        is_external=False
+        is_external=False,
+        status="Engaged",
+        user_type=[signup_request.org.org_type.lower()],  # Set user_type based on org_type
+        product_access=[],  # Empty initially
+        tnc_accepted=False,  # Will be true after they accept
+        pending_req_count=0,
+        is_test_user=False,
+        is_parichay=False
     )
     
     db.add(user)
     db.commit()
     db.refresh(user)
+    
+    # Create organization record for complete profile
+    organization = Organization(
+        user_id=user.id,
+        org_name=signup_request.org.org_name,
+        org_type=signup_request.org.org_type,
+        org_website=None,  # Can be added later
+        ministry_name=getattr(signup_request.org.org_details, 'ministry_name', None),
+        department_name=getattr(signup_request.org.org_details, 'department_name', None),
+        address_type="Primary",
+        address=None,  # Can be added later
+        pincode=None,
+        state=None,
+        city=None
+    )
+    
+    db.add(organization)
+    db.commit()
     
     return {"message": "User created successfully. You can now login with your email as password."}
 
