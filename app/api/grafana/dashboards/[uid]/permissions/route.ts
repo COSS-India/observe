@@ -14,10 +14,10 @@ const grafanaClient = axios.create({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { uid: string } }
+  { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
-    const { uid } = params;
+    const { uid } = await params;
     const body = await request.json();
     const { teamId, permission } = body;
 
@@ -67,10 +67,10 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { uid: string } }
+  { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
-    const { uid } = params;
+    const { uid } = await params;
     const { searchParams } = new URL(request.url);
     const teamId = searchParams.get('teamId');
 

@@ -7,10 +7,10 @@ const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
 // DELETE /api/grafana/orgs/[id]/users/[userId] - Remove user from organization
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; userId: string } }
+  { params }: { params: Promise<{ id: string; userId: string }> }
 ) {
   try {
-    const { id: orgId, userId } = params;
+    const { id: orgId, userId } = await params;
 
     const response = await axios.delete(
       `${GRAFANA_URL}/api/orgs/${orgId}/users/${userId}`,
@@ -40,10 +40,10 @@ export async function DELETE(
 // PATCH /api/grafana/orgs/[id]/users/[userId] - Update user role in organization
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; userId: string } }
+  { params }: { params: Promise<{ id: string; userId: string }> }
 ) {
   try {
-    const { id: orgId, userId } = params;
+    const { id: orgId, userId } = await params;
     const body = await request.json();
     const { role } = body;
 
