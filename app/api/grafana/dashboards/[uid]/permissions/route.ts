@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-const GRAFANA_URL = process.env.GRAFANA_URL || 'http://localhost:3000';
-const GRAFANA_SERVICE_ACCOUNT_TOKEN = process.env.GRAFANA_SERVICE_ACCOUNT_TOKEN || '';
+const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000';
+const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
 
 const grafanaClient = axios.create({
   baseURL: GRAFANA_URL,
   headers: {
-    'Authorization': `Bearer ${GRAFANA_SERVICE_ACCOUNT_TOKEN}`,
+    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
     'Content-Type': 'application/json',
   },
 });

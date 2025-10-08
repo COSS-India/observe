@@ -39,7 +39,7 @@ export async function GET() {
   try {
     if (!GRAFANA_URL || !GRAFANA_API_KEY) {
       return NextResponse.json(
-        { error: 'Grafana configuration is missing. Please configure GRAFANA_URL and GRAFANA_API_KEY in environment variables.' },
+        { error: 'Grafana configuration is missing. Please configure NEXT_PUBLIC_GRAFANA_URL and GRAFANA_API_KEY in environment variables.' },
         { status: 500 }
       );
     }
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
   try {
     if (!GRAFANA_URL || !GRAFANA_API_KEY) {
       return NextResponse.json(
-        { error: 'Grafana configuration is missing. Please configure GRAFANA_URL and GRAFANA_API_KEY in environment variables.' },
+        { error: 'Grafana configuration is missing. Please configure NEXT_PUBLIC_GRAFANA_URL and GRAFANA_API_KEY in environment variables.' },
         { status: 500 }
       );
     }

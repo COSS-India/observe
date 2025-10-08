@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-const GRAFANA_URL = process.env.GRAFANA_URL || 'http://172.17.24.167:3000';
+const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://172.17.24.167:3000';
 const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
 
 // DELETE /api/grafana/orgs/[id]/users/[userId] - Remove user from organization
