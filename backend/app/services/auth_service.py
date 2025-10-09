@@ -1,28 +1,12 @@
 from sqlalchemy.orm import Session
 from app.models.user import User, Organization
 from app.schemas.user import SigninRequest, SignupRequest, SigninResponse, UserInfo
-from app.utils.security import verify_password, get_password_hash, create_access_token, validate_password_length
+from app.utils.security import verify_password, get_password_hash, create_access_token, generate_simple_password
 import secrets
 import string
 from app.services.captcha_service import verify_captcha
 from fastapi import HTTPException, status
 from datetime import datetime
-
-
-def generate_initial_password() -> str:
-    """Generate a secure initial password for new users"""
-    # Generate an extremely short password (6 characters) to absolutely avoid any 72-byte issues
-    # This ensures 100% compatibility with all server versions and validation logic
-    alphabet = string.ascii_letters + string.digits
-    password = ''.join(secrets.choice(alphabet) for _ in range(6))
-    
-    # Triple-check the password is safe
-    if len(password.encode('utf-8')) > 10:  # Even more conservative limit
-        password = "Temp123"  # Ultra-safe fallback
-        print(f"[DEBUG] Password fallback triggered: {password}")
-    
-    print(f"[DEBUG] Generated password: '{password}' ({len(password.encode('utf-8'))} bytes)")
-    return password
 
 
 def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninResponse:
@@ -43,15 +27,7 @@ def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninRespo
             detail="Invalid email or password"
         )
     
-    # Validate password length before verification
-    is_valid, error_msg = validate_password_length(signin_request.password)
-    if not is_valid:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Password validation failed: {error_msg}"
-        )
-    
-    # Verify password
+    # Verify password (simple verification, no length validation needed)
     if not verify_password(signin_request.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -105,32 +81,14 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
             detail="User with this email already exists"
         )
     
-    # Generate a secure initial password (instead of using email)
-    print(f"[DEBUG] Starting password generation for user: {signup_request.email_id}")
-    initial_password = generate_initial_password()
+    # Generate a simple password (no complex validation needed)
+    print(f"[DEBUG] Starting simple password generation for user: {signup_request.email_id}")
+    initial_password = generate_simple_password()
     
-    # Multiple safety checks to absolutely prevent any 72-byte errors
-    byte_length = len(initial_password.encode('utf-8'))
-    print(f"[DEBUG] Password byte length check: {byte_length} bytes")
-    
-    if byte_length > 10:  # Ultra-conservative limit
-        initial_password = "Temp123"  # Guaranteed safe fallback
-        print(f"[DEBUG] Safety check 1 triggered: password set to '{initial_password}'")
-    elif byte_length > 6:  # Even more conservative
-        initial_password = "Pass1"   # Ultra-short fallback
-        print(f"[DEBUG] Safety check 2 triggered: password set to '{initial_password}'")
-    
-    # Final safety check before hashing
-    final_byte_length = len(initial_password.encode('utf-8'))
-    print(f"[DEBUG] Final password before hashing: '{initial_password}' ({final_byte_length} bytes)")
-    
-    if final_byte_length > 10:
-        initial_password = "123"  # Absolute minimum safe password
-        print(f"[DEBUG] Final safety check triggered: password set to '{initial_password}'")
-    
-    print(f"[DEBUG] About to hash password: '{initial_password}' ({len(initial_password.encode('utf-8'))} bytes)")
+    print(f"[DEBUG] Generated password: '{initial_password}' ({len(initial_password)} characters)")
+    print(f"[DEBUG] About to hash password: '{initial_password}'")
     password_hash = get_password_hash(initial_password)
-    print(f"[DEBUG] Password hashed successfully: {password_hash[:50]}...")
+    print(f"[DEBUG] Password hashed successfully")
     
     user = User(
         first_name=signup_request.first_name,

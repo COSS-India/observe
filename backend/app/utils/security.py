@@ -1,79 +1,39 @@
-from passlib.context import CryptContext
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from app.core.config import settings
-
-# Password hashing
-# Configure bcrypt to truncate passwords instead of raising errors
-pwd_context = CryptContext(
-    schemes=["bcrypt"], 
-    deprecated="auto",
-    bcrypt__truncate_error=False  # Don't raise error for passwords > 72 bytes
-)
+import hashlib
+import secrets
+import string
 
 
-def validate_password_length(password: str) -> tuple[bool, str]:
-    """
-    Validate password length for bcrypt compatibility
-    Returns: (is_valid, error_message)
-    """
-    if not password:
-        return False, "Password cannot be empty"
-    
-    # Check byte length (not character length) for bcrypt compatibility
-    password_bytes = password.encode('utf-8')
-    if len(password_bytes) > 72:
-        return False, f"Password cannot be longer than 72 bytes (current: {len(password_bytes)} bytes). Please use a shorter password."
-    
-    return True, ""
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash"""
-    # Ensure password is properly encoded and truncated to 72 bytes for bcrypt compatibility
-    if isinstance(plain_password, str):
-        # Encode to bytes to get accurate byte count, then truncate
-        password_bytes = plain_password.encode('utf-8')
-        if len(password_bytes) > 72:
-            # Truncate to 72 bytes and decode back to string
-            truncated_bytes = password_bytes[:72]
-            truncated_password = truncated_bytes.decode('utf-8', errors='ignore')
-        else:
-            truncated_password = plain_password
-    else:
-        truncated_password = str(plain_password)[:72]
-    
-    return pwd_context.verify(truncated_password, hashed_password)
+def generate_simple_password() -> str:
+    """Generate a simple password for new users"""
+    # Generate a simple 6-character password
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for _ in range(6))
+    print(f"[DEBUG] Generated simple password: '{password}'")
+    return password
 
 
 def get_password_hash(password: str) -> str:
-    """Hash a password"""
-    print(f"[DEBUG] get_password_hash called with password: '{password}' ({len(password.encode('utf-8'))} bytes)")
-    
-    # Ensure password is properly encoded and truncated to 72 bytes for bcrypt compatibility
-    if isinstance(password, str):
-        # Encode to bytes to get accurate byte count, then truncate
-        password_bytes = password.encode('utf-8')
-        if len(password_bytes) > 72:
-            # Truncate to 72 bytes and decode back to string
-            truncated_bytes = password_bytes[:72]
-            truncated_password = truncated_bytes.decode('utf-8', errors='ignore')
-            print(f"[DEBUG] Password truncated from {len(password_bytes)} to {len(truncated_bytes)} bytes")
-        else:
-            truncated_password = password
-    else:
-        truncated_password = str(password)[:72]
-    
-    print(f"[DEBUG] About to call pwd_context.hash with: '{truncated_password}' ({len(truncated_password.encode('utf-8'))} bytes)")
-    
-    try:
-        hash_result = pwd_context.hash(truncated_password)
-        print(f"[DEBUG] Password hashed successfully: {hash_result[:50]}...")
-        return hash_result
-    except Exception as e:
-        print(f"[DEBUG] ERROR in pwd_context.hash: {e}")
-        print(f"[DEBUG] Error type: {type(e)}")
-        raise e
+    """Simple password hashing using SHA-256"""
+    print(f"[DEBUG] Hashing password: '{password}'")
+    # Use SHA-256 with a simple salt
+    salt = "simple_salt_2025"  # Simple salt
+    password_with_salt = password + salt
+    hash_result = hashlib.sha256(password_with_salt.encode()).hexdigest()
+    print(f"[DEBUG] Password hashed successfully: {hash_result[:50]}...")
+    return hash_result
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Simple password verification"""
+    print(f"[DEBUG] Verifying password: '{plain_password}'")
+    # Hash the plain password and compare
+    expected_hash = get_password_hash(plain_password)
+    is_valid = expected_hash == hashed_password
+    print(f"[DEBUG] Password verification result: {is_valid}")
+    return is_valid
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
