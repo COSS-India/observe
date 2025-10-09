@@ -29,10 +29,14 @@ app.include_router(auth_router, prefix="/v1", tags=["Authentication"])
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
+    """Root endpoint with version and deployment info"""
     return {
         "version": "1.0.0",
-        "docs": "/docs"
+        "deployment": "2025-10-09-password-fix",
+        "status": "active",
+        "password_fix": "8-char-passwords-implemented",
+        "docs": "/docs",
+        "message": "API is running with updated password generation logic-new"
     }
 
 
