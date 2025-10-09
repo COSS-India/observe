@@ -36,9 +36,8 @@ async def root():
         "status": "active",
         "password_fix": "8-char-passwords-implemented",
         "docs": "/docs",
-        "message": "API is running with updated password generation logic-new"
+        "message": "API is now running with updated password generation logic-new "
     }
-
 
 if __name__ == "__main__":
     import uvicorn
