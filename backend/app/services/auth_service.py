@@ -83,7 +83,7 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
     
     # Generate a simple password (no complex validation needed)
     print(f"[DEBUG] Starting simple password generation for user: {signup_request.email_id}")
-    initial_password = generate_simple_password()
+    initial_password = generate_simple_password(signup_request.email_id)
     
     print(f"[DEBUG] Generated password: '{initial_password}' ({len(initial_password)} characters)")
     print(f"[DEBUG] About to hash password: '{initial_password}'")

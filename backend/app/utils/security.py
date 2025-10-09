@@ -6,12 +6,19 @@ import secrets
 import string
 
 
-def generate_simple_password() -> str:
+def generate_simple_password(email: str = None) -> str:
     """Generate a simple password for new users"""
-    # Generate a simple 6-character password
-    alphabet = string.ascii_letters + string.digits
-    password = ''.join(secrets.choice(alphabet) for _ in range(6))
-    print(f"[DEBUG] Generated simple password: '{password}'")
+    if email and '@' in email:
+        # Use local part of email (before @) + "123" for predictable passwords
+        local_part = email.split('@')[0].lower()
+        password = f"{local_part}123"
+        print(f"[DEBUG] Generated predictable password: '{password}' from email: '{email}'")
+    else:
+        # Fallback to random password if no email provided
+        alphabet = string.ascii_letters + string.digits
+        password = ''.join(secrets.choice(alphabet) for _ in range(6))
+        print(f"[DEBUG] Generated random password: '{password}'")
+    
     return password
 
 
