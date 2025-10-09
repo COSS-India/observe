@@ -48,23 +48,37 @@ async def signup(
     db: Session = Depends(get_db)
 ):
     """Customer signup with form data"""
+    print(f"[DEBUG] Signup endpoint called with request_data: {request_data[:100]}...")
+    
     try:
         # Parse the JSON string from form data
+        print("[DEBUG] Parsing JSON from form data...")
         signup_data = json.loads(request_data)
+        print(f"[DEBUG] Parsed signup data: {signup_data}")
         
         # Create SignupRequest object
+        print("[DEBUG] Creating SignupRequest object...")
         signup_request = SignupRequest(**signup_data)
+        print(f"[DEBUG] SignupRequest created successfully for: {signup_request.email_id}")
         
         # Create user
+        print("[DEBUG] Calling create_user function...")
         response = create_user(db, signup_request)
+        print(f"[DEBUG] User created successfully: {response}")
+        
         return SignupResponse(**response)
         
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        print(f"[DEBUG] JSON decode error: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid JSON in request_data"
         )
     except Exception as e:
+        print(f"[DEBUG] Unexpected error in signup: {e}")
+        print(f"[DEBUG] Error type: {type(e)}")
+        import traceback
+        print(f"[DEBUG] Traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Signup failed: {str(e)}"

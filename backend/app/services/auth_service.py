@@ -19,7 +19,9 @@ def generate_initial_password() -> str:
     # Triple-check the password is safe
     if len(password.encode('utf-8')) > 10:  # Even more conservative limit
         password = "Temp123"  # Ultra-safe fallback
+        print(f"[DEBUG] Password fallback triggered: {password}")
     
+    print(f"[DEBUG] Generated password: '{password}' ({len(password.encode('utf-8'))} bytes)")
     return password
 
 
@@ -104,21 +106,31 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
         )
     
     # Generate a secure initial password (instead of using email)
+    print(f"[DEBUG] Starting password generation for user: {signup_request.email_id}")
     initial_password = generate_initial_password()
     
     # Multiple safety checks to absolutely prevent any 72-byte errors
     byte_length = len(initial_password.encode('utf-8'))
+    print(f"[DEBUG] Password byte length check: {byte_length} bytes")
+    
     if byte_length > 10:  # Ultra-conservative limit
         initial_password = "Temp123"  # Guaranteed safe fallback
+        print(f"[DEBUG] Safety check 1 triggered: password set to '{initial_password}'")
     elif byte_length > 6:  # Even more conservative
         initial_password = "Pass1"   # Ultra-short fallback
+        print(f"[DEBUG] Safety check 2 triggered: password set to '{initial_password}'")
     
     # Final safety check before hashing
     final_byte_length = len(initial_password.encode('utf-8'))
+    print(f"[DEBUG] Final password before hashing: '{initial_password}' ({final_byte_length} bytes)")
+    
     if final_byte_length > 10:
         initial_password = "123"  # Absolute minimum safe password
+        print(f"[DEBUG] Final safety check triggered: password set to '{initial_password}'")
     
+    print(f"[DEBUG] About to hash password: '{initial_password}' ({len(initial_password.encode('utf-8'))} bytes)")
     password_hash = get_password_hash(initial_password)
+    print(f"[DEBUG] Password hashed successfully: {password_hash[:50]}...")
     
     user = User(
         first_name=signup_request.first_name,

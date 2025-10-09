@@ -48,6 +48,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     """Hash a password"""
+    print(f"[DEBUG] get_password_hash called with password: '{password}' ({len(password.encode('utf-8'))} bytes)")
+    
     # Ensure password is properly encoded and truncated to 72 bytes for bcrypt compatibility
     if isinstance(password, str):
         # Encode to bytes to get accurate byte count, then truncate
@@ -56,12 +58,22 @@ def get_password_hash(password: str) -> str:
             # Truncate to 72 bytes and decode back to string
             truncated_bytes = password_bytes[:72]
             truncated_password = truncated_bytes.decode('utf-8', errors='ignore')
+            print(f"[DEBUG] Password truncated from {len(password_bytes)} to {len(truncated_bytes)} bytes")
         else:
             truncated_password = password
     else:
         truncated_password = str(password)[:72]
     
-    return pwd_context.hash(truncated_password)
+    print(f"[DEBUG] About to call pwd_context.hash with: '{truncated_password}' ({len(truncated_password.encode('utf-8'))} bytes)")
+    
+    try:
+        hash_result = pwd_context.hash(truncated_password)
+        print(f"[DEBUG] Password hashed successfully: {hash_result[:50]}...")
+        return hash_result
+    except Exception as e:
+        print(f"[DEBUG] ERROR in pwd_context.hash: {e}")
+        print(f"[DEBUG] Error type: {type(e)}")
+        raise e
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
