@@ -1,10 +1,20 @@
 from sqlalchemy.orm import Session
 from app.models.user import User, Organization
 from app.schemas.user import SigninRequest, SignupRequest, SigninResponse, UserInfo
-from app.utils.security import verify_password, get_password_hash, create_access_token
+from app.utils.security import verify_password, get_password_hash, create_access_token, validate_password_length
+import secrets
+import string
 from app.services.captcha_service import verify_captcha
 from fastapi import HTTPException, status
 from datetime import datetime
+
+
+def generate_initial_password() -> str:
+    """Generate a secure initial password for new users"""
+    # Generate a 12-character password with letters and numbers
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for _ in range(12))
+    return password
 
 
 def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninResponse:
@@ -23,6 +33,14 @@ def authenticate_user(db: Session, signin_request: SigninRequest) -> SigninRespo
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password"
+        )
+    
+    # Validate password length before verification
+    is_valid, error_msg = validate_password_length(signin_request.password)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Password validation failed: {error_msg}"
         )
     
     # Verify password
@@ -79,8 +97,9 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
             detail="User with this email already exists"
         )
     
-    # Create user with simple password (using email as initial password)
-    password_hash = get_password_hash(signup_request.email_id)
+    # Generate a secure initial password (instead of using email)
+    initial_password = generate_initial_password()
+    password_hash = get_password_hash(initial_password)
     
     user = User(
         first_name=signup_request.first_name,
@@ -128,7 +147,10 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
     db.add(organization)
     db.commit()
     
-    return {"message": "User created successfully. You can now login with your email as password."}
+    return {
+        "message": f"User created successfully. Your initial password is: {initial_password}. Please login and change it immediately.",
+        "initial_password": initial_password
+    }
 
 
 def get_user_by_email(db: Session, email: str) -> User:
