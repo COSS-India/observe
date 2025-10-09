@@ -11,6 +11,8 @@ export interface User {
 export interface LoginCredentials {
   username: string;
   password: string;
+  captcha_text?: string;
+  captcha_id?: string;
 }
 
 export interface AuthResponse {

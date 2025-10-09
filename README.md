@@ -120,7 +120,30 @@ The backend provides authentication services with Bhashini integration, includin
 
 ### Environment Configuration
 
-- **Frontend**: Uses Next.js environment variables (`.env.local`)
+#### Frontend Environment Variables
+
+1. **Create environment file:**
+   ```bash
+   # Create .env.local file manually
+   touch .env.local
+   ```
+
+2. **Required variables for development:**
+   ```bash
+   BACKEND_URL=http://localhost:8000
+   NEXT_PUBLIC_GRAFANA_URL=http://localhost:3001
+   GRAFANA_API_KEY=your_grafana_api_key_here
+   NEXTAUTH_SECRET=your_nextauth_secret_here
+   NEXTAUTH_URL=http://localhost:3000
+   ```
+
+3. **For production deployment:**
+   - Set environment variables in your deployment platform (Vercel, Netlify, etc.)
+   - Update `BACKEND_URL` to your production backend URL
+   - Update `NEXT_PUBLIC_GRAFANA_URL` to your production Grafana URL
+   - Use production API keys and secrets
+
+#### Backend Environment Variables
 - **Backend**: Uses Python environment variables (`.env` in backend folder)
 
 ## API Integration
