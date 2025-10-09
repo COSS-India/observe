@@ -7,17 +7,55 @@ from app.core.config import settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+def validate_password_length(password: str) -> tuple[bool, str]:
+    """
+    Validate password length for bcrypt compatibility
+    Returns: (is_valid, error_message)
+    """
+    if not password:
+        return False, "Password cannot be empty"
+    
+    # Check byte length (not character length) for bcrypt compatibility
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        return False, f"Password cannot be longer than 72 bytes (current: {len(password_bytes)} bytes). Please use a shorter password."
+    
+    return True, ""
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
-    # Truncate password to 72 bytes for bcrypt compatibility
-    truncated_password = plain_password[:72]
+    # Ensure password is properly encoded and truncated to 72 bytes for bcrypt compatibility
+    if isinstance(plain_password, str):
+        # Encode to bytes to get accurate byte count, then truncate
+        password_bytes = plain_password.encode('utf-8')
+        if len(password_bytes) > 72:
+            # Truncate to 72 bytes and decode back to string
+            truncated_bytes = password_bytes[:72]
+            truncated_password = truncated_bytes.decode('utf-8', errors='ignore')
+        else:
+            truncated_password = plain_password
+    else:
+        truncated_password = str(plain_password)[:72]
+    
     return pwd_context.verify(truncated_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
     """Hash a password"""
-    # Truncate password to 72 bytes for bcrypt compatibility
-    truncated_password = password[:72]
+    # Ensure password is properly encoded and truncated to 72 bytes for bcrypt compatibility
+    if isinstance(password, str):
+        # Encode to bytes to get accurate byte count, then truncate
+        password_bytes = password.encode('utf-8')
+        if len(password_bytes) > 72:
+            # Truncate to 72 bytes and decode back to string
+            truncated_bytes = password_bytes[:72]
+            truncated_password = truncated_bytes.decode('utf-8', errors='ignore')
+        else:
+            truncated_password = password
+    else:
+        truncated_password = str(password)[:72]
+    
     return pwd_context.hash(truncated_password)
 
 

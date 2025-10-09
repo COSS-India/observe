@@ -56,6 +56,7 @@ class SignupRequest(BaseModel):
 
 class SignupResponse(BaseModel):
     message: str
+    initial_password: Optional[str] = None
 
 
 # Captcha schemas
