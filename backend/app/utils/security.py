@@ -4,7 +4,12 @@ from datetime import datetime, timedelta
 from app.core.config import settings
 
 # Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configure bcrypt to truncate passwords instead of raising errors
+pwd_context = CryptContext(
+    schemes=["bcrypt"], 
+    deprecated="auto",
+    bcrypt__truncate_error=False  # Don't raise error for passwords > 72 bytes
+)
 
 
 def validate_password_length(password: str) -> tuple[bool, str]:
