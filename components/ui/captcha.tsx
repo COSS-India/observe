@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RefreshCw } from 'lucide-react';
+import Image from 'next/image';
 
 interface CaptchaData {
   captcha_id: string;
@@ -22,7 +23,7 @@ export function Captcha({ onCaptchaChange, error }: CaptchaProps) {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const fetchCaptcha = async () => {
+  const fetchCaptcha = useCallback(async () => {
     try {
       setLoading(true);
       setErrorMessage('');
@@ -58,11 +59,11 @@ export function Captcha({ onCaptchaChange, error }: CaptchaProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [onCaptchaChange]);
 
   useEffect(() => {
     fetchCaptcha();
-  }, []);
+  }, []); // Only run once on mount
 
   const handleCaptchaTextChange = (value: string) => {
     setCaptchaText(value);
@@ -85,9 +86,11 @@ export function Captcha({ onCaptchaChange, error }: CaptchaProps) {
         <div className="flex-1">
           {captchaData ? (
             <div className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
-              <img 
+              <Image 
                 src={`data:image/png;base64,${captchaData.image}`}
                 alt="Captcha"
+                width={200}
+                height={48}
                 className="w-full h-12 object-contain"
                 onError={(e) => {
                   console.error('Image load error:', e);
