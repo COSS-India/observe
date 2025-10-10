@@ -6,10 +6,7 @@ const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
 
 const grafanaClient = axios.create({
   baseURL: GRAFANA_URL,
-  headers: {
-    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
+      headers: getGrafanaAuthHeaders(),
 });
 
 export async function POST(

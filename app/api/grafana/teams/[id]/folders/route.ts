@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { getGrafanaAuthHeaders } from '@/lib/utils/grafana-auth';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
-const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
 
 export async function GET(
   request: NextRequest,
@@ -12,15 +12,13 @@ export async function GET(
     const { id: teamId } = await params;
     console.log(`🔍 Fetching folders for Team ID: ${teamId}`);
 
+    // Get auth headers (supports Basic Auth)
+    const headers = getGrafanaAuthHeaders();
+
     // Get all folders
     const foldersResponse = await axios.get(
       `${GRAFANA_URL}/api/folders`,
-      {
-        headers: {
-          'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-      }
+      { headers }
     );
 
     const allFolders = foldersResponse.data;
@@ -37,12 +35,7 @@ export async function GET(
       try {
         const permissionsResponse = await axios.get(
           `${GRAFANA_URL}/api/folders/${folder.uid}/permissions`,
-          {
-            headers: {
-              'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-          }
+          { headers }
         );
 
         const permissions = permissionsResponse.data;

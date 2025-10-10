@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://172.17.24.167:3000';
+const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000';
 const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
 
 // DELETE /api/grafana/orgs/[id]/users/[userId] - Remove user from organization
@@ -15,10 +15,7 @@ export async function DELETE(
     const response = await axios.delete(
       `${GRAFANA_URL}/api/orgs/${orgId}/users/${userId}`,
       {
-        headers: {
-          'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
+      headers: getGrafanaAuthHeaders(),
       }
     );
 
@@ -58,10 +55,7 @@ export async function PATCH(
       `${GRAFANA_URL}/api/orgs/${orgId}/users/${userId}`,
       { role },
       {
-        headers: {
-          'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
+      headers: getGrafanaAuthHeaders(),
       }
     );
 

@@ -3,11 +3,17 @@ import axios from 'axios';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
 const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
+const GRAFANA_ADMIN_USER = process.env.GRAFANA_ADMIN_USER || 'admin';
+const GRAFANA_ADMIN_PASSWORD = process.env.GRAFANA_ADMIN_PASSWORD || 'password';
 
+// Create client with basic auth for server admin operations
 const grafanaClient = axios.create({
   baseURL: GRAFANA_URL,
+  auth: {
+    username: GRAFANA_ADMIN_USER,
+    password: GRAFANA_ADMIN_PASSWORD,
+  },
   headers: {
-    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
     'Content-Type': 'application/json',
   },
 });
@@ -15,13 +21,18 @@ const grafanaClient = axios.create({
 // GET /api/grafana/orgs - List all organizations
 export async function GET() {
   try {
-    // Note: Listing all organizations requires Server Admin permissions
-    // With Organization Admin, we can only get the current organization
-    // For now, we'll return the current organization details
-    const response = await grafanaClient.get('/api/org');
-    
-    // Wrap single org in an array for consistent response format
-    return NextResponse.json([response.data]);
+    // First try to get all organizations (requires Server Admin)
+    try {
+      const response = await grafanaClient.get('/api/orgs');
+      return NextResponse.json(response.data);
+    } catch (orgsError) {
+      // If that fails, fall back to current organization
+      console.log('Cannot access /api/orgs, falling back to current organization');
+      const response = await grafanaClient.get('/api/org');
+      
+      // Wrap single org in an array for consistent response format
+      return NextResponse.json([response.data]);
+    }
   } catch (error) {
     console.error('Error fetching organizations:', error);
     if (axios.isAxiosError(error)) {
@@ -60,7 +71,7 @@ export async function POST(request: NextRequest) {
         { 
           error: errorMessage,
           hint: error.response?.status === 403 
-            ? 'Creating organizations requires Server Admin permissions. With Organization Admin, you can only manage the current organization.'
+            ? 'Creating organizations requires Server Admin permissions or Grafana may be configured for single-organization mode. Contact your Grafana administrator to enable multi-organization support.'
             : undefined
         },
         { status: error.response?.status || 500 }

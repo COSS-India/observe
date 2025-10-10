@@ -42,17 +42,17 @@ const navigation = [
   //   requiresSuperAdmin: true,
   // },
   {
+    name: "Organizations",
+    href: "/dashboard/organizations",
+    icon: Building2,
+    requiresSuperAdmin: true,
+  },
+  {
     name: "Customer organizations",
     href: "/dashboard/teams",
     icon: UsersRound,
     requiresSuperAdmin: true,
   },
-  // {
-  //   name: "Organizations",
-  //   href: "/dashboard/organizations",
-  //   icon: Building2,
-  //   requiresSuperAdmin: true,
-  // },
   {
     name: "Customer categories",
     href: "/dashboard/folders",
