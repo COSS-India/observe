@@ -3,16 +3,11 @@ import axios from 'axios';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
 const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
-const GRAFANA_ADMIN_USER = process.env.GRAFANA_ADMIN_USER || 'admin';
-const GRAFANA_ADMIN_PASSWORD = process.env.GRAFANA_ADMIN_PASSWORD || 'password';
 
 const grafanaClient = axios.create({
   baseURL: GRAFANA_URL,
-  auth: {
-    username: GRAFANA_ADMIN_USER,
-    password: GRAFANA_ADMIN_PASSWORD,
-  },
   headers: {
+    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
     'Content-Type': 'application/json',
   },
 });

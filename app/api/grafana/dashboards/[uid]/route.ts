@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { getGrafanaAuthHeaders } from '@/lib/utils/grafana-auth';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
+const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
+
+const grafanaClient = axios.create({
+  baseURL: GRAFANA_URL,
+  headers: {
+    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
+});
 
 // GET /api/grafana/dashboards/[uid] - Get dashboard by UID
 export async function GET(
@@ -11,27 +19,11 @@ export async function GET(
 ) {
   try {
     const { uid } = await params;
-    
-    // Get organization ID from query params if provided
-    const { searchParams } = new URL(request.url);
-    const orgId = searchParams.get('orgId');
-    
-    console.log(`📊 Fetching dashboard: ${uid}${orgId ? ` in org ${orgId}` : ''}`);
-    
-    const headers = getGrafanaAuthHeaders(orgId ? parseInt(orgId) : undefined);
-    
-    const response = await axios.get(
-      `${GRAFANA_URL}/api/dashboards/uid/${uid}`,
-      { headers }
-    );
-    
-    console.log(`✅ Found dashboard: ${response.data?.dashboard?.title || uid}`);
+    const response = await grafanaClient.get(`/api/dashboards/uid/${uid}`);
     return NextResponse.json(response.data);
   } catch (error) {
-    console.error(`❌ Error fetching dashboard ${await params.then(p => p.uid)}:`, error);
+    console.error('Error fetching dashboard:', error);
     if (axios.isAxiosError(error)) {
-      console.error('Response status:', error.response?.status);
-      console.error('Response data:', error.response?.data);
       return NextResponse.json(
         { error: error.response?.data?.message || 'Failed to fetch dashboard' },
         { status: error.response?.status || 500 }
@@ -52,20 +44,7 @@ export async function DELETE(
   try {
     const { uid } = await params;
     
-    // Get organization ID from query params if provided
-    const { searchParams } = new URL(request.url);
-    const orgId = searchParams.get('orgId');
-    
-    console.log(`🗑️ Deleting dashboard: ${uid}${orgId ? ` in org ${orgId}` : ''}`);
-    
-    const headers = getGrafanaAuthHeaders(orgId ? parseInt(orgId) : undefined);
-    
-    const response = await axios.delete(
-      `${GRAFANA_URL}/api/dashboards/uid/${uid}`,
-      { headers }
-    );
-    
-    console.log(`✅ Dashboard ${uid} deleted successfully`);
+    const response = await grafanaClient.delete(`/api/dashboards/uid/${uid}`);
     return NextResponse.json(response.data);
   } catch (error) {
     console.error('Error deleting dashboard:', error);
@@ -75,7 +54,7 @@ export async function DELETE(
         { 
           error: errorMessage,
           hint: error.response?.status === 403 
-            ? 'You lack the required permissions to delete dashboards.'
+            ? 'Your Grafana API key lacks the required permissions to delete dashboards.'
             : undefined
         },
         { status: error.response?.status || 500 }

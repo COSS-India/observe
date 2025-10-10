@@ -32,7 +32,10 @@ export async function GET() {
     // Try to connect to Grafana
     const grafanaClient = axios.create({
       baseURL: GRAFANA_URL,
-      headers: getGrafanaAuthHeaders(),
+      headers: {
+        'Authorization': `Bearer ${GRAFANA_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
       timeout: 10000, // 10 second timeout
     });
 

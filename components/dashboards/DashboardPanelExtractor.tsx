@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
 
 interface Panel {
   id: number;
@@ -14,9 +13,8 @@ interface Panel {
 }
 
 interface DashboardPanelExtractorProps {
-  folders: Array<{ uid: string; title: string; id?: number; orgId?: number }>;
+  folders: Array<{ uid: string; title: string }>;
   dashboards: Array<{ uid: string; title: string; folderUid: string }>;
-  orgId: number | null;
 }
 
 const TIME_RANGES = [
@@ -43,17 +41,12 @@ const TIME_RANGES = [
   { label: 'Last month', value: 'now-1M/M', from: 'now-1M/M', to: 'now-1M/M' },
 ];
 
-export function DashboardPanelExtractor({ folders, dashboards, orgId: propOrgId }: DashboardPanelExtractorProps) {
+export function DashboardPanelExtractor({ folders, dashboards }: DashboardPanelExtractorProps) {
   const [selectedFolder, setSelectedFolder] = useState<string>('');
   const [selectedDashboard, setSelectedDashboard] = useState<string>('');
   const [panels, setPanels] = useState<Panel[]>([]);
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('now-6h');
   const [loading, setLoading] = useState(false);
-  
-  // Use the orgId passed from parent component (from useUserDashboards hook)
-  const orgId = propOrgId || 1;
-  
-  console.log(`🏢 Using organization ID: ${orgId} for panel display`);
 
   const filteredDashboards = dashboards.filter(
     (d) => !selectedFolder || d.folderUid === selectedFolder
@@ -85,15 +78,12 @@ export function DashboardPanelExtractor({ folders, dashboards, orgId: propOrgId 
     }
   }, [selectedFolder, dashboards, selectedDashboard]);
 
-  const fetchDashboardPanels = useCallback(async (dashboardUid: string, currentOrgId: number) => {
+  const fetchDashboardPanels = useCallback(async (dashboardUid: string) => {
     setLoading(true);
     try {
-      console.log(`📊 Fetching dashboard panels for: ${dashboardUid} in org ${currentOrgId}`);
-      const response = await fetch(`/api/grafana/dashboards/${dashboardUid}?orgId=${currentOrgId}`);
+      const response = await fetch(`/api/grafana/dashboards/${dashboardUid}`);
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ Failed to fetch dashboard:', errorData);
-        throw new Error(errorData.error || 'Failed to fetch dashboard');
+        throw new Error('Failed to fetch dashboard');
       }
       const data = await response.json();
       
@@ -131,12 +121,12 @@ export function DashboardPanelExtractor({ folders, dashboards, orgId: propOrgId 
   }, []);
 
   useEffect(() => {
-    if (selectedDashboard && orgId) {
-      fetchDashboardPanels(selectedDashboard, orgId);
+    if (selectedDashboard) {
+      fetchDashboardPanels(selectedDashboard);
     } else {
       setPanels([]);
     }
-  }, [selectedDashboard, orgId, fetchDashboardPanels]);
+  }, [selectedDashboard, fetchDashboardPanels]);
 
   return (
     <div className="space-xl w-full">
@@ -242,7 +232,7 @@ export function DashboardPanelExtractor({ folders, dashboards, orgId: propOrgId 
                 <CardContent className="p-0">
                   <div className="border-t border-gray-200 dark:border-gray-700 overflow-hidden">
                     <iframe
-                      src={`${process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000'}/d-solo/${selectedDashboard}/${dashboards.find(d => d.uid === selectedDashboard)?.title.toLowerCase().replace(/\s+/g, '-') || ''}?orgId=${orgId}&from=${TIME_RANGES.find(r => r.value === selectedTimeRange)?.from || 'now-6h'}&to=${TIME_RANGES.find(r => r.value === selectedTimeRange)?.to || 'now'}&refresh=5s&panelId=${panel.id}&__feature.dashboardSceneSolo=true`}
+                      src={`${process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000'}/d-solo/${selectedDashboard}/${dashboards.find(d => d.uid === selectedDashboard)?.title.toLowerCase().replace(/\s+/g, '-') || ''}?orgId=1&from=${TIME_RANGES.find(r => r.value === selectedTimeRange)?.from || 'now-6h'}&to=${TIME_RANGES.find(r => r.value === selectedTimeRange)?.to || 'now'}&refresh=5s&panelId=${panel.id}&__feature.dashboardSceneSolo=true`}
                       width="100%"
                       height="400"
                       frameBorder="0"
