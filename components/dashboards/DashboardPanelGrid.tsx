@@ -1,8 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Maximize2, Minimize2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
 
 export interface PanelConfig {
@@ -24,15 +22,7 @@ export function DashboardPanelGrid({
   columns = 2,
   defaultHeight = 400 
 }: DashboardPanelGridProps) {
-  const [fullscreenPanel, setFullscreenPanel] = useState<string | null>(null);
-
-  const toggleFullscreen = (panelId: string) => {
-    if (fullscreenPanel === panelId) {
-      setFullscreenPanel(null);
-    } else {
-      setFullscreenPanel(panelId);
-    }
-  };
+  const [fullscreenPanel] = useState<string | null>(null);
 
   const gridColsClass = {
     1: 'grid-cols-1',
