@@ -13,6 +13,7 @@ import {
 import { Bell, LogOut, User, Shield, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ModeToggle } from '@/components/ui/mode-toggle';
 import { isSuperAdmin } from '@/lib/utils/permissions';
 
 export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void }) {
@@ -71,7 +72,10 @@ export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => 
         </div>
       </div>
 
-      <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0 ml-4">
+      <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 ml-4">
+        {/* Theme Toggle */}
+        <ModeToggle />
+        
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

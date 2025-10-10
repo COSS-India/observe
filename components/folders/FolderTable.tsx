@@ -43,8 +43,6 @@ export function FolderTable({
         <TableHeader className="table-header">
           <TableRow>
             <TableHead className="table-cell table-cell-text col-flex">Title</TableHead>
-            <TableHead className="table-cell table-cell-text col-medium table-hide-tablet">UID</TableHead>
-            <TableHead className="table-cell table-cell-text col-wide table-hide-mobile">URL</TableHead>
             <TableHead className="table-cell table-cell-action col-medium">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -52,8 +50,6 @@ export function FolderTable({
           {folders.map((folder) => (
             <TableRow key={folder.uid} className="table-row">
               <TableCell className="table-cell table-cell-text font-medium truncate">{folder.title}</TableCell>
-              <TableCell className="table-cell table-cell-text font-mono text-muted-foreground table-hide-tablet">{folder.uid}</TableCell>
-              <TableCell className="table-cell table-cell-text text-muted-foreground truncate table-hide-mobile">{folder.url || '-'}</TableCell>
               <TableCell className="table-cell table-cell-action">
                 {(onEdit || onDelete || onManageTeams || onManageDashboards) && (
                   <div className="flex gap-2">
