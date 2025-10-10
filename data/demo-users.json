@@ -2,43 +2,43 @@
   "users": [
     {
       "id": "1",
-      "username": "admin",
-      "password": "password",
-      "email": "admin@localhost",
+      "username": "bashini",
+      "password": "admin123",
+      "email": "bashini@example.com",
       "role": "superadmin",
       "organization": "bashini"
     },
     {
       "id": "2",
-      "username": "alen@irctc.com",
-      "password": "password",
-      "email": "alen@irctc.com",
+      "username": "irctc",
+      "password": "irctc123",
+      "email": "irctc@example.com",
       "role": "admin",
-      "organization": "IRCTC"
+      "organization": "irctc"
     },
     {
       "id": "3",
-      "username": "shesna@irctc.com",
-      "password": "password",
-      "email": "shesna@irctc.com",
+      "username": "kisanmitra",
+      "password": "karmayogi",
+      "email": "kisanmitra@karmayogi.com",
       "role": "admin",
-      "organization": "IRCTC"
+      "organization": "kisanmitra"
     },
     {
       "id": "4",
-      "username": "bharathi@irctc.com",
-      "password": "password",
-      "email": "bharathi@irctc.com",
+      "username": "bashadaan",
+      "password": "basha123",
+      "email": "bashadaan@karmayogi.com",
       "role": "admin",
-      "organization": "IRCTC"
+      "organization": "bashadaan"
     },
     {
       "id": "5",
-      "username": "vipul@irctc.com",
-      "password": "password",
-      "email": "vipul@irctc.com",
+      "username": "beml",
+      "password": "beml1234",
+      "email": "beml@karmayogi.com",
       "role": "admin",
-      "organization": "IRCTC"
+      "organization": "beml"
     }
   ]
 }

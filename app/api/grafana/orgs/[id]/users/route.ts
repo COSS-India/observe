@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000';
+const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://172.17.24.167:3000';
 const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
-const GRAFANA_ADMIN_USER = process.env.GRAFANA_ADMIN_USER || 'admin';
-const GRAFANA_ADMIN_PASSWORD = process.env.GRAFANA_ADMIN_PASSWORD || 'password';
 
 // GET /api/grafana/orgs/[id]/users - Get organization users
 export async function GET(
@@ -17,11 +15,8 @@ export async function GET(
     const response = await axios.get(
       `${GRAFANA_URL}/api/orgs/${orgId}/users`,
       {
-        auth: {
-          username: GRAFANA_ADMIN_USER,
-          password: GRAFANA_ADMIN_PASSWORD,
-        },
         headers: {
+          'Authorization': `Bearer ${GRAFANA_API_KEY}`,
           'Content-Type': 'application/json',
         },
       }
@@ -63,7 +58,10 @@ export async function POST(
       `${GRAFANA_URL}/api/orgs/${orgId}/users`,
       { loginOrEmail, role },
       {
-      headers: getGrafanaAuthHeaders(),
+        headers: {
+          'Authorization': `Bearer ${GRAFANA_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
     );
 

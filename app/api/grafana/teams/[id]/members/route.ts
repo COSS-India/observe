@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000';
+const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://172.17.24.167:3000';
 const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
 
 // GET /api/grafana/teams/[id]/members - Get team members
@@ -15,7 +15,10 @@ export async function GET(
     const response = await axios.get(
       `${GRAFANA_URL}/api/teams/${teamId}/members`,
       {
-      headers: getGrafanaAuthHeaders(),
+        headers: {
+          'Authorization': `Bearer ${GRAFANA_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
     );
 
@@ -55,7 +58,10 @@ export async function POST(
       `${GRAFANA_URL}/api/teams/${teamId}/members`,
       { userId },
       {
-      headers: getGrafanaAuthHeaders(),
+        headers: {
+          'Authorization': `Bearer ${GRAFANA_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
       }
     );
 

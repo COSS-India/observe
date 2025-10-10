@@ -2,18 +2,22 @@
 
 import React, { useEffect, useMemo } from "react";
 import { DashboardPanelExtractor } from "@/components/dashboards/DashboardPanelExtractor";
-import { useUserDashboards } from "@/hooks/useUserDashboards";
+import { useTeamDashboards } from "@/hooks/useTeamDashboards";
+import { useTeamFolders } from "@/hooks/useTeamFolders";
 import { useAuth } from "@/hooks/useAuth";
 
 function MyDashboardsPage(): React.ReactElement {
   const { user } = useAuth();
   const {
     dashboards,
+    loading: dashboardsLoading,
+    fetchTeamDashboards,
+  } = useTeamDashboards();
+  const {
     folders,
-    loading,
-    orgId,
-    fetchUserAccessibleDashboards,
-  } = useUserDashboards();
+    loading: foldersLoading,
+    fetchTeamFolders,
+  } = useTeamFolders();
 
   // Deduplicate folders by UID
   const uniqueFolders = useMemo(
@@ -25,15 +29,16 @@ function MyDashboardsPage(): React.ReactElement {
     [folders]
   );
 
-  // Fetch user-specific dashboards based on organization and team access
+  // Fetch team-based dashboards and folders when user has a team ID
   useEffect(() => {
-    if (user?.email && user?.organization) {
+    if (user?.grafanaTeamId) {
       console.log(
-        `🔄 Fetching user-specific dashboards for: ${user.email} in organization: ${user.organization}`
+        `🔄 Fetching team-based dashboards and folders for Team ID: ${user.grafanaTeamId}`
       );
-      fetchUserAccessibleDashboards(user.email, user.organization);
+      fetchTeamDashboards(user.grafanaTeamId);
+      fetchTeamFolders(user.grafanaTeamId);
     }
-  }, [user?.email, user?.organization, fetchUserAccessibleDashboards]);
+  }, [user?.grafanaTeamId, fetchTeamDashboards, fetchTeamFolders]);
 
   // Debug: Log dashboards and folders when they change
   useEffect(() => {
@@ -41,7 +46,7 @@ function MyDashboardsPage(): React.ReactElement {
     console.log("📁 Folders loaded:", folders.length, folders);
   }, [dashboards, folders]);
 
-  const isLoading = loading;
+  const isLoading = dashboardsLoading || foldersLoading;
 
   return (
     <div className="space-normal w-full overflow-hidden">
@@ -56,12 +61,15 @@ function MyDashboardsPage(): React.ReactElement {
         </div>
       </div>
 
-      {!user?.email && (
+      {!user?.grafanaTeamId && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-body text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
           <div>
-            <p className="font-medium">User Information Required</p>
+            <p className="font-medium">Team Mapping Required</p>
             <p className="mt-1">
-              Please ensure your user account has proper email and organization information.
+              Your account needs to be mapped to a Grafana team. Your
+              organization is <strong>{user?.organization}</strong>. Please
+              ensure a team with this name exists in Grafana, or contact your
+              administrator.
             </p>
           </div>
         </div>
@@ -71,9 +79,9 @@ function MyDashboardsPage(): React.ReactElement {
         <div className="text-center py-8 text-muted-foreground">
           Loading dashboards and folders...
         </div>
-      ) : !user?.email ? (
+      ) : !user?.grafanaTeamId ? (
         <div className="text-center py-8 text-muted-foreground">
-          Please ensure your user account has proper email information.
+          Please configure your team mapping to view dashboards.
         </div>
       ) : uniqueFolders.length === 0 ? (
         <div className="text-center py-8">
@@ -94,7 +102,6 @@ function MyDashboardsPage(): React.ReactElement {
         <DashboardPanelExtractor
           folders={uniqueFolders}
           dashboards={dashboards}
-          orgId={orgId}
         />
       )}
     </div>

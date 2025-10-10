@@ -36,15 +36,6 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async lookupUser(loginOrEmail: string, orgId?: number): Promise<GrafanaUser> {
-    const params: Record<string, string> = { loginOrEmail };
-    if (orgId) {
-      params.orgId = orgId.toString();
-    }
-    const response = await this.client.get<GrafanaUser>('/users/lookup', { params });
-    return response.data;
-  }
-
   async createUser(userData: CreateGrafanaUserPayload): Promise<{ id: number; message: string }> {
     const response = await this.client.post('/users', userData);
     return response.data;
@@ -75,26 +66,18 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  // Get teams for a specific user
-  // Uses Grafana API: GET /api/users/:id/teams
-  async getUserTeams(userId: number, orgId?: number): Promise<Team[]> {
-    const params = orgId ? { orgId: orgId.toString() } : {};
-    const response = await this.client.get<Team[]>(`/users/${userId}/teams`, { params });
+  async getUserTeams(userId: number): Promise<Team[]> {
+    const response = await this.client.get<Team[]>(`/users/${userId}/teams`);
     return response.data;
   }
 
-  async getUserDashboards(userId: number, orgId?: number): Promise<Dashboard[]> {
-    const params = orgId ? { orgId: orgId.toString() } : {};
-    const response = await this.client.get<Dashboard[]>(`/users/${userId}/dashboards`, { params });
+  async getUserDashboards(userId: number): Promise<Dashboard[]> {
+    const response = await this.client.get<Dashboard[]>(`/users/${userId}/dashboards`);
     return response.data;
   }
 
-  async getUserFolders(userId: number, orgId?: number): Promise<DashboardFolder[]> {
-    const params = orgId ? { orgId: orgId.toString() } : {};
-    console.log(`🔍 Calling API: /users/${userId}/folders`, params);
-    const response = await this.client.get<DashboardFolder[]>(`/users/${userId}/folders`, { params });
-    console.log(`📡 Raw API response for user folders:`, JSON.stringify(response.data, null, 2));
-    
+  async getUserFolders(userId: number): Promise<DashboardFolder[]> {
+    const response = await this.client.get<DashboardFolder[]>(`/users/${userId}/folders`);
     // Filter out the "General" folder (uid is empty string or "general")
     const folders = Array.isArray(response.data)
       ? response.data.filter((folder) =>
@@ -103,8 +86,6 @@ class GrafanaAPIClient {
           folder.title?.toLowerCase() !== 'general'
         )
       : [];
-    
-    console.log(`📁 Filtered folders:`, JSON.stringify(folders, null, 2));
     return folders;
   }
 
@@ -229,34 +210,6 @@ class GrafanaAPIClient {
     }
   }
 
-  // Get folders accessible by a specific team
-  async getTeamFolders(teamId: number): Promise<DashboardFolder[]> {
-    try {
-      const folders = await this.listFolders();
-      const accessibleFolders: DashboardFolder[] = [];
-
-      for (const folder of folders) {
-        try {
-          const permissions = await this.getFolderPermissions(folder.uid);
-          const hasTeamAccess = permissions.some(
-            (perm) => perm.teamId === teamId || perm.team === teamId.toString()
-          );
-
-          if (hasTeamAccess) {
-            accessibleFolders.push(folder);
-          }
-        } catch (error) {
-          console.warn(`Could not check permissions for folder ${folder.uid}:`, error);
-        }
-      }
-
-      return accessibleFolders;
-    } catch (error) {
-      console.error('Error fetching team folders:', error);
-      return [];
-    }
-  }
-
   // Folder Management
   async listFolders(): Promise<DashboardFolder[]> {
     const response = await this.client.get<DashboardFolder[]>('/folders');
@@ -292,9 +245,8 @@ class GrafanaAPIClient {
   }
 
   // Folder Permissions
-  async getFolderPermissions(uid: string, orgId?: number): Promise<Permission[]> {
-    const params = orgId ? { orgId: orgId.toString() } : {};
-    const response = await this.client.get<Permission[]>(`/folders/${uid}/permissions`, { params });
+  async getFolderPermissions(uid: string): Promise<Permission[]> {
+    const response = await this.client.get<Permission[]>(`/folders/${uid}/permissions`);
     return response.data;
   }
 
@@ -309,9 +261,8 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async getDashboard(uid: string, orgId?: number): Promise<DashboardDetail> {
-    const params = orgId ? { orgId: orgId.toString() } : {};
-    const response = await this.client.get<DashboardDetail>(`/dashboards/${uid}`, { params });
+  async getDashboard(uid: string): Promise<DashboardDetail> {
+    const response = await this.client.get<DashboardDetail>(`/dashboards/${uid}`);
     return response.data;
   }
 

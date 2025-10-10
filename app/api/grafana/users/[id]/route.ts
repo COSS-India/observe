@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { getGrafanaAuthHeaders } from '@/lib/utils/grafana-auth';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
+const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
 
 const grafanaClient = axios.create({
   baseURL: GRAFANA_URL,
-      headers: getGrafanaAuthHeaders(),
+  headers: {
+    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
+    'Content-Type': 'application/json',
+  },
 });
 
 // GET /api/grafana/users/[id] - Get user by ID
