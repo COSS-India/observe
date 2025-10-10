@@ -5,6 +5,7 @@ import { useGrafanaUsers } from '@/hooks/useGrafanaUsers';
 import { UserTable } from '@/components/users/UserTable';
 import { UserEditDialog } from '@/components/users/UserEditDialog';
 import { GrafanaSetupError } from '@/components/GrafanaSetupError';
+import { Pagination } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PlusCircle, Search } from 'lucide-react';
@@ -17,6 +18,8 @@ export default function UsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<GrafanaUser | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchUsers();
@@ -28,6 +31,18 @@ export default function UsersPage() {
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.login.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination logic
+  const totalItems = filteredUsers.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleEdit = (user: GrafanaUser) => {
     setSelectedUser(user);
@@ -84,13 +99,27 @@ export default function UsersPage() {
                   <p className="text-xs sm:text-sm">Loading users...</p>
                 </div>
               ) : (
-                <UserTable
-                  users={filteredUsers}
-                  onDelete={deleteUser}
-                  onEdit={handleEdit}
-                  onToggleStatus={toggleUserStatus}
-                  loading={loading}
-                />
+                <>
+                  <UserTable
+                    users={paginatedUsers}
+                    onDelete={deleteUser}
+                    onEdit={handleEdit}
+                    onToggleStatus={toggleUserStatus}
+                    loading={loading}
+                  />
+                  {totalPages > 1 && (
+                    <div className="mt-6 px-4 sm:px-6">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        itemsPerPage={itemsPerPage}
+                        totalItems={totalItems}
+                        onItemsPerPageChange={setItemsPerPage}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}

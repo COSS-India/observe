@@ -9,6 +9,7 @@ import { FolderTable } from '@/components/folders/FolderTable';
 import { FolderFormDialog } from '@/components/folders/FolderFormDialog';
 import { FolderTeamsManager } from '@/components/folders/FolderTeamsManager';
 import { FolderDashboardsManager } from '@/components/folders/FolderDashboardsManager';
+import { Pagination } from '@/components/ui/pagination';
 import { useGrafanaFolders } from '@/hooks/useGrafanaFolders';
 import { useAuthStore } from '@/lib/store/authStore';
 import type { DashboardFolder } from '@/types/grafana';
@@ -43,6 +44,8 @@ export default function FoldersPage() {
   const [folderToDelete, setFolderToDelete] = useState<DashboardFolder | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [managingFolder, setManagingFolder] = useState<DashboardFolder | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchFolders();
@@ -105,6 +108,18 @@ export default function FoldersPage() {
   const filteredFolders = displayFolders.filter((folder: DashboardFolder) =>
     folder.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination logic
+  const totalItems = filteredFolders.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedFolders = filteredFolders.slice(startIndex, endIndex);
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   // Show loading indicator
   const isLoading = loading;
@@ -174,13 +189,27 @@ export default function FoldersPage() {
               {searchQuery ? 'No folders found matching your search.' : 'No folders available.'}
             </div>
           ) : (
-            <FolderTable
-              folders={filteredFolders}
-              onEdit={isAdmin ? handleEdit : undefined}
-              onDelete={isAdmin ? handleDeleteClick : undefined}
-              onManageTeams={handleManageTeams}
-              onManageDashboards={handleManageDashboards}
-            />
+            <>
+              <FolderTable
+                folders={paginatedFolders}
+                onEdit={isAdmin ? handleEdit : undefined}
+                onDelete={isAdmin ? handleDeleteClick : undefined}
+                onManageTeams={handleManageTeams}
+                onManageDashboards={handleManageDashboards}
+              />
+              {totalPages > 1 && (
+                <div className="mt-6 px-4 sm:px-6">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalItems={totalItems}
+                    onItemsPerPageChange={setItemsPerPage}
+                  />
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
