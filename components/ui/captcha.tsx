@@ -54,7 +54,7 @@ export function Captcha({ onCaptchaChange, error }: CaptchaProps) {
       onCaptchaChange(data.captcha.captcha_id, ''); // Reset captcha callback
     } catch (error) {
       console.error('Captcha fetch error:', error);
-      setErrorMessage(`Failed to load captcha: ${error.message}`);
+      setErrorMessage(`Failed to load captcha: ${error}`);
     } finally {
       setLoading(false);
     }
