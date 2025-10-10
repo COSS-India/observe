@@ -13,15 +13,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { getDemoCredentialsForDisplay } from "@/lib/utils/demo-users";
+import { Captcha } from "@/components/ui/captcha";
 import { ChartColumn } from "lucide-react";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [captchaText, setCaptchaText] = useState("");
+  const [captchaId, setCaptchaId] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+
+  const handleCaptchaChange = (id: string, text: string) => {
+    setCaptchaId(id);
+    setCaptchaText(text);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,9 +36,14 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await login({ username, password });
+      await login({ 
+        username, 
+        password, 
+        captcha_text: captchaText, 
+        captcha_id: captchaId 
+      });
     } catch {
-      setError("Invalid username or password");
+      setError("Invalid username, password, or captcha");
     } finally {
       setLoading(false);
     }
@@ -88,6 +100,11 @@ export default function LoginPage() {
                 className="h-12 border-input rounded-lg focus:ring-2 focus:ring-ring"
               />
             </div>
+
+            <Captcha 
+              onCaptchaChange={handleCaptchaChange}
+              error={error}
+            />
 
             <Button type="submit" className="w-full h-12 rounded-lg" disabled={loading}>
               {loading ? "Signing in..." : "Sign in"}

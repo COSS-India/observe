@@ -81,11 +81,14 @@ def create_user(db: Session, signup_request: SignupRequest) -> dict:
             detail="User with this email already exists"
         )
     
-    # Generate a simple password (no complex validation needed)
-    print(f"[DEBUG] Starting simple password generation for user: {signup_request.email_id}")
-    initial_password = generate_simple_password()
-    
-    print(f"[DEBUG] Generated password: '{initial_password}' ({len(initial_password)} characters)")
+    # Use provided password or generate default
+    print(f"[DEBUG] Starting password generation for user: {signup_request.email_id}")
+    if signup_request.password:
+        initial_password = signup_request.password
+        print(f"[DEBUG] Using provided custom password: '{initial_password}'")
+    else:
+        initial_password = generate_simple_password(signup_request.email_id)
+        print(f"[DEBUG] Generated password: '{initial_password}'")
     print(f"[DEBUG] About to hash password: '{initial_password}'")
     password_hash = get_password_hash(initial_password)
     print(f"[DEBUG] Password hashed successfully")

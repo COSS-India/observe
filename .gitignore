@@ -96,3 +96,7 @@ Thumbs.db
 backend/DATABASE_ARCHITECTURE.md
 backend/PASSWORD_SYSTEM_DOCS.md
 backend/USER_PROFILE_APIS.md
+
+# Environment setup files (keep local only)
+setup-env.sh
+ENVIRONMENT_SETUP.md

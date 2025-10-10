@@ -123,14 +123,15 @@ app/
 
 ### 3. User Signup
 - **POST** `/v1/signup`
-- **Content-Type**: `multipart/form-data`
-- **Form Data**:
-  ```
-  request_data: {
+- **Content-Type**: `application/json`
+- **Request Body**:
+  ```json
+  {
     "first_name": "shez",
     "last_name": "shez",
     "email_id": "shezz13012000@gmail.com",
     "role": "customer",
+    "password": "mypassword123",
     "org": {
       "org_type": "Private Corporate Sector",
       "org_name": "test",
@@ -144,6 +145,7 @@ app/
     "tnc_url": "https://userdatav1.blob.core.windows.net/dashboardblob/Terms_and_Conditions_Adopter.pdf"
   }
   ```
+- **Note**: The `password` field is optional. If not provided, a password will be generated using the first part of the email + "123"
 - **Response**:
   ```json
   {

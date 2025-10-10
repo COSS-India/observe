@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDemoUsers, type DemoUser } from '@/lib/utils/demo-users';
 import axios from 'axios';
 
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
 const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
-
-// Simple authentication - replace with your actual authentication logic
-const DEMO_USERS: DemoUser[] = getDemoUsers();
 
 async function fetchTeamByOrganization(
   organizationName: string
@@ -48,39 +45,77 @@ async function fetchTeamByOrganization(
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json();
+    const { username, password, captcha_text, captcha_id } = await request.json();
 
-    // Find user
-    const user = DEMO_USERS.find(
-      (u) => u.email === username && u.password === password
-    );
-    console.log(user)
-    if (!user) {
+    // Validate required fields
+    if (!username || !password) {
       return NextResponse.json(
-        { error: 'Invalid credentials' },
-        { status: 401 }
+        { error: 'Username and password are required' },
+        { status: 400 }
       );
     }
 
-    // Create token (in production, use JWT or similar)
-    const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
+    // Validate captcha fields
+    if (!captcha_text || !captcha_id) {
+      return NextResponse.json(
+        { error: 'Captcha verification is required' },
+        { status: 400 }
+      );
+    }
 
-    // Fetch Grafana TEAM ID based on organization (NO user-based mapping)
-    const grafanaData = await fetchTeamByOrganization(user.organization);
+    // Prepare signin data with real captcha
+    const signinData = {
+      email: username,
+      password: password,
+      captcha_text: captcha_text,
+      captcha_id: captcha_id
+    };
 
-    // Return user data without password
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userWithoutPassword } = user;
+    // Call FastAPI backend for authentication
+    const backendResponse = await axios.post(`${BACKEND_URL}/v1/signin`, signinData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const backendData = backendResponse.data;
+
+    // Fetch Grafana TEAM ID based on organization
+    const grafanaData = await fetchTeamByOrganization(backendData.org_type || 'default');
+
+    // Transform backend response to frontend format
+    const user = {
+      id: backendData.email, // Using email as ID for now
+      username: backendData.username,
+      email: backendData.email,
+      role: backendData.role,
+      organization: backendData.org_type,
+      grafanaTeamId: grafanaData.teamId,
+      createdAt: new Date().toISOString(),
+      // Additional backend fields
+      userinfo: backendData.userinfo,
+      user_type: backendData.user_type,
+      is_external: backendData.is_external,
+    };
 
     return NextResponse.json({
-      user: {
-        ...userWithoutPassword,
-        grafanaTeamId: grafanaData.teamId, // ONLY team-based access
-      },
-      token,
+      user,
+      token: backendData.token,
     });
   } catch (error) {
     console.error('Login error:', error);
+    
+    // Handle backend errors
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status || 500;
+      const message = error.response?.data?.detail || 'Authentication failed';
+      
+      return NextResponse.json(
+        { error: message },
+        { status }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

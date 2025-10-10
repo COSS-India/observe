@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.user import (
@@ -9,7 +9,6 @@ from app.services.auth_service import authenticate_user, create_user
 from app.services.user_service import get_user_profile_by_id, get_all_users_profiles
 from app.services.captcha_service import create_captcha
 from typing import Dict, Any, Optional
-import json
 
 router = APIRouter()
 
@@ -44,23 +43,13 @@ async def signin(signin_request: SigninRequest, db: Session = Depends(get_db)):
 
 @router.post("/signup", response_model=SignupResponse)
 async def signup(
-    request_data: str = Form(...),
+    signup_request: SignupRequest,
     db: Session = Depends(get_db)
 ):
-    """Customer signup with form data"""
-    print(f"[DEBUG] Signup endpoint called with request_data: {request_data[:100]}...")
+    """Customer signup with JSON data"""
+    print(f"[DEBUG] Signup endpoint called for: {signup_request.email_id}")
     
     try:
-        # Parse the JSON string from form data
-        print("[DEBUG] Parsing JSON from form data...")
-        signup_data = json.loads(request_data)
-        print(f"[DEBUG] Parsed signup data: {signup_data}")
-        
-        # Create SignupRequest object
-        print("[DEBUG] Creating SignupRequest object...")
-        signup_request = SignupRequest(**signup_data)
-        print(f"[DEBUG] SignupRequest created successfully for: {signup_request.email_id}")
-        
         # Create user
         print("[DEBUG] Calling create_user function...")
         response = create_user(db, signup_request)
@@ -68,12 +57,6 @@ async def signup(
         
         return SignupResponse(**response)
         
-    except json.JSONDecodeError as e:
-        print(f"[DEBUG] JSON decode error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid JSON in request_data"
-        )
     except Exception as e:
         print(f"[DEBUG] Unexpected error in signup: {e}")
         print(f"[DEBUG] Error type: {type(e)}")
