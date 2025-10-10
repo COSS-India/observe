@@ -52,6 +52,7 @@ class SignupRequest(BaseModel):
     role: str = "customer"
     org: Org
     tnc_url: str
+    password: Optional[str] = None
 
 
 class SignupResponse(BaseModel):
