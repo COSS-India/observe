@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { X, Plus, Loader2, Users, Search, FolderOpen, ChevronRight, ArrowLeft } from 'lucide-react';
+import { X, Loader2, Users, Search, FolderOpen, ArrowLeft } from 'lucide-react';
 import { grafanaAPI } from '@/lib/api/grafana';
 import type { DashboardFolder, Team, Permission } from '@/types/grafana';
 import { toast } from 'sonner';

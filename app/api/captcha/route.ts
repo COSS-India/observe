@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Call FastAPI backend to get captcha
     const backendResponse = await axios.post(`${BACKEND_URL}/v1/captcha`, {}, {

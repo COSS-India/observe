@@ -4,13 +4,12 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PlusCircle, Search, AlertCircle } from 'lucide-react';
+import { PlusCircle, Search } from 'lucide-react';
 import { useGrafanaOrganizations } from '@/hooks/useGrafanaOrganizations';
 import { OrganizationTable } from '@/components/organizations/OrganizationTable';
 import { OrganizationFormDialog } from '@/components/organizations/OrganizationFormDialog';
 import type { Organization } from '@/types/grafana';
 import { GrafanaSetupError } from '@/components/GrafanaSetupError';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function OrganizationsPage() {
   const { organizations, loading, error, fetchOrganizations, createOrganization, updateOrganization, deleteOrganization } = useGrafanaOrganizations();

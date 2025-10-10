@@ -6,12 +6,10 @@ import { cn } from "@/lib/utils";
 import {
   Users,
   UsersRound,
-  Building2,
   Layout,
   FolderOpen,
   Settings,
   ChevronLeft,
-  ChevronRight,
   ChartColumn,
   LayoutGrid,
 } from "lucide-react";
@@ -75,7 +73,7 @@ const navigation = [
 
 export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: (open: boolean) => void }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed] = useState(false);
   const { user } = useAuth();
 
   // Filter navigation items based on user permissions
