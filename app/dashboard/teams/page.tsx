@@ -9,6 +9,7 @@ import { useGrafanaTeams } from '@/hooks/useGrafanaTeams';
 import { TeamTable } from '@/components/teams/TeamTable';
 import { TeamFormDialog } from '@/components/teams/TeamFormDialog';
 import { TeamMembersManager } from '@/components/teams/TeamMembersManager';
+import { Pagination } from '@/components/ui/pagination';
 import type { Team } from '@/types/grafana';
 import { GrafanaSetupError } from '@/components/GrafanaSetupError';
 
@@ -19,6 +20,8 @@ export default function TeamsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [managingMembersTeam, setManagingMembersTeam] = useState<Team | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     fetchTeams();
@@ -28,6 +31,18 @@ export default function TeamsPage() {
     team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (team.email && team.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  // Pagination logic
+  const totalItems = filteredTeams.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTeams = filteredTeams.slice(startIndex, endIndex);
+
+  // Reset to first page when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleCreate = async (data: { name: string; email?: string }) => {
     await createTeam(data);
@@ -118,13 +133,27 @@ export default function TeamsPage() {
                   <p className="text-xs sm:text-sm">Loading teams...</p>
                 </div>
               ) : (
-                <TeamTable
-                  teams={filteredTeams}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                  onManageMembers={handleManageMembers}
-                  loading={loading}
-                />
+                <>
+                  <TeamTable
+                    teams={paginatedTeams}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                    onManageMembers={handleManageMembers}
+                    loading={loading}
+                  />
+                  {totalPages > 1 && (
+                    <div className="mt-6 px-4 sm:px-6">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                        itemsPerPage={itemsPerPage}
+                        totalItems={totalItems}
+                        onItemsPerPageChange={setItemsPerPage}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
