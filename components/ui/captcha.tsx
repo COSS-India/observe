@@ -63,7 +63,7 @@ export function Captcha({ onCaptchaChange, error }: CaptchaProps) {
 
   useEffect(() => {
     fetchCaptcha();
-  }, [fetchCaptcha]);
+  }, []); // Only run once on mount
 
   const handleCaptchaTextChange = (value: string) => {
     setCaptchaText(value);
