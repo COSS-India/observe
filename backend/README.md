@@ -123,10 +123,10 @@ app/
 
 ### 3. User Signup
 - **POST** `/v1/signup`
-- **Content-Type**: `multipart/form-data`
-- **Form Data**:
-  ```
-  request_data: {
+- **Content-Type**: `application/json`
+- **Request Body**:
+  ```json
+  {
     "first_name": "shez",
     "last_name": "shez",
     "email_id": "shezz13012000@gmail.com",
