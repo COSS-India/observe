@@ -56,7 +56,7 @@ function UserTeamsBadge({ userId }: { userId: number }) {
         onClick={() => setExpanded(true)}
         className="h-7 px-3 text-xs hover:bg-gray-100 dark:hover:bg-gray-800"
       >
-        Check Teams
+        View
         <Users className="h-3 w-3 ml-1" />
       </Button>
     );
@@ -117,38 +117,38 @@ export function UserTable({ users, onDelete, onEdit, onToggleStatus, loading = f
         <Table>
           <TableHeader className="table-header">
             <TableRow>
-              <TableHead className="table-cell table-cell-text col-medium">Name</TableHead>
-              <TableHead className="table-cell table-cell-text col-wide">Email</TableHead>
-              <TableHead className="table-cell table-cell-text col-medium">Login</TableHead>
-              <TableHead className="table-cell table-cell-text col-narrow">Role</TableHead>
-              <TableHead className="table-cell table-cell-text col-medium">Teams</TableHead>
-              <TableHead className="table-cell table-cell-status col-narrow">Status</TableHead>
-              <TableHead className="table-cell table-cell-action col-medium">Actions</TableHead>
+              <TableHead className="table-cell table-cell-text col-medium text-left">Name</TableHead>
+              <TableHead className="table-cell table-cell-text col-wide text-left">Email</TableHead>
+              {/* <TableHead className="table-cell table-cell-text col-medium">Login</TableHead> */}
+              <TableHead className="table-cell table-cell-text col-narrow text-left">Role</TableHead>
+              <TableHead className="table-cell table-cell-text col-medium text-left">Teams</TableHead>
+              <TableHead className="table-cell table-cell-status col-narrow text-left">Status</TableHead>
+              <TableHead className="table-cell table-cell-action col-medium text-left">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="table-body">
             {users.map((user) => (
               <TableRow key={user.id} className="table-row">
-                <TableCell className="table-cell table-cell-text font-medium">{user.name}</TableCell>
-                <TableCell className="table-cell table-cell-text text-muted-foreground break-all">{user.email}</TableCell>
-                <TableCell className="table-cell table-cell-text text-muted-foreground">{user.login}</TableCell>
-                <TableCell className="table-cell table-cell-status">
+                <TableCell className="table-cell table-cell-text font-medium text-left">{user.name}</TableCell>
+                <TableCell className="table-cell table-cell-text text-muted-foreground break-all text-left">{user.email}</TableCell>
+                {/* <TableCell className="table-cell table-cell-text text-muted-foreground">{user.login}</TableCell> */}
+                <TableCell className="table-cell table-cell-status text-left justify-start">
                   <Badge variant={user.role === 'Admin' ? 'default' : user.role === 'Editor' ? 'secondary' : 'outline'} className="badge badge-neutral">
                     {user.role || (user.isGrafanaAdmin ? 'Admin' : 'Viewer')}
                   </Badge>
                 </TableCell>
-                <TableCell className="table-cell table-cell-text">
+                <TableCell className="table-cell table-cell-text text-left">
                   <div className="flex flex-wrap gap-2 items-center min-h-[2.5rem]">
                     <UserTeamsBadge userId={user.id} />
                   </div>
                 </TableCell>
-                <TableCell className="table-cell table-cell-status">
+                <TableCell className="table-cell table-cell-status text-left">
                   <Badge variant={user.isDisabled ? 'destructive' : 'default'} className={`badge ${user.isDisabled ? 'badge-error' : 'badge-success'}`}>
-                    {user.isDisabled ? 'Disabled' : 'Active'}
+                    {user.isDisabled ? 'Deactivated' : 'Active'}
                   </Badge>
                 </TableCell>
-                <TableCell className="table-cell table-cell-action">
-                  <div className="flex justify-end gap-2">
+                <TableCell className="table-cell table-cell-action text-left">
+                  <div className="flex justify-start gap-2">
                     <Button
                       variant="ghost"
                       size="icon"

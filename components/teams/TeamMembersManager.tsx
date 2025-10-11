@@ -166,9 +166,9 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Login</TableHead>
-                    <TableHead>Permission</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    {/* <TableHead>Login</TableHead> */}
+                    <TableHead>Access</TableHead>
+                    <TableHead className="text-right">Remove</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -178,7 +178,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
                       <TableRow key={member.userId}>
                         <TableCell className="font-medium">{member.login || 'N/A'}</TableCell>
                         <TableCell>{member.email || 'N/A'}</TableCell>
-                        <TableCell>{member.login || 'N/A'}</TableCell>
+                        {/* <TableCell>{member.login || 'N/A'}</TableCell> */}
                         <TableCell>
                           <Badge variant="secondary">
                             {member.permission === 4 ? 'Admin' : member.permission === 2 ? 'Edit' : 'View'}

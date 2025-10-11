@@ -55,9 +55,9 @@ function MyDashboardsPage(): React.ReactElement {
           <h1 className="text-heading-1 text-foreground mb-1">
             My Dashboards
           </h1>
-          <p className="text-body text-gray-600">
+          {/* <p className="text-body text-gray-600">
             View dashboard panels from your team folders
-          </p>
+          </p> */}
         </div>
       </div>
 

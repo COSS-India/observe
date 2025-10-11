@@ -62,7 +62,7 @@ export default function UsersPage() {
         <div className="space-y-1 sm:space-y-2">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-1">User Management</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Manage Grafana users and their permissions
+            Manage users and access levels
           </p>
         </div>
         <Link href="/dashboard/users/create">

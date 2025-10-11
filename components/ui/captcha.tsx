@@ -78,7 +78,7 @@ export function Captcha({ onCaptchaChange, error }: CaptchaProps) {
   return (
     <div className="space-y-3">
       <Label htmlFor="captcha" className="text-sm font-medium text-foreground">
-        Captcha Verification
+        Captcha Verification *
       </Label>
       
       <div className="flex items-center space-x-3">

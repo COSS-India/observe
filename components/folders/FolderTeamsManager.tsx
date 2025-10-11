@@ -7,10 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { X, Loader2, Users, Search, FolderOpen, ArrowLeft } from 'lucide-react';
+import { X, Loader2, Users, Search, FolderOpen, ArrowLeft, ChartColumn } from 'lucide-react';
 import { grafanaAPI } from '@/lib/api/grafana';
 import type { DashboardFolder, Team, Permission } from '@/types/grafana';
 import { toast } from 'sonner';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface FolderTeamsManagerProps {
   folder: DashboardFolder;
@@ -26,6 +28,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
   const [adding, setAdding] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [removingTeamId, setRemovingTeamId] = useState<number | null>(null);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -162,16 +165,43 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
     }
   };
 
+  // Get brand name and logo from environment variables
+  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME;
+  const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;
+  const showBranding = brandName || logoUrl;
+
   return (
     <div className="w-full overflow-hidden">
-      {/* Breadcrumb */}
-      {/* <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>Folders</span>
-        <ChevronRight className="h-4 w-4" />
-        <span className="font-medium text-foreground">{folder.title}</span>
-        <ChevronRight className="h-4 w-4" />
-        <span>Team Access</span>
-      </div> */}
+      {/* Brand Logo and Name */}
+      {showBranding && (
+        <div className="flex items-center justify-center mb-6 p-4 border-b border-border">
+          <Link href="/dashboard/my-dashboards" className="flex items-center gap-3">
+            {logoUrl && !logoError ? (
+              <div className="flex-shrink-0">
+                <Image 
+                  src={logoUrl} 
+                  alt={brandName || "Logo"} 
+                  width={40}
+                  height={40}
+                  className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+                  onError={() => setLogoError(true)}
+                />
+              </div>
+            ) : (
+              <div className="p-2 bg-primary rounded-lg flex-shrink-0">
+                <ChartColumn className="h-4 w-4 text-primary-foreground" />
+              </div>
+            )}
+            {brandName && (
+              <div className="flex flex-col min-w-0">
+                <span className="font-semibold text-lg text-foreground truncate">
+                  {brandName}
+                </span>
+              </div>
+            )}
+          </Link>
+        </div>
+      )}
 
       <div className="flex items-center justify-between">
         <div>
@@ -277,8 +307,8 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
                   return (
                     <Card key={perm.teamId} className="card-widget hover:shadow-sm">
                       <CardHeader className="pb-3">
-                        <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
-                          CUSTOMER
+                        <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-end items-center">
+                          {/* CUSTOMER */}
                           <Badge 
                             variant={getPermissionBadgeVariant(perm.permission)}
                             className="text-[10px] sm:text-xs px-2 py-0.5 sm:px-2.5 sm:py-1"
