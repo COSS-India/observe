@@ -195,7 +195,7 @@ export function UserEditDialog({
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+                className="h-11 px-6 font-medium rounded-lg"
               >
                 {isSubmitting ? 'Updating...' : 'Update User'}
               </Button>

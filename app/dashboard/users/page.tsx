@@ -73,7 +73,7 @@ export default function UsersPage() {
         </Link>
       </div>
 
-      <Card className=" border-gray-200 dark:border-gray-800 border-0 shadow-none">
+      <Card className=" border-gray-200 dark:border-gray-800 border-0 shadow-none dark:bg-transparent">
         <CardContent className="!p-0">
           {error && users.length === 0 && (
             <GrafanaSetupError error={error} />

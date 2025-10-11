@@ -13,6 +13,7 @@ import {
 import { Bell, LogOut, User, Shield, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { SimpleThemeToggle } from '@/components/simple-theme-toggle';
 import { isSuperAdmin } from '@/lib/utils/permissions';
 
 export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void }) {
@@ -35,7 +36,7 @@ export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => 
   };
 
   return (
-    <header className="min-h-20 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-8 py-6 flex-shrink-0 shadow-sm">
+    <header className="min-h-20 border-border bg-background flex items-center justify-between px-4 sm:px-6 md:px-8 lg:px-8 py-6 flex-shrink-0 shadow-sm">
       <div className="flex items-center gap-3 sm:gap-5 min-w-0 flex-1">
         {/* Hamburger menu for mobile */}
         <Button
@@ -48,7 +49,7 @@ export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => 
         </Button>
         <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
           {/* Primary Greeting */}
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white leading-none tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground leading-none tracking-tight">
             Hello, {user?.username || 'User'}
           </h1>
           {/* Role Badge with improved styling */}
@@ -71,7 +72,10 @@ export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => 
         </div>
       </div>
 
-      <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0 ml-4">
+      <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 ml-4">
+        {/* Theme Toggle */}
+        <SimpleThemeToggle />
+        
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

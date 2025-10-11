@@ -168,7 +168,7 @@ export default function FoldersPage() {
         </div>
       </div>
 
-      <Card className=" border-gray-200 dark:border-gray-800 border-0 shadow-none">
+      <Card className=" border-gray-200 dark:border-gray-800 dark:bg-transparent border-0 shadow-none">
         <CardContent className="!p-0">
           <div className="mb-4 sm:mb-6">
             <Input

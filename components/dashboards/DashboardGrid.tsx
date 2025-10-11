@@ -33,7 +33,7 @@ export function DashboardGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {dashboards.map((dashboard) => (
-        <Card key={dashboard.uid} className="card-widget hover:shadow-sm">
+        <Card key={dashboard.uid} className="card-widget hover:shadow-sm bg-card dark:bg-transparent">
           <CardHeader className="pb-3">
             <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
               Dashboard
@@ -68,10 +68,10 @@ export function DashboardGrid({
               <div className="flex gap-3 mt-4">
                 <Button
                   size="sm"
-                  className="flex-1 h-10 text-body rounded-lg text-white"
+                  className="flex-1 h-10 text-body rounded-lg"
                   onClick={() => onView(dashboard)}
                 >
-                  <Eye className="h-4 w-4 mr-2 text-white" />
+                  <Eye className="h-4 w-4 mr-2" />
                   View
                 </Button>
                 {isSuperAdmin(user) && (
