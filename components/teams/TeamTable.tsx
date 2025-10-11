@@ -49,7 +49,7 @@ export function TeamTable({ teams, onDelete, onEdit, onManageMembers, loading = 
           <TableRow>
             <TableHead className="table-cell table-cell-text col-flex">Group Name</TableHead>
             <TableHead className="table-cell table-cell-text col-wide">Email</TableHead>
-            <TableHead className="table-cell table-cell-number col-narrow">Member</TableHead>
+            <TableHead className="table-cell table-cell-number col-narrow">Members</TableHead>
             <TableHead className="table-cell table-cell-action col-medium">Actions</TableHead>
           </TableRow>
         </TableHeader>
