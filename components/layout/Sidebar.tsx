@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -40,7 +41,7 @@ const navigation = [
   //   requiresSuperAdmin: true,
   // },
   {
-    name: "Customer organizations",
+    name: "Groups",
     href: "/dashboard/teams",
     icon: UsersRound,
     requiresSuperAdmin: true,
@@ -52,7 +53,7 @@ const navigation = [
   //   requiresSuperAdmin: true,
   // },
   {
-    name: "Customer categories",
+    name: "Segments",
     href: "/dashboard/folders",
     icon: FolderOpen,
     requiresSuperAdmin: true,
@@ -75,6 +76,11 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean;
   const pathname = usePathname();
   const [collapsed] = useState(false);
   const { user } = useAuth();
+  const [logoError, setLogoError] = useState(false);
+
+  // Get brand name and logo from environment variables
+  const brandName = process.env.NEXT_PUBLIC_BRAND_NAME || "Observability Portal";
+  const logoUrl = process.env.NEXT_PUBLIC_LOGO_URL;
 
   // Filter navigation items based on user permissions
   const visibleNavigation = navigation.filter((item) => {
@@ -107,13 +113,25 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean;
               href="/dashboard/my-dashboards"
               className="flex items-center gap-2 min-w-0"
             >
-              <div className="p-1.5 sm:p-2 bg-primary rounded-lg flex-shrink-0">
-                <ChartColumn className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
-              </div>
+              {logoUrl && !logoError ? (
+                <div className="flex-shrink-0">
+                  <Image 
+                    src={logoUrl} 
+                    alt={brandName || "Logo"} 
+                    width={32}
+                    height={32}
+                    className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+                    onError={() => setLogoError(true)}
+                  />
+                </div>
+              ) : (
+                <div className="p-1.5 sm:p-2 bg-primary rounded-lg flex-shrink-0">
+                  <ChartColumn className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
+                </div>
+              )}
               <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-base sm:text-lg truncate">Bhashini</span>
-                <span className="font-medium text-[10px] sm:text-xs text-muted-foreground truncate">
-                  Observability Platform
+                <span className="font-semibold text-base sm:text-lg truncate">
+                  {brandName}
                 </span>
               </div>
             </Link>
@@ -166,11 +184,24 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean;
               className="flex items-center gap-2 min-w-0"
               onClick={() => setSidebarOpen(false)}
             >
-              <div className="p-1.5 sm:p-2 bg-primary rounded-lg flex-shrink-0">
-                <ChartColumn className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
-              </div>
+              {logoUrl && !logoError ? (
+                <div className="flex-shrink-0">
+                  <Image 
+                    src={logoUrl} 
+                    alt={brandName || "Logo"} 
+                    width={32}
+                    height={32}
+                    className="h-6 w-6 sm:h-8 sm:w-8 object-contain"
+                    onError={() => setLogoError(true)}
+                  />
+                </div>
+              ) : (
+                <div className="p-1.5 sm:p-2 bg-primary rounded-lg flex-shrink-0">
+                  <ChartColumn className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
+                </div>
+              )}
               <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-base sm:text-lg truncate">Bhashini</span>
+                <span className="font-semibold text-base sm:text-lg truncate">{brandName}</span>
                 <span className="font-medium text-[10px] sm:text-xs text-muted-foreground truncate">
                   Observability Platform
                 </span>

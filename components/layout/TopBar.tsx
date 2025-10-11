@@ -100,15 +100,15 @@ export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => 
                 )}
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="p-2 sm:p-3 hover:bg-accent">
+            {/* <DropdownMenuSeparator /> */}
+            {/* <DropdownMenuItem className="p-2 sm:p-3 hover:bg-accent">
               <User className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
               <span className="text-xs sm:text-sm">Profile</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="p-2 sm:p-3 hover:bg-accent">
+            </DropdownMenuItem> */}
+            {/* <DropdownMenuItem className="p-2 sm:p-3 hover:bg-accent">
               <Bell className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />
               <span className="text-xs sm:text-sm">Notifications</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout} className="p-2 sm:p-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950">
               <LogOut className="mr-2 sm:mr-3 h-3 w-3 sm:h-4 sm:w-4" />

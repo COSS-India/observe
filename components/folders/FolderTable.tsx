@@ -35,9 +35,9 @@ export function FolderTable({
       {folders.map((folder) => (
         <Card key={folder.uid} className="card-widget hover:shadow-sm bg-card dark:bg-transparent">
           <CardHeader className="pb-3">
-            <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
+            {/* <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
               Folder
-            </CardTitle>
+            </CardTitle> */}
           </CardHeader>
           <CardContent className="pt-0 flex flex-col justify-between min-h-[200px]">
             <div>

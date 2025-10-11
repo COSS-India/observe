@@ -179,8 +179,8 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
                 {folderDashboards.map((dashboard) => (
                   <Card key={dashboard.uid} className="card-widget hover:shadow-sm">
                     <CardHeader className="pb-3">
-                      <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
-                        Dashboard
+                      <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-end items-center">
+                        {/* Dashboard */}
                         <Badge 
                           variant="secondary"
                           className="text-[10px] sm:text-xs px-2 py-0.5"

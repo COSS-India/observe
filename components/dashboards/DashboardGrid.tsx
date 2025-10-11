@@ -35,8 +35,8 @@ export function DashboardGrid({
       {dashboards.map((dashboard) => (
         <Card key={dashboard.uid} className="card-widget hover:shadow-sm bg-card dark:bg-transparent">
           <CardHeader className="pb-3">
-            <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
-              Dashboard
+            <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-end items-center text-end">
+
               <p className="text-body font-medium text-muted-foreground">
                 {dashboard.folderTitle || "General"}
               </p>
@@ -44,7 +44,7 @@ export function DashboardGrid({
           </CardHeader>
           <CardContent className="pt-0 flex flex-col justify-between min-h-[200px]">
             <div>
-              <div className="text-l font-bold text-foreground mb-1 line-clamp-2">
+              <div className="text-l font-bold text-foreground mb-1 line-clamp-1" title={dashboard.title} >
                 {dashboard.title}
               </div>
             </div>

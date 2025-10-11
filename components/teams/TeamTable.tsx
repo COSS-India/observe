@@ -47,9 +47,9 @@ export function TeamTable({ teams, onDelete, onEdit, onManageMembers, loading = 
       <Table>
         <TableHeader className="table-header">
           <TableRow>
-            <TableHead className="table-cell table-cell-text col-flex">Name</TableHead>
+            <TableHead className="table-cell table-cell-text col-flex">Group Name</TableHead>
             <TableHead className="table-cell table-cell-text col-wide">Email</TableHead>
-            <TableHead className="table-cell table-cell-number col-narrow">Member Count</TableHead>
+            <TableHead className="table-cell table-cell-number col-narrow">Members</TableHead>
             <TableHead className="table-cell table-cell-action col-medium">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -75,8 +75,8 @@ export function TeamTable({ teams, onDelete, onEdit, onManageMembers, loading = 
                       title="Manage members"
                       className="h-9 px-4"
                     >
-                      Members
-                      <Users className="h-4 w-4 ml-2" />
+                      {/* Members */}
+                      <Users className="h-4 w-4" />
                     </Button>
                   )}
                   <Button

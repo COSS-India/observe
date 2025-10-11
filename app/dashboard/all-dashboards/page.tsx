@@ -151,9 +151,9 @@ export default function AllDashboardsPage() {
                   <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1">
                     All Dashboards
                   </h1>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  {/* <p className="text-sm text-muted-foreground mt-1">
                     View all dashboards across the entire Grafana instance
-                  </p>
+                  </p> */}
                 </div>
               )}
             </div>

@@ -90,14 +90,14 @@ export default function TeamsPage() {
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
         <div className="space-y-1 sm:space-y-2">
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Team Management</h1>
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Group Management</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Manage teams and their members
+            Manage group and their members
           </p>
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto px-4 py-2 sm:px-5 sm:py-2 md:px-6 text-xs sm:text-sm h-9 sm:h-10 md:h-11 whitespace-nowrap gap-1">
           <PlusCircle className="font-black" />
-          Create Team
+          Create Group
         </Button>
       </div>
 

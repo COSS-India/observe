@@ -59,7 +59,7 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-center text-card-foreground">
-            Welcome to Bhashini
+            Welcome to 
           </CardTitle>
           <CardDescription className="text-center text-muted-foreground">
             Observability Platform
@@ -74,7 +74,7 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-medium text-foreground">User email</Label>
+              <Label htmlFor="username" className="text-sm font-medium text-foreground">User email *</Label>
               <Input
                 id="username"
                 type="text"
@@ -88,7 +88,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-foreground">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium text-foreground">Password *</Label>
               <Input
                 id="password"
                 type="password"

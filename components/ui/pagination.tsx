@@ -68,7 +68,7 @@ export function Pagination({
     <div className={cn('flex flex-col sm:flex-row items-center justify-between gap-4', className)}>
       {/* Items info */}
       <div className="text-sm text-muted-foreground">
-        Showing {startItem} to {endItem} of {totalItems} items
+        Showing {startItem} to {endItem} of {totalItems} 
       </div>
 
       {/* Pagination controls */}
@@ -134,7 +134,7 @@ export function Pagination({
       {/* Items per page selector */}
       {showItemsPerPage && onItemsPerPageChange && (
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Items per page:</span>
+          <span className="text-muted-foreground">Rows per page:</span>
           <select
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}

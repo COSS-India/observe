@@ -138,13 +138,13 @@ export default function FoldersPage() {
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="space-y-1 sm:space-y-2">
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Dashboard Folders</h1>
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Segments</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Manage your Grafana dashboard folders
+            Manage your Grafana Segments
           </p>
         </div>
         <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             onClick={fetchFolders}
@@ -152,7 +152,7 @@ export default function FoldersPage() {
             className="h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 border-input hover:bg-accent rounded-lg flex-shrink-0"
           >
             <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button>
+          </Button> */}
           {isAdmin && (
             <Button
               onClick={() => {
