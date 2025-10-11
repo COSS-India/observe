@@ -153,7 +153,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
         <CardContent>
           {loading && members.length === 0 ? (
             <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : members.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
@@ -223,7 +223,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {availableUsers.length === 0 ? (
-                    <div className="p-2 text-sm text-gray-500">No available users</div>
+                    <div className="p-2 text-sm text-muted-foreground">No available users</div>
                   ) : (
                     availableUsers
                       .filter((user) => user && user.id && user.name && user.email)
@@ -253,7 +253,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
             <Button
               onClick={handleAddMember}
               disabled={!selectedUserId || loading}
-              className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+              className="h-11 px-6 font-medium rounded-lg"
             >
               {loading ? 'Adding...' : 'Add Member'}
             </Button>

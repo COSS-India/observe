@@ -1,15 +1,8 @@
 'use client';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Users, Layout } from 'lucide-react';
+import { Pencil, Trash2, Users, Layout, FolderOpen } from 'lucide-react';
 import type { DashboardFolder } from '@/types/grafana';
 
 interface FolderTableProps {
@@ -29,85 +22,86 @@ export function FolderTable({
 }: FolderTableProps) {
   if (folders.length === 0) {
     return (
-      <div className="table-empty">
-        <Layout className="table-empty-icon" />
-        <h3 className="table-empty-title">No folders found</h3>
-        <p className="table-empty-description">Create one to get started.</p>
+      <div className="text-center py-16 text-body text-muted-foreground">
+        <FolderOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+        <h3 className="text-sm font-semibold text-foreground">No folders found</h3>
+        <p className="text-sm text-muted-foreground">Create one to get started.</p>
       </div>
     );
   }
 
   return (
-    <div className="table-container">
-      <Table>
-        <TableHeader className="table-header">
-          <TableRow>
-            <TableHead className="table-cell table-cell-text col-flex">Title</TableHead>
-            <TableHead className="table-cell table-cell-text col-medium table-hide-tablet">UID</TableHead>
-            <TableHead className="table-cell table-cell-text col-wide table-hide-mobile">URL</TableHead>
-            <TableHead className="table-cell table-cell-action col-medium">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody className="table-body">
-          {folders.map((folder) => (
-            <TableRow key={folder.uid} className="table-row">
-              <TableCell className="table-cell table-cell-text font-medium truncate">{folder.title}</TableCell>
-              <TableCell className="table-cell table-cell-text font-mono text-muted-foreground table-hide-tablet">{folder.uid}</TableCell>
-              <TableCell className="table-cell table-cell-text text-muted-foreground truncate table-hide-mobile">{folder.url || '-'}</TableCell>
-              <TableCell className="table-cell table-cell-action">
-                {(onEdit || onDelete || onManageTeams || onManageDashboards) && (
-                  <div className="flex gap-2">
-                    {onManageTeams && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onManageTeams(folder)}
-                        title="Manage Team Access"
-                        className="btn-action btn-action-edit"
-                      >
-                        <Users className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {onManageDashboards && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onManageDashboards(folder)}
-                        title="Manage Dashboards"
-                        className="btn-action"
-                      >
-                        <Layout className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {onEdit && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(folder)}
-                        title="Edit Folder"
-                        className="btn-action btn-action-edit"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {onDelete && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(folder)}
-                        title="Delete Folder"
-                        className="btn-action btn-action-delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {folders.map((folder) => (
+        <Card key={folder.uid} className="card-widget hover:shadow-sm bg-card dark:bg-transparent">
+          <CardHeader className="pb-3">
+            <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
+              Folder
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 flex flex-col justify-between min-h-[200px]">
+            <div>
+              <div className="text-l font-bold text-foreground mb-1 line-clamp-2">
+                {folder.title}
+              </div>
+            </div>
+            <div>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {onManageTeams && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 h-10 text-body border-border hover:bg-accent rounded-lg"
+                    onClick={() => onManageTeams(folder)}
+                    title="Manage Team Access"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Teams
+                  </Button>
                 )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                {onManageDashboards && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 h-10 text-body border-border hover:bg-accent rounded-lg"
+                    onClick={() => onManageDashboards(folder)}
+                    title="Manage Dashboards"
+                  >
+                    <Layout className="h-4 w-4 mr-2" />
+                    Dashboards
+                  </Button>
+                )}
+              </div>
+              {(onEdit || onDelete) && (
+                <div className="flex gap-2 mt-3">
+                  {onEdit && (
+                    <Button
+                      size="sm"
+                      className="flex-1 h-10 text-body rounded-lg"
+                      onClick={() => onEdit(folder)}
+                      title="Edit Folder"
+                    >
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </Button>
+                  )}
+                  {onDelete && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-10 px-4 border-border hover:bg-accent text-red-600 hover:text-red-700 rounded-lg"
+                      onClick={() => onDelete(folder)}
+                      title="Delete Folder"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

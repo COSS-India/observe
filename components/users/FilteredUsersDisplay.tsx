@@ -120,7 +120,7 @@ export function FilteredUsersDisplay() {
           <Button
             onClick={forceRefresh}
             disabled={loading}
-            className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+            className="h-11 px-6 font-medium rounded-lg"
           >
             Force Refresh
             <RefreshCw className={`h-4 w-4 ml-2 ${loading ? 'animate-spin' : ''}`} />
@@ -129,7 +129,7 @@ export function FilteredUsersDisplay() {
             onClick={clearUsers}
             disabled={loading}
             variant="destructive"
-            className="h-11 px-6 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg"
+            className="h-11 px-6 font-medium rounded-lg"
           >
             Clear Cache
           </Button>
@@ -138,7 +138,7 @@ export function FilteredUsersDisplay() {
 
       {/* Status Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="shadow-sm border border-gray-200 dark:border-gray-800">
+        <Card className="shadow-sm border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
             <Users className="h-5 w-5 text-muted-foreground" />
@@ -151,7 +151,7 @@ export function FilteredUsersDisplay() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border border-gray-200 dark:border-gray-800">
+        <Card className="shadow-sm border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="text-sm font-medium text-muted-foreground">Last Sync</CardTitle>
             <Clock className="h-5 w-5 text-muted-foreground" />
@@ -167,7 +167,7 @@ export function FilteredUsersDisplay() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border border-gray-200 dark:border-gray-800">
+        <Card className="shadow-sm border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
             <CardTitle className="text-sm font-medium text-muted-foreground">Status</CardTitle>
             <div className={`h-3 w-3 rounded-full ${
@@ -200,7 +200,7 @@ export function FilteredUsersDisplay() {
       )}
 
       {/* Users List */}
-      <Card className="shadow-sm border border-gray-200 dark:border-gray-800">
+      <Card className="shadow-sm border-border">
         <CardHeader className="pb-6">
           <CardTitle className="text-xl font-semibold">Users List</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -215,7 +215,7 @@ export function FilteredUsersDisplay() {
             </div>
           ) : organizationUsers.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
-              <Users className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+              <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <p>No users found for organization &quot;{userOrganization}&quot;</p>
               <p className="text-sm mt-2">
                 Users are filtered by login, name, or email containing the organization name.
@@ -226,7 +226,7 @@ export function FilteredUsersDisplay() {
               {organizationUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center space-x-6 p-6 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-accent transition-colors"
+                  className="flex items-center space-x-6 p-6 border border-border rounded-lg hover:bg-accent transition-colors"
                 >
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={user.avatarUrl} alt={user.name} />

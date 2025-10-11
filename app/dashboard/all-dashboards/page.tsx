@@ -132,7 +132,7 @@ export default function AllDashboardsPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950v mb-4 lg:mb-4">
+      <div className="flex-shrink-0 border-b border-border bg-background mb-4 lg:mb-4">
         <div className="">
           <div className="flex items-center justify-between">
             <div className="flex items-center w-full ">
@@ -171,7 +171,7 @@ export default function AllDashboardsPage() {
           {/* Search Bar - Only show in grid mode */}
           {viewMode === "grid" && (
             <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Search dashboards..."
@@ -198,7 +198,7 @@ export default function AllDashboardsPage() {
               </div>
             ) : filteredDashboards.length === 0 ? (
               <div className="text-center py-12">
-                <Grid3x3 className="mx-auto h-12 w-12 text-gray-400" />
+                <Grid3x3 className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-2 text-sm font-semibold text-foreground">
                   No dashboards found
                 </h3>

@@ -158,7 +158,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
         <CardContent>
           {loading && users.length === 0 ? (
             <div className="flex justify-center items-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : users.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
@@ -226,7 +226,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
                 </SelectTrigger>
                 <SelectContent>
                   {availableUsers.length === 0 ? (
-                    <div className="p-2 text-sm text-gray-500">No available users</div>
+                    <div className="p-2 text-sm text-muted-foreground">No available users</div>
                   ) : (
                     availableUsers.map((user) => (
                       <SelectItem key={user.id} value={user.id.toString()}>
@@ -269,7 +269,7 @@ export function OrganizationUsersManager({ organization, onBack }: OrganizationU
             <Button
               onClick={handleAddUser}
               disabled={!selectedUserId || loading}
-              className="h-11 px-6 bg-primary hover:bg-blue-700 text-white font-medium rounded-lg"
+              className="h-11 px-6 font-medium rounded-lg"
             >
               {loading ? 'Adding...' : 'Add User'}
             </Button>
