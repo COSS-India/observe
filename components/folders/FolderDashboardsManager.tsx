@@ -110,7 +110,7 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
         </div>
       </div>
 
-      <Card className='border-0 shadow-none'>
+      <Card className='border-0 shadow-none dark:bg-transparent'>
         <CardHeader className="p-3 sm:p-4 md:!px-0">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl !px-0">
             <Layout className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -145,7 +145,7 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
             <Button
               onClick={handleAddDashboard}
               disabled={movingDashboard !== null || !selectedDashboard}
-              className="h-9 sm:h-10 md:!h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm bg-primary hover:bg-blue-700 text-white font-medium rounded-lg w-full sm:w-auto whitespace-nowrap col-span-2"
+              className="h-9 sm:h-10 md:!h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm font-medium rounded-lg w-full sm:w-auto whitespace-nowrap col-span-2"
             >
               {movingDashboard === selectedDashboard ? (
                 <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
@@ -166,7 +166,7 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
               </div>
             ) : folderDashboards.length === 0 ? (
               <div className="text-center py-12">
-                <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
+                <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-2 text-sm font-semibold text-foreground">
                   No dashboards in this folder
                 </h3>

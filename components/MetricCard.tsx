@@ -40,7 +40,7 @@ export function MetricCard({
         <div className="text-metric text-foreground mb-2">
           {primaryMetric}
         </div>
-        <p className="text-body text-gray-600 mb-6">
+        <p className="text-body text-muted-foreground mb-6">
           {metricLabel}
         </p>
         {secondaryMetrics.length > 0 && (
@@ -50,7 +50,7 @@ export function MetricCard({
                 <div className="text-card-title text-foreground">
                   {metric.value}
                 </div>
-                <div className="text-body text-gray-600">
+                <div className="text-body text-muted-foreground">
                   {metric.label}
                 </div>
               </div>

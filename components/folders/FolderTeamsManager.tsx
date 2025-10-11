@@ -186,7 +186,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
         </div>
       </div>
 
-      <Card className='border-0 shadow-none'>
+      <Card className='border-0 shadow-none dark:bg-transparent'>
         <CardHeader className="p-3 sm:p-4 md:!px-0">
           <CardTitle className="flex items-center gap-2 text-base sm:text-lg md:text-xl !px-0">
             <Users className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -196,10 +196,10 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
             Manage which teams can access this folder and its dashboards
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-0">
+        <CardContent className="space-y-4 sm:space-y-6 p-3 sm:p-4 md:p-0 dark:bg-transparent">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search teams..."
@@ -238,7 +238,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
             <Button 
               onClick={handleAddTeam} 
               disabled={adding || !selectedTeamId}
-              className="h-9 sm:h-10 md:!h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm bg-primary hover:bg-blue-700 text-white font-medium rounded-lg w-full sm:w-auto whitespace-nowrap col-span-2"
+              className="h-9 sm:h-10 md:!h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm font-medium rounded-lg w-full sm:w-auto whitespace-nowrap col-span-2"
             >
               {adding ? (
                 <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
@@ -260,7 +260,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
               </div>
             ) : filteredTeamPermissions.length === 0 ? (
               <div className="text-center py-12">
-                <FolderOpen className="mx-auto h-12 w-12 text-gray-400" />
+                <FolderOpen className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-2 text-sm font-semibold text-foreground">
                   No teams have access
                 </h3>
