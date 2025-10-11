@@ -3,7 +3,7 @@ import { getDemoUsers, type DemoUser } from '@/lib/utils/demo-users';
 import grafanaClient from '@/lib/grafana-client';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:9010';
 
 // Simple authentication - replace with your actual authentication logic
 const DEMO_USERS: DemoUser[] = getDemoUsers();

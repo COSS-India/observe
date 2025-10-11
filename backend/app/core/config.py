@@ -5,7 +5,7 @@ import os
 
 class Settings(BaseSettings):
     # Database settings
-    DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/bhashini"
+    DATABASE_URL: str ="postgresql://postgres:postgres123@localhost:5433/AI4Voicedb"
     
     # JWT settings
     SECRET_KEY: str = "your-secret-key-here-change-in-production"
