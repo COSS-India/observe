@@ -2,17 +2,23 @@ import { useState, useCallback } from 'react';
 import { grafanaAPI } from '@/lib/api/grafana';
 import type { DashboardFolder } from '@/types/grafana';
 import { toast } from 'sonner';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { useAuth } from './useAuth';
+import { isSuperAdmin } from '@/lib/utils/permissions';
 
 export function useGrafanaFolders() {
   const [folders, setFolders] = useState<DashboardFolder[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { selectedOrgId } = useOrgContextStore();
+  const { user } = useAuth();
+  const isUserSuperAdmin = isSuperAdmin(user);
 
-  const fetchFolders = useCallback(async () => {
+  const fetchFolders = useCallback(async (orgId?: number | null) => {
     try {
       setLoading(true);
       setError(null);
-      const data = await grafanaAPI.listFolders();
+      const data = await grafanaAPI.listFolders(orgId);
       // Filter out the "General" folder
       const filteredFolders = Array.isArray(data) 
         ? data.filter((folder) => 
@@ -86,8 +92,9 @@ export function useGrafanaFolders() {
     try {
       await grafanaAPI.deleteFolder(uid);
       toast.success('Folder deleted successfully');
-      // Refresh the list
-      await fetchFolders();
+      // Refresh with current org context
+      const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : null;
+      await fetchFolders(effectiveOrgId);
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error = err as any;
@@ -98,13 +105,16 @@ export function useGrafanaFolders() {
       console.error('Error deleting folder:', err);
       throw err;
     }
-  }, [fetchFolders]);
+  }, [fetchFolders, isUserSuperAdmin, selectedOrgId]);
 
   const createFolder = useCallback(async (folderData: { title: string }) => {
     try {
-      const response = await grafanaAPI.createFolder(folderData);
+      // Pass orgId if user is super admin and has an org selected
+      const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : null;
+      const response = await grafanaAPI.createFolder(folderData, effectiveOrgId);
       toast.success('Folder created successfully');
-      await fetchFolders();
+      // Refresh with the same org context
+      await fetchFolders(effectiveOrgId);
       return response;
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,13 +126,16 @@ export function useGrafanaFolders() {
       console.error('Error creating folder:', err);
       throw err;
     }
-  }, [fetchFolders]);
+  }, [fetchFolders, isUserSuperAdmin, selectedOrgId]);
 
   const updateFolder = useCallback(async (uid: string, folderData: { title: string; version?: number }) => {
     try {
-      await grafanaAPI.updateFolder(uid, folderData);
+      // Pass orgId if user is super admin and has an org selected
+      const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : null;
+      await grafanaAPI.updateFolder(uid, folderData, effectiveOrgId);
       toast.success('Folder updated successfully');
-      await fetchFolders();
+      // Refresh with the same org context
+      await fetchFolders(effectiveOrgId);
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error = err as any;
@@ -133,7 +146,7 @@ export function useGrafanaFolders() {
       console.error('Error updating folder:', err);
       throw err;
     }
-  }, [fetchFolders]);
+  }, [fetchFolders, isUserSuperAdmin, selectedOrgId]);
 
   return {
     folders,

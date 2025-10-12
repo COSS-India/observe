@@ -8,37 +8,65 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:9010';
 // Simple authentication - replace with your actual authentication logic
 const DEMO_USERS: DemoUser[] = getDemoUsers();
 
-async function fetchTeamByOrganization(
+async function fetchOrgByOrganization(
   organizationName: string
-): Promise<{ teamId?: number }> {
+): Promise<{ orgId?: number }> {
   try {
-    console.log(`🔍 Looking for team matching organization: "${organizationName}"`);
+    console.log(`🔍 Looking for organization matching: "${organizationName}"`);
     
-    // Get all teams from Grafana
-    const response = await grafanaClient.get('/api/teams/search', {
+    // Get all organizations from Grafana
+    const response = await grafanaClient.get('/api/orgs', {
       params: { 
         perpage: 1000,
       },
     });
 
-    const teams = response.data.teams || [];
-    console.log(`📋 Found ${teams.length} total teams in Grafana`);
+    const orgs = response.data || [];
+    console.log(`📋 Found ${orgs.length} total organizations in Grafana`);
     
-    // Find team with matching name (case-insensitive)
-    const matchingTeam = teams.find((t: { name: string; id: number }) => 
-      t.name.toLowerCase() === organizationName.toLowerCase()
+    // Find organization with matching name (case-insensitive)
+    const matchingOrg = orgs.find((o: { name: string; id: number }) => 
+      o.name.toLowerCase() === organizationName.toLowerCase()
     );
 
-    if (matchingTeam) {
-      console.log(`✅ Team found! Name: "${matchingTeam.name}", ID: ${matchingTeam.id}`);
-      return { teamId: matchingTeam.id };
+    if (matchingOrg) {
+      console.log(`✅ Organization found! Name: "${matchingOrg.name}", ID: ${matchingOrg.id}`);
+      return { orgId: matchingOrg.id };
     }
 
-    console.warn(`❌ No team found with name "${organizationName}"`);
-    return { teamId: undefined };
+    console.warn(`❌ No organization found with name "${organizationName}"`);
+    return { orgId: undefined };
   } catch (error) {
-    console.error('❌ Error fetching team:', error);
-    return { teamId: undefined };
+    console.error('❌ Error fetching organization:', error);
+    return { orgId: undefined };
+  }
+}
+
+async function fetchGrafanaUserByEmail(
+  email: string,
+  orgId?: number
+): Promise<{ userId?: number }> {
+  try {
+    console.log(`🔍 Looking up Grafana user by email: "${email}"${orgId ? ` in org ${orgId}` : ''}`);
+    
+    // Use Grafana's user lookup endpoint
+    const lookupUrl = `/api/users/lookup?loginOrEmail=${encodeURIComponent(email)}`;
+    const response = await grafanaClient.get(lookupUrl);
+
+    if (response.data && response.data.id) {
+      console.log(`✅ Grafana user found! Email: "${email}", ID: ${response.data.id}, Login: ${response.data.login}`);
+      return { userId: response.data.id };
+    }
+
+    console.warn(`❌ No Grafana user found with email "${email}"`);
+    return { userId: undefined };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      console.warn(`⚠️ Grafana user not found for email "${email}"`);
+    } else {
+      console.error('❌ Error fetching Grafana user:', error);
+    }
+    return { userId: undefined };
   }
 }
 
@@ -60,23 +88,79 @@ export async function POST(request: NextRequest) {
         const backendUser = backendResponse.data;
         console.log('✅ FastAPI authentication successful:', { email: backendUser.email, role: backendUser.role });
 
+        // Decode JWT token to get user ID (token payload contains: { sub: userId, email, role })
+        let userId: string | null = null;
+        try {
+          const tokenPayload = backendUser.token.split('.')[1];
+          const decodedPayload = JSON.parse(Buffer.from(tokenPayload, 'base64').toString());
+          userId = decodedPayload.sub;
+          console.log('✅ User ID extracted from token:', userId);
+        } catch (decodeError) {
+          console.warn('⚠️ Failed to decode JWT token:', decodeError);
+        }
+
+        // Fetch full user details including organization if we have userId
+        let userDetails;
+        if (userId) {
+          try {
+            const userDetailsResponse = await axios.get(`${BACKEND_URL}/v1/users/${userId}`, {
+              headers: {
+                'accept': 'application/json',
+                'Authorization': `Bearer ${backendUser.token}`,
+              },
+            });
+            userDetails = userDetailsResponse.data;
+            console.log('✅ User details fetched:', { org: userDetails.org?.org_name });
+          } catch (detailsError) {
+            console.warn('⚠️ Failed to fetch user details, using basic info', detailsError);
+            userDetails = null;
+          }
+        }
+
         // Map backend user to frontend format
         const user = {
-          id: backendUser.email, // Use email as ID for simplicity
-          username: backendUser.username || backendUser.email.split('@')[0],
+          id: userId || backendUser.email, // Use userId from token or fall back to email
+          username: (backendUser.username || backendUser.email.split('@')[0]).trim(),
           email: backendUser.email,
           role: backendUser.role === 'superadmin' ? 'superadmin' : 
                 backendUser.role === 'admin' ? 'admin' : 'viewer',
-          organization: backendUser.org_type || 'Unknown Organization'
+          organization: userDetails?.org?.org_name || backendUser.username?.trim() || backendUser.email.split('@')[0].trim() || 'Unknown Organization',
+          // Add extended user details if available
+          ...(userDetails && {
+            firstName: userDetails.first_name,
+            lastName: userDetails.last_name,
+            designation: userDetails.designation,
+            gender: userDetails.gender,
+            personalEmail: userDetails.personal_email,
+            phone: userDetails.phone,
+            org: userDetails.org,
+            status: userDetails.status,
+            userType: userDetails.user_type,
+            productAccess: userDetails.product_access,
+            isFresh: userDetails.is_fresh,
+            isProfileUpdated: userDetails.is_profile_updated,
+          }),
         };
 
-        // Fetch Grafana TEAM ID based on organization
-        const grafanaData = await fetchTeamByOrganization(user.organization);
+        // Fetch Grafana ORG ID based on organization
+        const grafanaData = await fetchOrgByOrganization(user.organization);
+
+        // For non-super admin users, fetch Grafana user ID for permission-based access
+        let grafanaUserId: number | undefined;
+        if (user.role !== 'superadmin' && grafanaData.orgId) {
+          const grafanaUserData = await fetchGrafanaUserByEmail(user.email, grafanaData.orgId);
+          grafanaUserId = grafanaUserData.userId;
+          
+          if (!grafanaUserId) {
+            console.warn(`⚠️ User ${user.email} not found in Grafana. They may not see any dashboards.`);
+          }
+        }
 
         return NextResponse.json({
           user: {
             ...user,
-            grafanaTeamId: grafanaData.teamId,
+            grafanaOrgId: grafanaData.orgId,
+            grafanaUserId: grafanaUserId,
           },
           token: backendUser.token, // Use backend token
         });
@@ -111,8 +195,19 @@ export async function POST(request: NextRequest) {
     // Create token (in production, use JWT or similar)
     const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
 
-    // Fetch Grafana TEAM ID based on organization (NO user-based mapping)
-    const grafanaData = await fetchTeamByOrganization(user.organization);
+    // Fetch Grafana ORG ID based on organization
+    const grafanaData = await fetchOrgByOrganization(user.organization);
+
+    // For non-super admin users, fetch Grafana user ID for permission-based access
+    let grafanaUserId: number | undefined;
+    if (user.role !== 'superadmin' && grafanaData.orgId) {
+      const grafanaUserData = await fetchGrafanaUserByEmail(user.email, grafanaData.orgId);
+      grafanaUserId = grafanaUserData.userId;
+      
+      if (!grafanaUserId) {
+        console.warn(`⚠️ User ${user.email} not found in Grafana. They may not see any dashboards.`);
+      }
+    }
 
     // Return user data without password
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -121,7 +216,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       user: {
         ...userWithoutPassword,
-        grafanaTeamId: grafanaData.teamId, // ONLY team-based access
+        grafanaOrgId: grafanaData.orgId,
+        grafanaUserId: grafanaUserId,
       },
       token,
     });

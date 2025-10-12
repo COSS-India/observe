@@ -53,7 +53,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
   const fetchMembers = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await grafanaAPI.getTeamMembers(team.id);
+      const data = await grafanaAPI.getTeamMembers(team.id, team.orgId);
       setMembers(data);
     } catch (error) {
       toast.error('Failed to fetch team members');
@@ -61,7 +61,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
     } finally {
       setLoading(false);
     }
-  }, [team.id]);
+  }, [team.id, team.orgId]);
 
   const fetchAllUsers = async () => {
     try {
@@ -85,7 +85,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
 
     try {
       setLoading(true);
-      await grafanaAPI.addUserToTeam(team.id, parseInt(selectedUserId));
+      await grafanaAPI.addUserToTeam(team.id, parseInt(selectedUserId), team.orgId);
       toast.success('Member added successfully');
       setIsAddDialogOpen(false);
       setSelectedUserId('');
@@ -103,7 +103,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
   const handleRemoveMember = async (userId: number) => {
     try {
       setLoading(true);
-      await grafanaAPI.removeUserFromTeam(team.id, userId);
+      await grafanaAPI.removeUserFromTeam(team.id, userId, team.orgId);
       toast.success('Member removed successfully');
       await fetchMembers();
     } catch (error: unknown) {

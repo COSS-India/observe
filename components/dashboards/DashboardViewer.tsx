@@ -19,9 +19,10 @@ import { Maximize2, Minimize2 } from 'lucide-react';
 interface DashboardViewerProps {
   dashboardUid: string;
   title?: string;
+  organizationName?: string;
 }
 
-export function DashboardViewer({ dashboardUid, title }: DashboardViewerProps) {
+export function DashboardViewer({ dashboardUid, title, organizationName }: DashboardViewerProps) {
   const [config, setConfig] = useState<DashboardEmbedConfig>({
     uid: dashboardUid,
     theme: 'dark',
@@ -30,7 +31,7 @@ export function DashboardViewer({ dashboardUid, title }: DashboardViewerProps) {
   });
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const embedUrl = grafanaAPI.generateEmbedUrl(config);
+  const embedUrl = grafanaAPI.generateEmbedUrl(config, organizationName);
 
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);

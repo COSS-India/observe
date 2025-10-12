@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { getGrafanaAuthHeaders, validateGrafanaConfig } from '@/lib/utils/grafana-auth';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
-const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
-
-const grafanaClient = axios.create({
-  baseURL: GRAFANA_URL,
-  headers: {
-    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-});
 
 interface Permission {
   userId?: number;
@@ -38,8 +30,19 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    if (!validation.isValid) {
+      return NextResponse.json({
+        error: 'Grafana configuration is invalid',
+        errors: validation.errors
+      }, { status: 500 });
+    }
+
     const { id } = await params;
     const userId = parseInt(id, 10);
+    const { searchParams } = new URL(request.url);
+    const orgId = searchParams.get('orgId');
 
     if (isNaN(userId)) {
       return NextResponse.json(
@@ -48,12 +51,26 @@ export async function GET(
       );
     }
 
+    // Create Grafana client with proper auth and organization context
+    const grafanaClient = axios.create({
+      baseURL: GRAFANA_URL,
+      headers: getGrafanaAuthHeaders(orgId || undefined),
+      timeout: 10000,
+    });
+
+    console.log(`🔍 Fetching folders for user ${userId}${orgId ? ` in org ${orgId}` : ''}`);
+
+    // Switch to the organization context if provided
+    if (orgId) {
+      await grafanaClient.post(`/api/user/using/${orgId}`);
+    }
+
     // Step 1: Get all folders (excluding General folder)
     const foldersResponse = await grafanaClient.get<Folder[]>('/api/folders');
     const allFolders = foldersResponse.data;
     
     // Filter out the "General" folder (uid is empty string or "general")
-    const folders = allFolders.filter((folder) => 
+    const folders = allFolders.filter((folder: Folder) => 
       folder.uid !== '' && 
       folder.uid !== 'general' && 
       folder.title?.toLowerCase() !== 'general'
@@ -63,6 +80,8 @@ export async function GET(
     const userTeamsResponse = await grafanaClient.get(`/api/users/${userId}/teams`);
     const userTeams = userTeamsResponse.data;
     const userTeamIds = userTeams.map((team: { id: number }) => team.id);
+
+    console.log(`🔍 Debug info - User team IDs:`, userTeamIds);
 
     // Step 3: Check each folder's permissions
     const accessibleFolders: Folder[] = [];
@@ -75,7 +94,7 @@ export async function GET(
         const permissions = permissionsResponse.data;
 
         // Check if user has direct access or team access
-        const hasAccess = permissions.some((perm) => {
+        const hasAccess = permissions.some((perm: Permission) => {
           // Direct user permission
           if (perm.userId === userId) {
             return true;
@@ -96,17 +115,24 @@ export async function GET(
       }
     }
 
+    console.log(`✅ Found ${accessibleFolders.length} accessible folders for user ${userId}`);
     return NextResponse.json(accessibleFolders);
   } catch (error) {
     console.error('Error fetching user folders:', error);
     if (axios.isAxiosError(error)) {
       const errorMessage = error.response?.data?.message || 'Failed to fetch user folders';
+      
+      let hint = '';
+      if (error.response?.status === 403) {
+        hint = 'Your Grafana credentials lack the required permissions to fetch user folders.';
+      } else if (error.response?.status === 401) {
+        hint = 'Authentication failed. Check your GRAFANA_USERNAME/GRAFANA_PASSWORD or GRAFANA_API_KEY.';
+      }
+
       return NextResponse.json(
         { 
           error: errorMessage,
-          hint: error.response?.status === 403 
-            ? 'Your Grafana API key lacks the required permissions to fetch user folders.'
-            : undefined
+          hint
         },
         { status: error.response?.status || 500 }
       );

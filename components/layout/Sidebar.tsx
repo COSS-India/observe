@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   ChartColumn,
   LayoutGrid,
+  Building2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -46,12 +47,12 @@ const navigation = [
     icon: UsersRound,
     requiresSuperAdmin: true,
   },
-  // {
-  //   name: "Organizations",
-  //   href: "/dashboard/organizations",
-  //   icon: Building2,
-  //   requiresSuperAdmin: true,
-  // },
+  {
+    name: "Organizations",
+    href: "/dashboard/organizations",
+    icon: Building2,
+    requiresSuperAdmin: true,
+  },
   {
     name: "Segments",
     href: "/dashboard/folders",

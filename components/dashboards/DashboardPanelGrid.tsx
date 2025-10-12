@@ -15,12 +15,14 @@ interface DashboardPanelGridProps {
   panels: PanelConfig[];
   columns?: 1 | 2 | 3 | 4;
   defaultHeight?: number;
+  organizationName?: string;
 }
 
 export function DashboardPanelGrid({ 
   panels, 
   columns = 2,
-  defaultHeight = 400 
+  defaultHeight = 400,
+  organizationName 
 }: DashboardPanelGridProps) {
   const [fullscreenPanel] = useState<string | null>(null);
 
@@ -38,6 +40,14 @@ export function DashboardPanelGrid({
 
   const fullscreenGridClass = fullscreenPanel ? 'grid-cols-1' : gridColsClass;
 
+  // Helper function to append organization parameter to iframe src
+  const getIframeSrc = (src: string) => {
+    if (!organizationName) return src;
+    const url = new URL(src);
+    url.searchParams.set('var-organization', organizationName);
+    return url.toString();
+  };
+
   return (
     <div className={`grid ${fullscreenGridClass} gap-3 sm:gap-4 md:gap-6 w-full`}>
       {displayPanels.map((panel) => {
@@ -53,7 +63,7 @@ export function DashboardPanelGrid({
             <CardContent className="p-0 w-full">
               <div className="w-full overflow-hidden">
                 <iframe
-                  src={panel.src}
+                  src={getIframeSrc(panel.src)}
                   width="100%"
                   height={panelHeight}
                   frameBorder="0"

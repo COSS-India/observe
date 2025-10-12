@@ -68,7 +68,7 @@ export function DashboardGrid({
               <div className="flex gap-3 mt-4">
                 <Button
                   size="sm"
-                  className="flex-1 h-10 text-body rounded-lg"
+                  className="flex-1 h-10 text-body rounded-lg !text-white"
                   onClick={() => onView(dashboard)}
                 >
                   <Eye className="h-4 w-4 mr-2" />

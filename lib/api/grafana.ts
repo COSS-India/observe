@@ -31,13 +31,15 @@ class GrafanaAPIClient {
   }
 
   // User Management
-  async listUsers(): Promise<GrafanaUser[]> {
-    const response = await this.client.get<GrafanaUser[]>('/users');
+  async listUsers(orgId?: number | null): Promise<GrafanaUser[]> {
+    const url = orgId ? `/users?orgId=${orgId}` : '/users';
+    const response = await this.client.get<GrafanaUser[]>(url);
     return response.data;
   }
 
-  async createUser(userData: CreateGrafanaUserPayload): Promise<{ id: number; message: string }> {
-    const response = await this.client.post('/users', userData);
+  async createUser(userData: CreateGrafanaUserPayload, orgId?: number | null): Promise<{ id: number; message: string }> {
+    const url = orgId ? `/users?orgId=${orgId}` : '/users';
+    const response = await this.client.post(url, userData);
     return response.data;
   }
 
@@ -56,13 +58,15 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async disableUser(id: number): Promise<{ message: string }> {
-    const response = await this.client.post(`/users/${id}/disable`);
+  async disableUser(id: number, orgId?: number | null): Promise<{ message: string }> {
+    const url = orgId ? `/users/${id}/disable?orgId=${orgId}` : `/users/${id}/disable`;
+    const response = await this.client.post(url);
     return response.data;
   }
 
-  async enableUser(id: number): Promise<{ message: string }> {
-    const response = await this.client.post(`/users/${id}/enable`);
+  async enableUser(id: number, orgId?: number | null): Promise<{ message: string }> {
+    const url = orgId ? `/users/${id}/enable?orgId=${orgId}` : `/users/${id}/enable`;
+    const response = await this.client.post(url);
     return response.data;
   }
 
@@ -136,14 +140,15 @@ class GrafanaAPIClient {
   }
 
   // Team Management
-  async listTeams(orgId?: number): Promise<Team[]> {
+  async listTeams(orgId?: number | null): Promise<Team[]> {
     const url = orgId ? `/teams?orgId=${orgId}` : '/teams';
     const response = await this.client.get<{ teams: Team[] }>(url);
     return response.data.teams || response.data;
   }
 
-  async createTeam(teamData: CreateTeamPayload): Promise<{ teamId: number; message: string }> {
-    const response = await this.client.post('/teams', teamData);
+  async createTeam(teamData: CreateTeamPayload, orgId?: number | null): Promise<{ teamId: number; message: string }> {
+    const payload = { ...teamData, orgId };
+    const response = await this.client.post('/teams', payload);
     return response.data;
   }
 
@@ -152,8 +157,9 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async updateTeam(id: number, teamData: Partial<Team>): Promise<{ message: string }> {
-    const response = await this.client.put(`/teams/${id}`, teamData);
+  async updateTeam(id: number, teamData: Partial<Team>, orgId?: number | null): Promise<{ message: string }> {
+    const url = orgId ? `/teams/${id}?orgId=${orgId}` : `/teams/${id}`;
+    const response = await this.client.put(url, teamData);
     return response.data;
   }
 
@@ -162,18 +168,20 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async addUserToTeam(teamId: number, userId: number): Promise<{ message: string }> {
-    const response = await this.client.post(`/teams/${teamId}/members`, { userId });
+  async addUserToTeam(teamId: number, userId: number, orgId?: number): Promise<{ message: string }> {
+    const response = await this.client.post(`/teams/${teamId}/members`, { userId, orgId });
     return response.data;
   }
 
-  async removeUserFromTeam(teamId: number, userId: number): Promise<{ message: string }> {
-    const response = await this.client.delete(`/teams/${teamId}/members/${userId}`);
+  async removeUserFromTeam(teamId: number, userId: number, orgId?: number): Promise<{ message: string }> {
+    const url = orgId ? `/teams/${teamId}/members/${userId}?orgId=${orgId}` : `/teams/${teamId}/members/${userId}`;
+    const response = await this.client.delete(url);
     return response.data;
   }
 
-  async getTeamMembers(teamId: number): Promise<TeamMember[]> {
-    const response = await this.client.get<TeamMember[]>(`/teams/${teamId}/members`);
+  async getTeamMembers(teamId: number, orgId?: number): Promise<TeamMember[]> {
+    const url = orgId ? `/teams/${teamId}/members?orgId=${orgId}` : `/teams/${teamId}/members`;
+    const response = await this.client.get<TeamMember[]>(url);
     return response.data;
   }
 
@@ -211,8 +219,9 @@ class GrafanaAPIClient {
   }
 
   // Folder Management
-  async listFolders(): Promise<DashboardFolder[]> {
-    const response = await this.client.get<DashboardFolder[]>('/folders');
+  async listFolders(orgId?: number | null): Promise<DashboardFolder[]> {
+    const url = orgId ? `/folders?orgId=${orgId}` : '/folders';
+    const response = await this.client.get<DashboardFolder[]>(url);
     // Filter out the "General" folder (uid is empty string or "general")
     const folders = Array.isArray(response.data)
       ? response.data.filter((folder) =>
@@ -224,8 +233,9 @@ class GrafanaAPIClient {
     return folders;
   }
 
-  async createFolder(folderData: CreateFolderPayload): Promise<DashboardFolder> {
-    const response = await this.client.post<DashboardFolder>('/folders', folderData);
+  async createFolder(folderData: CreateFolderPayload, orgId?: number | null): Promise<DashboardFolder> {
+    const url = orgId ? `/folders?orgId=${orgId}` : '/folders';
+    const response = await this.client.post<DashboardFolder>(url, folderData);
     return response.data;
   }
 
@@ -234,8 +244,9 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async updateFolder(uid: string, folderData: UpdateFolderPayload): Promise<DashboardFolder> {
-    const response = await this.client.put<DashboardFolder>(`/folders/${uid}`, folderData);
+  async updateFolder(uid: string, folderData: UpdateFolderPayload, orgId?: number | null): Promise<DashboardFolder> {
+    const url = orgId ? `/folders/${uid}?orgId=${orgId}` : `/folders/${uid}`;
+    const response = await this.client.put<DashboardFolder>(url, folderData);
     return response.data;
   }
 
@@ -245,19 +256,22 @@ class GrafanaAPIClient {
   }
 
   // Folder Permissions
-  async getFolderPermissions(uid: string): Promise<Permission[]> {
-    const response = await this.client.get<Permission[]>(`/folders/${uid}/permissions`);
+  async getFolderPermissions(uid: string, orgId?: number | null): Promise<Permission[]> {
+    const url = orgId ? `/folders/${uid}/permissions?orgId=${orgId}` : `/folders/${uid}/permissions`;
+    const response = await this.client.get<Permission[]>(url);
     return response.data;
   }
 
-  async updateFolderPermissions(uid: string, permissions: UpdatePermissionPayload): Promise<{ message: string }> {
-    const response = await this.client.post(`/folders/${uid}/permissions`, permissions);
+  async updateFolderPermissions(uid: string, permissions: UpdatePermissionPayload, orgId?: number | null): Promise<{ message: string }> {
+    const url = orgId ? `/folders/${uid}/permissions?orgId=${orgId}` : `/folders/${uid}/permissions`;
+    const response = await this.client.post(url, permissions);
     return response.data;
   }
 
   // Dashboard Management
-  async listDashboards(): Promise<Dashboard[]> {
-    const response = await this.client.get<Dashboard[]>('/dashboards');
+  async listDashboards(orgId?: number | null): Promise<Dashboard[]> {
+    const url = orgId ? `/dashboards?orgId=${orgId}` : '/dashboards';
+    const response = await this.client.get<Dashboard[]>(url);
     return response.data;
   }
 
@@ -266,22 +280,24 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async searchDashboards(query?: string, tag?: string, folderIds?: number[]): Promise<Dashboard[]> {
+  async searchDashboards(query?: string, tag?: string, folderIds?: number[], orgId?: number | null): Promise<Dashboard[]> {
     const params = new URLSearchParams();
     if (query) params.append('query', query);
     if (tag) params.append('tag', tag);
     if (folderIds && folderIds.length > 0) {
       folderIds.forEach(id => params.append('folderIds', id.toString()));
     }
+    if (orgId) params.append('orgId', orgId.toString());
     
     const response = await this.client.get<Dashboard[]>(`/dashboards?${params.toString()}`);
     return response.data;
   }
 
-  async getDashboardsByFolder(folderUid: string): Promise<Dashboard[]> {
+  async getDashboardsByFolder(folderUid: string, orgId?: number | null): Promise<Dashboard[]> {
     const params = new URLSearchParams();
     params.append('folderUids', folderUid);
     params.append('type', 'dash-db');
+    if (orgId) params.append('orgId', orgId.toString());
     
     const response = await this.client.get<Dashboard[]>(`/dashboards?${params.toString()}`);
     return response.data;
@@ -298,7 +314,7 @@ class GrafanaAPIClient {
   }
 
   // Dashboard Embed URL Generation
-  generateEmbedUrl(config: DashboardEmbedConfig): string {
+  generateEmbedUrl(config: DashboardEmbedConfig, organizationName?: string): string {
     const baseUrl = process.env.NEXT_PUBLIC_GRAFANA_URL || '';
     const params = new URLSearchParams();
     
@@ -307,8 +323,10 @@ class GrafanaAPIClient {
     if (config.from) params.append('from', config.from);
     if (config.to) params.append('to', config.to);
     if (config.refresh) params.append('refresh', config.refresh);
-    if (config.orgId) params.append('orgId', config.orgId.toString());
+    // Note: orgId is intentionally not included to support Grafana anonymous access
+    // if (config.orgId) params.append('orgId', config.orgId.toString());
     if (config.kiosk) params.append('kiosk', 'tv');
+    if (organizationName) params.append('var-customer', organizationName);
     
     return `${baseUrl}/d/${config.uid}?${params.toString()}`;
   }
