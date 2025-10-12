@@ -42,7 +42,7 @@ const TIME_RANGES = [
   { label: 'Last month', value: 'now-1M/M', from: 'now-1M/M', to: 'now-1M/M' },
 ];
 
-export function DashboardPanelExtractor({ folders, dashboards }: DashboardPanelExtractorProps) {
+export function DashboardPanelExtractor({ folders, dashboards, organizationName }: DashboardPanelExtractorProps) {
   const [selectedFolder, setSelectedFolder] = useState<string>('');
   const [selectedDashboard, setSelectedDashboard] = useState<string>('');
   const [panels, setPanels] = useState<Panel[]>([]);
@@ -244,8 +244,10 @@ export function DashboardPanelExtractor({ folders, dashboards }: DashboardPanelE
                 panelId: panel.id.toString(),
               });
               
-              // Hardcoded customer name for testing
-              params.set('var-customer', 'alen');
+              // Pass organization name as customer variable
+              if (organizationName) {
+                params.set('var-customer', organizationName);
+              }
               params.set('var-app', '$__all');
               
               const iframeSrc = `${baseUrl}?${params.toString()}`;
