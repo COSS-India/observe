@@ -27,7 +27,7 @@ import { Dashboard } from "@/types/grafana";
 export default function AllDashboardsPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const { selectedOrgId } = useOrgContextStore();
+  const { selectedOrgId, selectedOrgName } = useOrgContextStore();
   const {
     dashboards,
     loading: dashboardsLoading,
@@ -222,6 +222,7 @@ export default function AllDashboardsPage() {
             <DashboardViewer
               dashboardUid={selectedDashboard.uid}
               title={selectedDashboard.title}
+              organizationName={selectedOrgName || undefined}
             />
           )
         )}

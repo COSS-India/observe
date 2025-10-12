@@ -91,13 +91,13 @@ export function OrganizationSelector({ onOrganizationChange, className }: Organi
         value={selectedOrgId?.toString() || 'all' }
         onValueChange={handleOrgChange}
       >
-        <SelectTrigger className=" w-56 h-10">
+        <SelectTrigger className="w-56 h-10 text-black dark:text-white">
           <SelectValue placeholder="Select organization" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Organizations</SelectItem>
+          <SelectItem value="all" className='!text-black dark:text-white'>All Organizations</SelectItem>
           {organizations.map((org) => (
-            <SelectItem key={org.id} value={org.id.toString()}>
+            <SelectItem key={org.id} value={org.id.toString()} className='text-black dark:text-white'>
               {org.name}
             </SelectItem>
           ))}

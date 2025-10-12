@@ -15,6 +15,7 @@ interface Panel {
 interface DashboardPanelExtractorProps {
   folders: Array<{ uid: string; title: string }>;
   dashboards: Array<{ uid: string; title: string; folderUid: string }>;
+  organizationName?: string;
 }
 
 const TIME_RANGES = [
@@ -90,27 +91,34 @@ export function DashboardPanelExtractor({ folders, dashboards }: DashboardPanelE
       // Extract panels from dashboard JSON
       const dashboardPanels = data.dashboard?.panels || [];
       const extractedPanels: Panel[] = [];
+      const seenPanelIds = new Set<number>(); // Track panel IDs to avoid duplicates
 
-      // Recursively extract panels (including row panels)
+      // In Grafana, panels are in a flat array
+      // Row panels (type: 'row') are just organizational and should be skipped
+      // Text panels (type: 'text') are markdown/HTML headers and cannot be embedded
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const extractPanels = (panelList: any[]) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        panelList.forEach((panel: any) => {
-          if (panel.type === 'row' && panel.panels) {
-            // If it's a row with nested panels, extract those
-            extractPanels(panel.panels);
-          } else if (panel.id !== undefined && panel.type !== 'row') {
-            extractedPanels.push({
-              id: panel.id,
-              title: panel.title || `Panel ${panel.id}`,
-              type: panel.type || 'unknown',
-            });
-          }
+      dashboardPanels.forEach((panel: any) => {
+        // Skip row panels, text panels, and panels without IDs
+        if (panel.type === 'row' || panel.type === 'text' || panel.id === undefined) {
+          return;
+        }
+        
+        // Skip if we've already seen this panel ID (avoid duplicates)
+        if (seenPanelIds.has(panel.id)) {
+          return;
+        }
+        
+        // Add regular embeddable panels (stat, gauge, timeseries, piechart, etc.)
+        seenPanelIds.add(panel.id);
+        extractedPanels.push({
+          id: panel.id,
+          title: panel.title || `Panel ${panel.id}`,
+          type: panel.type || 'unknown',
         });
-      };
+      });
 
-      extractPanels(dashboardPanels);
       setPanels(extractedPanels);
+      console.log(`Extracted ${extractedPanels.length} unique panels from dashboard`);
     } catch (error) {
       console.error('Error fetching dashboard panels:', error);
       toast.error('Failed to load dashboard panels');
@@ -220,29 +228,52 @@ export function DashboardPanelExtractor({ folders, dashboards }: DashboardPanelE
           </div> */}
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {panels.map((panel) => (
-              <Card key={panel.id} className="card-widget overflow-hidden">
-                <CardHeader className="p-6 bg-muted/30">
-                  <CardTitle className="text-card-title">
-                    <span className="truncate">
-                      {panel.title}
-                    </span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="border-t border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <iframe
-                      src={`${process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000'}/d-solo/${selectedDashboard}/${dashboards.find(d => d.uid === selectedDashboard)?.title.toLowerCase().replace(/\s+/g, '-') || ''}?orgId=1&from=${TIME_RANGES.find(r => r.value === selectedTimeRange)?.from || 'now-6h'}&to=${TIME_RANGES.find(r => r.value === selectedTimeRange)?.to || 'now'}&refresh=5s&panelId=${panel.id}&__feature.dashboardSceneSolo=true`}
-                      width="100%"
-                      height="400"
-                      frameBorder="0"
-                      title={`${panel.title} Preview`}
-                      className="w-full"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {panels.map((panel) => {
+              // For Grafana d-solo URLs, the UID is often the slug itself
+              // Use the UID as both the identifier and slug
+              const dashboardUid = selectedDashboard;
+              
+              // Construct URL - use UID as slug (common in Grafana)
+              const baseUrl = `${process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000'}/d-solo/${dashboardUid}/${dashboardUid}`;
+              
+              const params = new URLSearchParams({
+                from: TIME_RANGES.find(r => r.value === selectedTimeRange)?.from || 'now-6h',
+                to: TIME_RANGES.find(r => r.value === selectedTimeRange)?.to || 'now',
+                timezone: 'browser',
+                refresh: '30s',
+                panelId: panel.id.toString(),
+              });
+              
+              // Hardcoded customer name for testing
+              params.set('var-customer', 'alen');
+              params.set('var-app', '$__all');
+              
+              const iframeSrc = `${baseUrl}?${params.toString()}`;
+              console.log("iframe", iframeSrc, "panel:", panel.id, panel.title);
+              return (
+                <Card key={panel.id} className="card-widget overflow-hidden">
+                  <CardHeader className="p-6 bg-muted/30">
+                    <CardTitle className="text-card-title">
+                      <span className="truncate">
+                        {panel.title}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="border-t border-gray-200 dark:border-gray-700 overflow-hidden">
+                      <iframe
+                        src={iframeSrc}
+                        width="100%"
+                        height="400"
+                        frameBorder="0"
+                        title={`${panel.title} Preview`}
+                        className="w-full"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}

@@ -168,18 +168,20 @@ class GrafanaAPIClient {
     return response.data;
   }
 
-  async addUserToTeam(teamId: number, userId: number): Promise<{ message: string }> {
-    const response = await this.client.post(`/teams/${teamId}/members`, { userId });
+  async addUserToTeam(teamId: number, userId: number, orgId?: number): Promise<{ message: string }> {
+    const response = await this.client.post(`/teams/${teamId}/members`, { userId, orgId });
     return response.data;
   }
 
-  async removeUserFromTeam(teamId: number, userId: number): Promise<{ message: string }> {
-    const response = await this.client.delete(`/teams/${teamId}/members/${userId}`);
+  async removeUserFromTeam(teamId: number, userId: number, orgId?: number): Promise<{ message: string }> {
+    const url = orgId ? `/teams/${teamId}/members/${userId}?orgId=${orgId}` : `/teams/${teamId}/members/${userId}`;
+    const response = await this.client.delete(url);
     return response.data;
   }
 
-  async getTeamMembers(teamId: number): Promise<TeamMember[]> {
-    const response = await this.client.get<TeamMember[]>(`/teams/${teamId}/members`);
+  async getTeamMembers(teamId: number, orgId?: number): Promise<TeamMember[]> {
+    const url = orgId ? `/teams/${teamId}/members?orgId=${orgId}` : `/teams/${teamId}/members`;
+    const response = await this.client.get<TeamMember[]>(url);
     return response.data;
   }
 
@@ -312,7 +314,7 @@ class GrafanaAPIClient {
   }
 
   // Dashboard Embed URL Generation
-  generateEmbedUrl(config: DashboardEmbedConfig): string {
+  generateEmbedUrl(config: DashboardEmbedConfig, organizationName?: string): string {
     const baseUrl = process.env.NEXT_PUBLIC_GRAFANA_URL || '';
     const params = new URLSearchParams();
     
@@ -321,8 +323,10 @@ class GrafanaAPIClient {
     if (config.from) params.append('from', config.from);
     if (config.to) params.append('to', config.to);
     if (config.refresh) params.append('refresh', config.refresh);
-    if (config.orgId) params.append('orgId', config.orgId.toString());
+    // Note: orgId is intentionally not included to support Grafana anonymous access
+    // if (config.orgId) params.append('orgId', config.orgId.toString());
     if (config.kiosk) params.append('kiosk', 'tv');
+    if (organizationName) params.append('var-customer', organizationName);
     
     return `${baseUrl}/d/${config.uid}?${params.toString()}`;
   }
