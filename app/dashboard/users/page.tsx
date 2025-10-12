@@ -1,6 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { isSuperAdmin } from '@/lib/utils/permissions';
+import { OrganizationSelector } from '@/components/common/OrganizationSelector';
 import { useGrafanaUsers } from '@/hooks/useGrafanaUsers';
 import { UserTable } from '@/components/users/UserTable';
 import { UserEditDialog } from '@/components/users/UserEditDialog';
@@ -14,16 +18,30 @@ import { Card, CardContent } from '@/components/ui/card';
 import type { GrafanaUser } from '@/types/grafana';
 
 export default function UsersPage() {
+  const { user } = useAuth();
+  const { selectedOrgId } = useOrgContextStore();
   const { users, loading, error, fetchUsers, updateUser, deleteUser, toggleUserStatus } = useGrafanaUsers();
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<GrafanaUser | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  const isUserSuperAdmin = isSuperAdmin(user);
+
+  // Fetch users when organization changes
+  const handleOrgChange = useCallback((orgId: number | null) => {
+    console.log("🔄 Organization changed, fetching users for org:", orgId);
+    fetchUsers(orgId);
+  }, [fetchUsers]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    if (isUserSuperAdmin) {
+      fetchUsers(selectedOrgId);
+    } else {
+      fetchUsers();
+    }
+  }, [isUserSuperAdmin, selectedOrgId, fetchUsers]);
 
   const filteredUsers = users.filter(
     (user) =>
@@ -59,11 +77,17 @@ export default function UsersPage() {
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        <div className="space-y-1 sm:space-y-2">
+        <div className="space-y-1 sm:space-y-2 w-full">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground mb-1">User Management</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             Manage users and access levels
           </p>
+          {/* Organization Selector for Super Admin */}
+          {isUserSuperAdmin && (
+            <div className="mt-3">
+              <OrganizationSelector onOrganizationChange={handleOrgChange} />
+            </div>
+          )}
         </div>
         <Link href="/dashboard/users/create">
           <Button className="px-4 py-2 sm:px-5 sm:py-2 md:px-6 text-xs sm:text-sm h-9 sm:h-10 md:h-11 whitespace-nowrap gap-1">

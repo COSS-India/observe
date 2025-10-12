@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { getGrafanaAuthHeaders, validateGrafanaConfig } from '@/lib/utils/grafana-auth';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
-const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
-
-const grafanaClient = axios.create({
-  baseURL: GRAFANA_URL,
-  headers: {
-    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-});
 
 interface Permission {
   userId?: number;
@@ -49,8 +41,19 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    if (!validation.isValid) {
+      return NextResponse.json({
+        error: 'Grafana configuration is invalid',
+        errors: validation.errors
+      }, { status: 500 });
+    }
+
     const { id } = await params;
     const userId = parseInt(id, 10);
+    const { searchParams } = new URL(request.url);
+    const orgId = searchParams.get('orgId');
 
     if (isNaN(userId)) {
       return NextResponse.json(
@@ -59,14 +62,47 @@ export async function GET(
       );
     }
 
+    // Create Grafana client with proper auth
+    const grafanaClient = axios.create({
+      baseURL: GRAFANA_URL,
+      headers: getGrafanaAuthHeaders(orgId || undefined),
+      timeout: 10000,
+    });
+
+    console.log('🔍 Debug info - Fetching dashboards for user:', userId);
+
     // Step 1: Get all folders
     const foldersResponse = await grafanaClient.get<Folder[]>('/api/folders');
     const folders = foldersResponse.data;
 
+    console.log('🔍 Debug info - Total folders:', folders.length);
+
     // Step 2: Get user's teams
-    const userTeamsResponse = await grafanaClient.get(`/api/users/${userId}/teams`);
-    const userTeams = userTeamsResponse.data;
-    const userTeamIds = userTeams.map((team: { id: number }) => team.id);
+    let userTeamIds: number[] = [];
+    try {
+      // Try direct API first
+      const userTeamsResponse = await grafanaClient.get(`/api/users/${userId}/teams`);
+      userTeamIds = userTeamsResponse.data.map((team: { id: number }) => team.id);
+    } catch {
+      // Fallback: Check team memberships manually
+      const teamsResponse = await grafanaClient.get('/api/teams/search');
+      const allTeams = teamsResponse.data.teams || [];
+      
+      for (const team of allTeams) {
+        try {
+          const membersResponse = await grafanaClient.get(`/api/teams/${team.id}/members`);
+          const members = membersResponse.data;
+          const isMember = members.some((member: { userId: number }) => member.userId === userId);
+          if (isMember) {
+            userTeamIds.push(team.id);
+          }
+        } catch (memberError) {
+          console.warn(`Failed to check team ${team.id} membership:`, memberError);
+        }
+      }
+    }
+
+    console.log('🔍 Debug info - User team IDs:', userTeamIds);
 
     // Step 3: Check each folder's permissions
     const accessibleFolderUids: string[] = [];
@@ -79,7 +115,7 @@ export async function GET(
         const permissions = permissionsResponse.data;
 
         // Check if user has direct access or team access
-        const hasAccess = permissions.some((perm) => {
+        const hasAccess = permissions.some((perm: Permission) => {
           // Direct user permission
           if (perm.userId === userId) {
             return true;

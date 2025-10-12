@@ -1,25 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { getGrafanaAuthHeaders, validateGrafanaConfig } from '@/lib/utils/grafana-auth';
 
-const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL || 'http://localhost:3000';
-const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY || '';
-
-const grafanaClient = axios.create({
-  baseURL: GRAFANA_URL,
-  headers: {
-    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-});
+const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    if (!validation.isValid) {
+      return NextResponse.json({
+        error: 'Grafana configuration is invalid',
+        errors: validation.errors
+      }, { status: 500 });
+    }
+
     const { uid } = await params;
     const body = await request.json();
-    const { teamId, permission } = body;
+    const { teamId, permission, orgId } = body;
 
     if (!teamId || !permission) {
       return NextResponse.json(
@@ -27,6 +28,13 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    // Create Grafana client with proper auth
+    const grafanaClient = axios.create({
+      baseURL: GRAFANA_URL,
+      headers: getGrafanaAuthHeaders(orgId || undefined),
+      timeout: 10000,
+    });
 
     // Get current dashboard to retrieve its ID
     const dashboardResponse = await grafanaClient.get(`/api/dashboards/uid/${uid}`);
@@ -58,10 +66,22 @@ export async function POST(
   } catch (error) {
     const err = error as { response?: { data?: { message?: string }; status?: number }; message?: string };
     console.error('Error updating dashboard permissions:', err.response?.data || err);
-    return NextResponse.json(
-      { error: err.response?.data?.message || err.message || 'Failed to update dashboard permissions' },
-      { status: err.response?.status || 500 }
-    );
+    
+    // Provide helpful hints based on error type
+    let hint = '';
+    if (err.response?.status === 403) {
+      hint = 'Your Grafana credentials lack the required permissions to modify dashboard permissions. Ensure Admin permissions.';
+    } else if (err.response?.status === 401) {
+      hint = 'Authentication failed. Check your GRAFANA_USERNAME/GRAFANA_PASSWORD.';
+    } else if (err.response?.status === 404) {
+      hint = 'Dashboard not found or you do not have access to it.';
+    }
+
+    return NextResponse.json({
+      error: err.response?.data?.message || err.message || 'Failed to update dashboard permissions',
+      details: err.response?.data,
+      hint
+    }, { status: err.response?.status || 500 });
   }
 }
 
@@ -70,9 +90,19 @@ export async function DELETE(
   { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    if (!validation.isValid) {
+      return NextResponse.json({
+        error: 'Grafana configuration is invalid',
+        errors: validation.errors
+      }, { status: 500 });
+    }
+
     const { uid } = await params;
     const { searchParams } = new URL(request.url);
     const teamId = searchParams.get('teamId');
+    const orgId = searchParams.get('orgId');
 
     if (!teamId) {
       return NextResponse.json(
@@ -80,6 +110,13 @@ export async function DELETE(
         { status: 400 }
       );
     }
+
+    // Create Grafana client with proper auth
+    const grafanaClient = axios.create({
+      baseURL: GRAFANA_URL,
+      headers: getGrafanaAuthHeaders(orgId || undefined),
+      timeout: 10000,
+    });
 
     // Get current dashboard to retrieve its ID
     const dashboardResponse = await grafanaClient.get(`/api/dashboards/uid/${uid}`);
@@ -106,9 +143,21 @@ export async function DELETE(
   } catch (error) {
     const err = error as { response?: { data?: { message?: string }; status?: number }; message?: string };
     console.error('Error removing dashboard permission:', err.response?.data || err);
-    return NextResponse.json(
-      { error: err.response?.data?.message || err.message || 'Failed to remove dashboard permission' },
-      { status: err.response?.status || 500 }
-    );
+    
+    // Provide helpful hints based on error type  
+    let hint = '';
+    if (err.response?.status === 403) {
+      hint = 'Your Grafana credentials lack the required permissions to modify dashboard permissions. Ensure Admin permissions.';
+    } else if (err.response?.status === 401) {
+      hint = 'Authentication failed. Check your GRAFANA_USERNAME/GRAFANA_PASSWORD.';
+    } else if (err.response?.status === 404) {
+      hint = 'Dashboard not found or you do not have access to it.';
+    }
+
+    return NextResponse.json({
+      error: err.response?.data?.message || err.message || 'Failed to remove dashboard permission',
+      details: err.response?.data,
+      hint
+    }, { status: err.response?.status || 500 });
   }
 }

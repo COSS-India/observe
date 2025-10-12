@@ -34,24 +34,24 @@ const navigation = [
     requiresSuperAdmin: true,
   },
   
-  // {
-  //   name: "Organization Users",
-  //   href: "/dashboard/organization-users",
-  //   icon: Users,
-  //   requiresSuperAdmin: true,
-  // },
+  {
+    name: "Organization Users",
+    href: "/dashboard/organization-users",
+    icon: Users,
+    requiresSuperAdmin: true,
+  },
   {
     name: "Groups",
     href: "/dashboard/teams",
     icon: UsersRound,
     requiresSuperAdmin: true,
   },
-  // {
-  //   name: "Organizations",
-  //   href: "/dashboard/organizations",
-  //   icon: Building2,
-  //   requiresSuperAdmin: true,
-  // },
+  {
+    name: "Organizations",
+    href: "/dashboard/organizations",
+    icon: UsersRound,
+    requiresSuperAdmin: true,
+  },
   {
     name: "Segments",
     href: "/dashboard/folders",

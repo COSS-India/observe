@@ -10,6 +10,11 @@ import { grafanaAPI } from '@/lib/api/grafana';
 import type { DashboardFolder, Dashboard } from '@/types/grafana';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { useOrgDashboards } from '@/hooks/useOrgDashboards';
+import { useOrgFolders } from '@/hooks/useOrgFolders';
+import { isSuperAdmin } from '@/lib/utils/permissions';
+import { useAuthStore } from '@/lib/store/authStore';
 
 interface FolderDashboardsManagerProps {
   folder: DashboardFolder;
@@ -17,6 +22,11 @@ interface FolderDashboardsManagerProps {
 }
 
 export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsManagerProps) {
+  const { user } = useAuthStore();
+  const { selectedOrgId } = useOrgContextStore();
+  const { dashboards: orgDashboards, fetchOrgDashboards } = useOrgDashboards();
+  const { folders: orgFolders, fetchOrgFolders } = useOrgFolders();
+  
   const [allDashboards, setAllDashboards] = useState<Dashboard[]>([]);
   const [folderDashboards, setFolderDashboards] = useState<Dashboard[]>([]);
   const [folders, setFolders] = useState<DashboardFolder[]>([]);
@@ -24,22 +34,49 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
   const [movingDashboard, setMovingDashboard] = useState<string | null>(null);
   const [selectedDashboard, setSelectedDashboard] = useState<string>('');
 
+  const isUserSuperAdmin = isSuperAdmin(user);
+
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folder.uid]);
+  }, [folder.uid, selectedOrgId]);
+
+  // Update dashboards when orgDashboards changes
+  useEffect(() => {
+    if (orgDashboards.length > 0) {
+      setAllDashboards(orgDashboards);
+      setFolderDashboards(orgDashboards.filter((d) => d.folderUid === folder.uid));
+    }
+  }, [orgDashboards, folder.uid]);
+
+  // Update folders when orgFolders changes
+  useEffect(() => {
+    if (orgFolders.length > 0) {
+      setFolders(orgFolders);
+    }
+  }, [orgFolders]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [dashboards, foldersData] = await Promise.all([
-        grafanaAPI.listDashboards(),
-        grafanaAPI.listFolders(),
-      ]);
-      
-      setAllDashboards(dashboards);
-      setFolderDashboards(dashboards.filter((d) => d.folderUid === folder.uid));
-      setFolders(foldersData);
+      // Fetch dashboards and folders based on organization context
+      if (isUserSuperAdmin && selectedOrgId) {
+        console.log('🔄 Fetching dashboards and folders for organization:', selectedOrgId);
+        await Promise.all([
+          fetchOrgDashboards(selectedOrgId),
+          fetchOrgFolders(selectedOrgId)
+        ]);
+      } else {
+        console.log('🔄 Fetching all dashboards and folders (non-superadmin or no org selected)');
+        const [dashboards, foldersData] = await Promise.all([
+          grafanaAPI.listDashboards(),
+          grafanaAPI.listFolders(),
+        ]);
+        
+        setAllDashboards(dashboards);
+        setFolderDashboards(dashboards.filter((d) => d.folderUid === folder.uid));
+        setFolders(foldersData);
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Failed to load dashboards');
@@ -58,6 +95,7 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
     try {
       await axios.post(`/api/grafana/dashboards/${selectedDashboard}/move`, {
         folderUid: folder.uid,
+        orgId: selectedOrgId,
       });
 
       toast.success('Dashboard added to folder');
@@ -79,6 +117,7 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
       
       await axios.post(`/api/grafana/dashboards/${dashboardUid}/move`, {
         folderUid: actualFolderUid,
+        orgId: selectedOrgId,
       });
 
       toast.success('Dashboard moved');

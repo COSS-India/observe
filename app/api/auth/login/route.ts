@@ -8,37 +8,37 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:9010';
 // Simple authentication - replace with your actual authentication logic
 const DEMO_USERS: DemoUser[] = getDemoUsers();
 
-async function fetchTeamByOrganization(
+async function fetchOrgByOrganization(
   organizationName: string
-): Promise<{ teamId?: number }> {
+): Promise<{ orgId?: number }> {
   try {
-    console.log(`🔍 Looking for team matching organization: "${organizationName}"`);
+    console.log(`🔍 Looking for organization matching: "${organizationName}"`);
     
-    // Get all teams from Grafana
-    const response = await grafanaClient.get('/api/teams/search', {
+    // Get all organizations from Grafana
+    const response = await grafanaClient.get('/api/orgs', {
       params: { 
         perpage: 1000,
       },
     });
 
-    const teams = response.data.teams || [];
-    console.log(`📋 Found ${teams.length} total teams in Grafana`);
+    const orgs = response.data || [];
+    console.log(`📋 Found ${orgs.length} total organizations in Grafana`);
     
-    // Find team with matching name (case-insensitive)
-    const matchingTeam = teams.find((t: { name: string; id: number }) => 
-      t.name.toLowerCase() === organizationName.toLowerCase()
+    // Find organization with matching name (case-insensitive)
+    const matchingOrg = orgs.find((o: { name: string; id: number }) => 
+      o.name.toLowerCase() === organizationName.toLowerCase()
     );
 
-    if (matchingTeam) {
-      console.log(`✅ Team found! Name: "${matchingTeam.name}", ID: ${matchingTeam.id}`);
-      return { teamId: matchingTeam.id };
+    if (matchingOrg) {
+      console.log(`✅ Organization found! Name: "${matchingOrg.name}", ID: ${matchingOrg.id}`);
+      return { orgId: matchingOrg.id };
     }
 
-    console.warn(`❌ No team found with name "${organizationName}"`);
-    return { teamId: undefined };
+    console.warn(`❌ No organization found with name "${organizationName}"`);
+    return { orgId: undefined };
   } catch (error) {
-    console.error('❌ Error fetching team:', error);
-    return { teamId: undefined };
+    console.error('❌ Error fetching organization:', error);
+    return { orgId: undefined };
   }
 }
 
@@ -63,20 +63,20 @@ export async function POST(request: NextRequest) {
         // Map backend user to frontend format
         const user = {
           id: backendUser.email, // Use email as ID for simplicity
-          username: backendUser.username || backendUser.email.split('@')[0],
+          username: (backendUser.username || backendUser.email.split('@')[0]).trim(),
           email: backendUser.email,
           role: backendUser.role === 'superadmin' ? 'superadmin' : 
                 backendUser.role === 'admin' ? 'admin' : 'viewer',
-          organization: backendUser.org_type || 'Unknown Organization'
+          organization: backendUser.username?.trim() || backendUser.email.split('@')[0].trim() || 'Unknown Organization'
         };
 
-        // Fetch Grafana TEAM ID based on organization
-        const grafanaData = await fetchTeamByOrganization(user.organization);
+        // Fetch Grafana ORG ID based on organization
+        const grafanaData = await fetchOrgByOrganization(user.organization);
 
         return NextResponse.json({
           user: {
             ...user,
-            grafanaTeamId: grafanaData.teamId,
+            grafanaOrgId: grafanaData.orgId,
           },
           token: backendUser.token, // Use backend token
         });
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
     // Create token (in production, use JWT or similar)
     const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64');
 
-    // Fetch Grafana TEAM ID based on organization (NO user-based mapping)
-    const grafanaData = await fetchTeamByOrganization(user.organization);
+    // Fetch Grafana ORG ID based on organization (NO team-based mapping)
+    const grafanaData = await fetchOrgByOrganization(user.organization);
 
     // Return user data without password
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       user: {
         ...userWithoutPassword,
-        grafanaTeamId: grafanaData.teamId, // ONLY team-based access
+        grafanaOrgId: grafanaData.orgId, // ONLY organization-based access
       },
       token,
     });

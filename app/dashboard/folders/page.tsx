@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Plus, RefreshCw } from 'lucide-react';
+import { useEffect, useState, useCallback } from 'react';
+import { Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { isSuperAdmin } from '@/lib/utils/permissions';
+import { OrganizationSelector } from '@/components/common/OrganizationSelector';
 import { FolderTable } from '@/components/folders/FolderTable';
 import { FolderFormDialog } from '@/components/folders/FolderFormDialog';
 import { FolderTeamsManager } from '@/components/folders/FolderTeamsManager';
@@ -28,6 +31,7 @@ type ViewMode = 'list' | 'manage-teams' | 'manage-dashboards';
 
 export default function FoldersPage() {
   const { user } = useAuthStore();
+  const { selectedOrgId } = useOrgContextStore();
   const {
     folders,
     loading,
@@ -46,10 +50,22 @@ export default function FoldersPage() {
   const [managingFolder, setManagingFolder] = useState<DashboardFolder | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  const isUserSuperAdmin = isSuperAdmin(user);
+
+  // Fetch folders when organization changes
+  const handleOrgChange = useCallback((orgId: number | null) => {
+    console.log("🔄 Organization changed, fetching folders for org:", orgId);
+    fetchFolders(orgId);
+  }, [fetchFolders]);
 
   useEffect(() => {
-    fetchFolders();
-  }, [fetchFolders]);
+    if (isUserSuperAdmin) {
+      fetchFolders(selectedOrgId);
+    } else {
+      fetchFolders();
+    }
+  }, [isUserSuperAdmin, selectedOrgId, fetchFolders]);
 
   // Determine if user is admin or superadmin
   const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
@@ -137,22 +153,19 @@ export default function FoldersPage() {
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        <div className="space-y-1 sm:space-y-2">
+        <div className="space-y-1 sm:space-y-2 w-full">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Segments</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             Manage your Grafana Segments
           </p>
+          {/* Organization Selector for Super Admin */}
+          {isUserSuperAdmin && (
+            <div className="mt-3">
+              <OrganizationSelector onOrganizationChange={handleOrgChange} />
+            </div>
+          )}
         </div>
         <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-          {/* <Button
-            variant="outline"
-            size="icon"
-            onClick={fetchFolders}
-            disabled={isLoading}
-            className="h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 border-input hover:bg-accent rounded-lg flex-shrink-0"
-          >
-            <RefreshCw className={`h-3 w-3 sm:h-4 sm:w-4 ${isLoading ? 'animate-spin' : ''}`} />
-          </Button> */}
           {isAdmin && (
             <Button
               onClick={() => {

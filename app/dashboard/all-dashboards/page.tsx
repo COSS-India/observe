@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useGrafanaDashboards } from "@/hooks/useGrafanaDashboards";
+import { useOrgContextStore } from "@/lib/store/orgContextStore";
 import { isSuperAdmin } from "@/lib/utils/permissions";
 import { DashboardGrid } from "@/components/dashboards/DashboardGrid";
 import { DashboardViewer } from "@/components/dashboards/DashboardViewer";
+import { OrganizationSelector } from "@/components/common/OrganizationSelector";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +27,7 @@ import { Dashboard } from "@/types/grafana";
 export default function AllDashboardsPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const { selectedOrgId } = useOrgContextStore();
   const {
     dashboards,
     loading: dashboardsLoading,
@@ -54,13 +57,19 @@ export default function AllDashboardsPage() {
     }
   }, [user, isUserSuperAdmin, router]);
 
-  // Fetch all dashboards on mount
+  // Fetch dashboards when organization changes
+  const handleOrgChange = useCallback((orgId: number | null) => {
+    console.log("🔄 Organization changed, fetching dashboards for org:", orgId);
+    fetchDashboards(undefined, orgId);
+  }, [fetchDashboards]);
+
+  // Fetch all dashboards on mount or when org changes
   useEffect(() => {
     if (isUserSuperAdmin) {
-      console.log("🔄 Fetching all dashboards for superadmin");
-      fetchDashboards();
+      console.log("🔄 Fetching dashboards for organization:", selectedOrgId);
+      fetchDashboards(undefined, selectedOrgId);
     }
-  }, [isUserSuperAdmin, fetchDashboards]);
+  }, [isUserSuperAdmin, selectedOrgId, fetchDashboards]);
 
   // Filter and deduplicate dashboards
   const filteredDashboards = dashboards
@@ -147,25 +156,17 @@ export default function AllDashboardsPage() {
                   Back to Grid
                 </Button>
               ) : (
-                <div className="mb-4">
+                <div className="mb-4 w-full">
                   <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1">
                     All Dashboards
                   </h1>
-                  {/* <p className="text-sm text-muted-foreground mt-1">
-                    View all dashboards across the entire Grafana instance
-                  </p> */}
+                  {/* Organization Selector for Super Admin */}
+                  <div className="mt-3">
+                    <OrganizationSelector onOrganizationChange={handleOrgChange} />
+                  </div>
                 </div>
               )}
             </div>
-            {/* {viewMode === "grid" && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Grid3x3 className="h-4 w-4" />
-                <span className="font-medium">
-                  {filteredDashboards.length} dashboard
-                  {filteredDashboards.length !== 1 ? "s" : ""}
-                </span>
-              </div>
-            )} */}
           </div>
 
           {/* Search Bar - Only show in grid mode */}

@@ -1,41 +1,28 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
+import { getGrafanaAuthHeaders, getGrafanaConfig, validateGrafanaConfig } from '@/lib/utils/grafana-auth';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
-const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
 
 export async function GET() {
   try {
-    // Check if environment variables are set
-    if (!GRAFANA_URL) {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    const config = getGrafanaConfig();
+    
+    if (!validation.isValid) {
       return NextResponse.json({
         status: 'error',
-        message: 'NEXT_PUBLIC_GRAFANA_URL is not configured',
-        config: {
-          GRAFANA_URL: 'NOT SET',
-          API_KEY: GRAFANA_API_KEY ? 'SET (hidden)' : 'NOT SET'
-        }
-      }, { status: 500 });
-    }
-
-    if (!GRAFANA_API_KEY) {
-      return NextResponse.json({
-        status: 'error',
-        message: 'GRAFANA_API_KEY is not configured',
-        config: {
-          GRAFANA_URL: GRAFANA_URL,
-          API_KEY: 'NOT SET'
-        }
+        message: 'Grafana configuration is invalid',
+        errors: validation.errors,
+        config
       }, { status: 500 });
     }
 
     // Try to connect to Grafana
     const grafanaClient = axios.create({
       baseURL: GRAFANA_URL,
-      headers: {
-        'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
+      headers: getGrafanaAuthHeaders(),
       timeout: 10000, // 10 second timeout
     });
 
@@ -45,10 +32,7 @@ export async function GET() {
     return NextResponse.json({
       status: 'success',
       message: 'Successfully connected to Grafana',
-      config: {
-        GRAFANA_URL: GRAFANA_URL,
-        API_KEY: `${GRAFANA_API_KEY.substring(0, 10)}...`,
-      },
+      config: config,
       grafana: {
         orgName: response.data.name,
         orgId: response.data.id,
@@ -59,26 +43,37 @@ export async function GET() {
     console.error('Grafana health check failed:', error);
     
     if (axios.isAxiosError(error)) {
+      const errorDetails = {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        code: error.code,
+      };
+
+      // Provide helpful hints based on error type
+      let hint = '';
+      if (error.response?.status === 401) {
+        hint = 'Authentication failed. Check your GRAFANA_USERNAME/GRAFANA_PASSWORD or GRAFANA_API_KEY';
+      } else if (error.response?.status === 403) {
+        hint = 'Access denied. Your Grafana API key may lack Server Admin permissions';
+      } else if (error.code === 'ECONNREFUSED') {
+        hint = 'Cannot connect to Grafana. Check if NEXT_PUBLIC_GRAFANA_URL is correct and Grafana is running';
+      }
+
       return NextResponse.json({
         status: 'error',
         message: 'Failed to connect to Grafana',
-        config: {
-          GRAFANA_URL: GRAFANA_URL,
-          API_KEY: GRAFANA_API_KEY ? `${GRAFANA_API_KEY.substring(0, 10)}...` : 'NOT SET',
-        },
-        error: {
-          message: error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          code: error.code,
-        }
-      }, { status: 500 });
+        config: getGrafanaConfig(),
+        error: errorDetails,
+        hint
+      }, { status: error.response?.status || 500 });
     }
 
     return NextResponse.json({
       status: 'error',
       message: 'Unknown error occurred',
+      config: getGrafanaConfig(),
       error: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }

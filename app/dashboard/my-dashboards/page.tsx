@@ -2,8 +2,8 @@
 
 import React, { useEffect, useMemo } from "react";
 import { DashboardPanelExtractor } from "@/components/dashboards/DashboardPanelExtractor";
-import { useTeamDashboards } from "@/hooks/useTeamDashboards";
-import { useTeamFolders } from "@/hooks/useTeamFolders";
+import { useOrgDashboards } from "@/hooks/useOrgDashboards";
+import { useOrgFolders } from "@/hooks/useOrgFolders";
 import { useAuth } from "@/hooks/useAuth";
 
 function MyDashboardsPage(): React.ReactElement {
@@ -11,13 +11,13 @@ function MyDashboardsPage(): React.ReactElement {
   const {
     dashboards,
     loading: dashboardsLoading,
-    fetchTeamDashboards,
-  } = useTeamDashboards();
+    fetchOrgDashboards,
+  } = useOrgDashboards();
   const {
     folders,
     loading: foldersLoading,
-    fetchTeamFolders,
-  } = useTeamFolders();
+    fetchOrgFolders,
+  } = useOrgFolders();
 
   // Deduplicate folders by UID
   const uniqueFolders = useMemo(
@@ -29,16 +29,16 @@ function MyDashboardsPage(): React.ReactElement {
     [folders]
   );
 
-  // Fetch team-based dashboards and folders when user has a team ID
+  // Fetch organization-based dashboards and folders when user has an org ID
   useEffect(() => {
-    if (user?.grafanaTeamId) {
+    if (user?.grafanaOrgId) {
       console.log(
-        `🔄 Fetching team-based dashboards and folders for Team ID: ${user.grafanaTeamId}`
+        `🔄 Fetching organization-based dashboards and folders for Org ID: ${user.grafanaOrgId}`
       );
-      fetchTeamDashboards(user.grafanaTeamId);
-      fetchTeamFolders(user.grafanaTeamId);
+      fetchOrgDashboards(user.grafanaOrgId);
+      fetchOrgFolders(user.grafanaOrgId);
     }
-  }, [user?.grafanaTeamId, fetchTeamDashboards, fetchTeamFolders]);
+  }, [user?.grafanaOrgId, fetchOrgDashboards, fetchOrgFolders]);
 
   // Debug: Log dashboards and folders when they change
   useEffect(() => {
@@ -61,14 +61,14 @@ function MyDashboardsPage(): React.ReactElement {
         </div>
       </div>
 
-      {!user?.grafanaTeamId && (
+      {!user?.grafanaOrgId && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-body text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
           <div>
-            <p className="font-medium">Team Mapping Required</p>
+            <p className="font-medium">Organization Mapping Required</p>
             <p className="mt-1">
-              Your account needs to be mapped to a Grafana team. Your
+              Your account needs to be mapped to a Grafana organization. Your
               organization is <strong>{user?.organization}</strong>. Please
-              ensure a team with this name exists in Grafana, or contact your
+              ensure an organization with this name exists in Grafana, or contact your
               administrator.
             </p>
           </div>
@@ -79,23 +79,23 @@ function MyDashboardsPage(): React.ReactElement {
         <div className="text-center py-8 text-muted-foreground">
           Loading dashboards and folders...
         </div>
-      ) : !user?.grafanaTeamId ? (
+      ) : !user?.grafanaOrgId ? (
         <div className="text-center py-8 text-muted-foreground">
-          Please configure your team mapping to view dashboards.
+          Please configure your organization mapping to view dashboards.
         </div>
       ) : uniqueFolders.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-2">
-            No folders available for your team.
+            No folders available for your organization.
           </p>
           <p className="text-body text-muted-foreground">
-            Contact your administrator to grant folder permissions to your team.
+            Contact your administrator to grant folder permissions to your organization.
           </p>
         </div>
       ) : dashboards.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-2">
-            No dashboards found in your team&apos;s folders.
+            No dashboards found in your organization&apos;s folders.
           </p>
         </div>
       ) : (

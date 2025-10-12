@@ -8,13 +8,13 @@ export function useGrafanaDashboards() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchDashboards = useCallback(async (folderUid?: string) => {
+  const fetchDashboards = useCallback(async (folderUid?: string, orgId?: number | null) => {
     try {
       setLoading(true);
       setError(null);
       const data = folderUid 
-        ? await grafanaAPI.getDashboardsByFolder(folderUid)
-        : await grafanaAPI.listDashboards();
+        ? await grafanaAPI.getDashboardsByFolder(folderUid, orgId)
+        : await grafanaAPI.listDashboards(orgId);
       setDashboards(Array.isArray(data) ? data : []);
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

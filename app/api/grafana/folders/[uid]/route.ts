@@ -1,16 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { getGrafanaAuthHeaders, validateGrafanaConfig } from '@/lib/utils/grafana-auth';
 
 const GRAFANA_URL = process.env.NEXT_PUBLIC_GRAFANA_URL;
-const GRAFANA_API_KEY = process.env.GRAFANA_API_KEY;
-
-const grafanaClient = axios.create({
-  baseURL: GRAFANA_URL,
-  headers: {
-    'Authorization': `Bearer ${GRAFANA_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-});
 
 // GET /api/grafana/folders/[uid] - Get folder by UID
 export async function GET(
@@ -18,7 +10,26 @@ export async function GET(
   { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    if (!validation.isValid) {
+      return NextResponse.json({
+        error: 'Grafana configuration is invalid',
+        errors: validation.errors
+      }, { status: 500 });
+    }
+
     const { uid } = await params;
+    const { searchParams } = new URL(request.url);
+    const orgId = searchParams.get('orgId');
+
+    // Create Grafana client with proper auth
+    const grafanaClient = axios.create({
+      baseURL: GRAFANA_URL,
+      headers: getGrafanaAuthHeaders(orgId || undefined),
+      timeout: 10000,
+    });
+
     const response = await grafanaClient.get(`/api/folders/${uid}`);
     return NextResponse.json(response.data);
   } catch (error) {
@@ -42,8 +53,26 @@ export async function PUT(
   { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    if (!validation.isValid) {
+      return NextResponse.json({
+        error: 'Grafana configuration is invalid',
+        errors: validation.errors
+      }, { status: 500 });
+    }
+
     const { uid } = await params;
     const body = await request.json();
+    const { searchParams } = new URL(request.url);
+    const orgId = searchParams.get('orgId');
+
+    // Create Grafana client with proper auth
+    const grafanaClient = axios.create({
+      baseURL: GRAFANA_URL,
+      headers: getGrafanaAuthHeaders(orgId || undefined),
+      timeout: 10000,
+    });
     
     // First, fetch the current folder to get the latest version
     // This prevents 412 "Precondition Failed" errors due to version conflicts
@@ -88,7 +117,25 @@ export async function DELETE(
   { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
+    // Validate configuration
+    const validation = validateGrafanaConfig();
+    if (!validation.isValid) {
+      return NextResponse.json({
+        error: 'Grafana configuration is invalid',
+        errors: validation.errors
+      }, { status: 500 });
+    }
+
     const { uid } = await params;
+    const { searchParams } = new URL(request.url);
+    const orgId = searchParams.get('orgId');
+
+    // Create Grafana client with proper auth
+    const grafanaClient = axios.create({
+      baseURL: GRAFANA_URL,
+      headers: getGrafanaAuthHeaders(orgId || undefined),
+      timeout: 10000,
+    });
     
     const response = await grafanaClient.delete(`/api/folders/${uid}`);
     return NextResponse.json(response.data);

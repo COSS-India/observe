@@ -1,10 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PlusCircle, Search } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { isSuperAdmin } from '@/lib/utils/permissions';
+import { OrganizationSelector } from '@/components/common/OrganizationSelector';
 import { useGrafanaTeams } from '@/hooks/useGrafanaTeams';
 import { TeamTable } from '@/components/teams/TeamTable';
 import { TeamFormDialog } from '@/components/teams/TeamFormDialog';
@@ -14,6 +18,8 @@ import type { Team } from '@/types/grafana';
 import { GrafanaSetupError } from '@/components/GrafanaSetupError';
 
 export default function TeamsPage() {
+  const { user } = useAuth();
+  const { selectedOrgId } = useOrgContextStore();
   const { teams, loading, error, fetchTeams, createTeam, updateTeam, deleteTeam } = useGrafanaTeams();
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -22,10 +28,22 @@ export default function TeamsPage() {
   const [managingMembersTeam, setManagingMembersTeam] = useState<Team | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  const isUserSuperAdmin = isSuperAdmin(user);
+
+  // Fetch teams when organization changes
+  const handleOrgChange = useCallback((orgId: number | null) => {
+    console.log("🔄 Organization changed, fetching teams for org:", orgId);
+    fetchTeams(orgId);
+  }, [fetchTeams]);
 
   useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+    if (isUserSuperAdmin) {
+      fetchTeams(selectedOrgId);
+    } else {
+      fetchTeams();
+    }
+  }, [isUserSuperAdmin, selectedOrgId, fetchTeams]);
 
   const filteredTeams = teams.filter((team) =>
     team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -89,11 +107,17 @@ export default function TeamsPage() {
   return (
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
-        <div className="space-y-1 sm:space-y-2">
+        <div className="space-y-1 sm:space-y-2 w-full">
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Group Management</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
             Manage group and their members
           </p>
+          {/* Organization Selector for Super Admin */}
+          {isUserSuperAdmin && (
+            <div className="mt-3">
+              <OrganizationSelector onOrganizationChange={handleOrgChange} />
+            </div>
+          )}
         </div>
         <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto px-4 py-2 sm:px-5 sm:py-2 md:px-6 text-xs sm:text-sm h-9 sm:h-10 md:h-11 whitespace-nowrap gap-1">
           <PlusCircle className="font-black" />

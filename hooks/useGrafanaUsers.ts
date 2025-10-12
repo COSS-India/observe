@@ -4,17 +4,23 @@ import { useState, useCallback } from 'react';
 import { grafanaAPI } from '@/lib/api/grafana';
 import type { GrafanaUser, CreateGrafanaUserPayload, UpdateGrafanaUserPayload } from '@/types/grafana';
 import { toast } from 'sonner';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { useAuth } from './useAuth';
+import { isSuperAdmin } from '@/lib/utils/permissions';
 
 export function useGrafanaUsers() {
   const [users, setUsers] = useState<GrafanaUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { selectedOrgId } = useOrgContextStore();
+  const { user } = useAuth();
+  const isUserSuperAdmin = isSuperAdmin(user);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (orgId?: number | null) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await grafanaAPI.listUsers();
+      const data = await grafanaAPI.listUsers(orgId);
       setUsers(data);
     } catch (err: unknown) {
       let message = 'Failed to fetch users';
@@ -51,9 +57,12 @@ export function useGrafanaUsers() {
     setLoading(true);
     setError(null);
     try {
-      const result = await grafanaAPI.createUser(userData);
+      // Pass orgId if user is super admin and has an org selected
+      const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : null;
+      const result = await grafanaAPI.createUser(userData, effectiveOrgId);
       toast.success(result.message || 'User created successfully');
-      await fetchUsers();
+      // Refresh with the same org context
+      await fetchUsers(effectiveOrgId);
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create user';
@@ -63,7 +72,7 @@ export function useGrafanaUsers() {
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers]);
+  }, [fetchUsers, isUserSuperAdmin, selectedOrgId]);
 
   const updateUser = useCallback(async (id: number, userData: UpdateGrafanaUserPayload) => {
     setLoading(true);
@@ -71,7 +80,9 @@ export function useGrafanaUsers() {
     try {
       const result = await grafanaAPI.updateUser(id, userData);
       toast.success(result.message || 'User updated successfully');
-      await fetchUsers();
+      // Refresh with current org context
+      const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : null;
+      await fetchUsers(effectiveOrgId);
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to update user';
@@ -81,7 +92,7 @@ export function useGrafanaUsers() {
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers]);
+  }, [fetchUsers, isUserSuperAdmin, selectedOrgId]);
 
   const deleteUser = useCallback(async (id: number) => {
     setLoading(true);
@@ -89,7 +100,9 @@ export function useGrafanaUsers() {
     try {
       const result = await grafanaAPI.deleteUser(id);
       toast.success(result.message || 'User deleted successfully');
-      await fetchUsers();
+      // Refresh with current org context
+      const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : null;
+      await fetchUsers(effectiveOrgId);
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to delete user';
@@ -99,17 +112,21 @@ export function useGrafanaUsers() {
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers]);
+  }, [fetchUsers, isUserSuperAdmin, selectedOrgId]);
 
   const toggleUserStatus = useCallback(async (id: number, isDisabled: boolean) => {
     setLoading(true);
     setError(null);
     try {
+      // Pass orgId if user is super admin and has an org selected
+      const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : null;
+      
       const result = isDisabled 
-        ? await grafanaAPI.enableUser(id)
-        : await grafanaAPI.disableUser(id);
+        ? await grafanaAPI.enableUser(id, effectiveOrgId)
+        : await grafanaAPI.disableUser(id, effectiveOrgId);
       toast.success(result.message || `User ${isDisabled ? 'enabled' : 'disabled'} successfully`);
-      await fetchUsers();
+      // Refresh with current org context
+      await fetchUsers(effectiveOrgId);
       return result;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to toggle user status';
@@ -119,7 +136,7 @@ export function useGrafanaUsers() {
     } finally {
       setLoading(false);
     }
-  }, [fetchUsers]);
+  }, [fetchUsers, isUserSuperAdmin, selectedOrgId]);
 
   return {
     users,

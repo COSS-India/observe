@@ -13,6 +13,10 @@ import type { DashboardFolder, Team, Permission } from '@/types/grafana';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { useOrgTeams } from '@/hooks/useOrgTeams';
+import { isSuperAdmin } from '@/lib/utils/permissions';
+import { useAuthStore } from '@/lib/store/authStore';
 
 interface FolderTeamsManagerProps {
   folder: DashboardFolder;
@@ -20,6 +24,10 @@ interface FolderTeamsManagerProps {
 }
 
 export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) {
+  const { user } = useAuthStore();
+  const { selectedOrgId } = useOrgContextStore();
+  const { teams: orgTeams, fetchOrgTeams } = useOrgTeams();
+  
   const [teams, setTeams] = useState<Team[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,19 +38,35 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
   const [removingTeamId, setRemovingTeamId] = useState<number | null>(null);
   const [logoError, setLogoError] = useState(false);
 
+  const isUserSuperAdmin = isSuperAdmin(user);
+
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folder.uid]);
+  }, [folder.uid, selectedOrgId]);
+
+  // Update teams when orgTeams changes
+  useEffect(() => {
+    if (orgTeams.length > 0) {
+      setTeams(orgTeams);
+    }
+  }, [orgTeams]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [teamsData, permsData] = await Promise.all([
-        grafanaAPI.listTeams(),
-        grafanaAPI.getFolderPermissions(folder.uid),
-      ]);
-      setTeams(teamsData);
+      // Fetch teams based on organization context
+      if (isUserSuperAdmin && selectedOrgId) {
+        console.log('🔄 Fetching teams for organization:', selectedOrgId);
+        await fetchOrgTeams(selectedOrgId);
+      } else {
+        console.log('🔄 Fetching all teams (non-superadmin or no org selected)');
+        const teamsData = await grafanaAPI.listTeams();
+        setTeams(teamsData);
+      }
+      
+      // Fetch folder permissions with organization context
+      const permsData = await grafanaAPI.getFolderPermissions(folder.uid, selectedOrgId);
       setPermissions(permsData);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -87,7 +111,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
 
       await grafanaAPI.updateFolderPermissions(folder.uid, {
         items: [...existingPermissions, ...teamPermissions],
-      });
+      }, selectedOrgId);
 
       toast.success('Team access granted');
       setSelectedTeamId('');
@@ -117,7 +141,7 @@ export function FolderTeamsManager({ folder, onBack }: FolderTeamsManagerProps) 
 
       await grafanaAPI.updateFolderPermissions(folder.uid, {
         items: updatedPermissions,
-      });
+      }, selectedOrgId);
 
       toast.success('Team access removed');
       await fetchData();

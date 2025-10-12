@@ -4,7 +4,7 @@ export interface User {
   email: string;
   role: 'superadmin' | 'admin' | 'viewer';
   organization: string;
-  grafanaTeamId?: number; // Grafana team ID for team-based folder access
+  grafanaOrgId?: number; // Grafana organization ID for organization-based access
   createdAt?: string;
 }
 
