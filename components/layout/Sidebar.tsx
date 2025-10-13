@@ -11,7 +11,7 @@ import {
   FolderOpen,
   Settings,
   ChevronLeft,
-  ChartColumn,
+  Activity,
   LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -126,7 +126,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean;
                 </div>
               ) : (
                 <div className="p-1.5 sm:p-2 bg-primary rounded-lg flex-shrink-0">
-                  <ChartColumn className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
+                  <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
                 </div>
               )}
               <div className="flex flex-col min-w-0">
@@ -197,7 +197,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean;
                 </div>
               ) : (
                 <div className="p-1.5 sm:p-2 bg-primary rounded-lg flex-shrink-0">
-                  <ChartColumn className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
+                  <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-primary-foreground" />
                 </div>
               )}
               <div className="flex flex-col min-w-0">
