@@ -33,7 +33,7 @@ export function FolderTable({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {folders.map((folder) => (
-        <Card key={folder.uid} className="card-widget hover:shadow-sm bg-card dark:bg-transparent bg-gray-100/30 dark:bg-gray-800/50">
+        <Card key={folder.uid} className="card-widget hover:shadow-sm bg-card dark:bg-transparent bg-gray-100/40 dark:bg-gray-800/50">
           <CardHeader className="pb-3">
             {/* <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-between items-center">
               Folder
