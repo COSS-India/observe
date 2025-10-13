@@ -1,6 +1,6 @@
-# Adopter Login API
+# AI4Voice Portal Backend API
 
-A FastAPI-based authentication system with captcha verification for the Adopter platform.
+A FastAPI-based authentication system with captcha verification for the AI4Voice Portal platform.
 
 ## Features
 
@@ -43,10 +43,9 @@ app/
 
 ## Installation
 
-1. **Clone the repository**
+1. **Navigate to backend directory**
    ```bash
-   git clone <repository-url>
-   cd Obs-Adopter-Login
+   cd backend
    ```
 
 2. **Create virtual environment**
@@ -72,7 +71,7 @@ app/
 
 6. **Run the application**
    ```bash
-   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 9010
    ```
 
 ## API Endpoints
@@ -195,12 +194,12 @@ After running `init_db.py`, you can use these credentials for testing:
 
 1. **Get Captcha**:
    ```bash
-   curl -X POST "http://localhost:8000/v1/captcha"
+   curl -X POST "http://localhost:9010/v1/captcha"
    ```
 
 2. **Signin**:
    ```bash
-   curl -X POST "http://localhost:8000/v1/signin" \
+   curl -X POST "http://localhost:9010/v1/signin" \
      -H "Content-Type: application/json" \
      -d '{
        "email": "test@karmayogi.in",
@@ -212,15 +211,15 @@ After running `init_db.py`, you can use these credentials for testing:
 
 3. **Signup**:
    ```bash
-   curl -X POST "http://localhost:8000/v1/signup" \
+   curl -X POST "http://localhost:9010/v1/signup" \
      -F 'request_data={"first_name":"John","last_name":"Doe","email_id":"john@example.com","role":"customer","org":{"org_type":"Private Corporate Sector","org_name":"Test Corp","org_details":{"industry_type":"Information Technology (IT)","is_startup":false,"is_dpiit_certified":false,"is_interested_in_api_integration":false}},"tnc_url":"https://example.com/tnc"}'
    ```
 
 ## API Documentation
 
 Once the server is running, visit:
-- **Swagger UI**: `http://localhost:8000/docs`
-- **ReDoc**: `http://localhost:8000/redoc`
+- **Swagger UI**: `http://localhost:9010/docs`
+- **ReDoc**: `http://localhost:9010/redoc`
 
 ## Security Features
 
@@ -256,7 +255,7 @@ Once the server is running, visit:
 
 ### Running in Development Mode
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 9010
 ```
 
 ### Database Migrations
@@ -273,4 +272,4 @@ The application uses SQLAlchemy with automatic table creation. For production, c
 
 ## License
 
-This project is part of the Adopter platform development.
+This project is part of the AI4Voice Portal development.

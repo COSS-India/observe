@@ -7,14 +7,37 @@ A comprehensive monorepo containing both frontend and backend applications for t
 ```
 AI4Voice_Portal/
 ├── app/                    # Next.js Frontend Application
+│   ├── api/                # API Routes
+│   ├── dashboard/          # Dashboard Pages
+│   └── login/             # Authentication Pages
 ├── components/             # React Components
+│   ├── dashboards/         # Dashboard Components
+│   ├── folders/           # Folder Management Components
+│   ├── layout/            # Layout Components
+│   ├── organizations/      # Organization Components
+│   ├── teams/             # Team Management Components
+│   ├── ui/                # UI Components
+│   └── users/             # User Management Components
 ├── hooks/                  # Custom React Hooks
 ├── lib/                    # Frontend Utilities & API Clients
+│   ├── api/              # API Client Functions
+│   ├── store/             # State Management
+│   └── utils/             # Utility Functions
 ├── types/                  # TypeScript Type Definitions
-├── backend/                # Backend Services
-│   └── Obs-Bhashini-Login/ # FastAPI Authentication Service
+├── data/                   # Demo Data Files
+├── backend/                # FastAPI Backend Services
+│   ├── app/               # FastAPI Application
+│   │   ├── api/           # API Endpoints
+│   │   ├── core/          # Core Configuration
+│   │   ├── models/        # Database Models
+│   │   ├── schemas/       # Pydantic Schemas
+│   │   ├── services/      # Business Logic
+│   │   └── utils/         # Utility Functions
+│   ├── requirements.txt   # Python Dependencies
+│   └── README.md          # Backend Documentation
 ├── package.json            # Frontend Dependencies
 ├── next.config.ts          # Next.js Configuration
+├── run.sh                  # Project Runner Script
 └── README.md               # This file
 ```
 
@@ -60,7 +83,7 @@ The backend provides authentication services with Bhashini integration, includin
 
 1. **Navigate to backend directory:**
    ```bash
-   cd backend/Obs-Bhashini-Login
+   cd backend
    ```
 
 2. **Create virtual environment:**
@@ -87,11 +110,11 @@ The backend provides authentication services with Bhashini integration, includin
 
 6. **Run the server:**
    ```bash
-   python -m uvicorn app.main:app --reload
+   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 9010
    ```
 
 7. **Access API documentation:**
-   Navigate to [http://localhost:8000/docs](http://localhost:8000/docs)
+   Navigate to [http://localhost:9010/docs](http://localhost:9010/docs)
 
 ### Backend Features
 
@@ -108,15 +131,36 @@ The backend provides authentication services with Bhashini integration, includin
 
 1. **Terminal 1 - Backend:**
    ```bash
-   cd backend/Obs-Bhashini-Login
+   cd backend
    source venv/bin/activate
-   python -m uvicorn app.main:app --reload --port 8000
+   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 9010
    ```
 
 2. **Terminal 2 - Frontend:**
    ```bash
    npm run dev
    ```
+
+### Using the Project Runner Script
+
+Alternatively, you can use the provided runner script for easier management:
+
+```bash
+# Start both services in development mode
+./run.sh dev
+
+# Start only frontend
+./run.sh frontend
+
+# Start only backend
+./run.sh backend
+
+# Stop all services
+./run.sh stop
+
+# Check status
+./run.sh status
+```
 
 ### Environment Configuration
 
@@ -130,7 +174,7 @@ The backend provides authentication services with Bhashini integration, includin
 
 2. **Required variables for development:**
    ```bash
-   BACKEND_URL=http://localhost:8000
+   BACKEND_URL=http://localhost:9010
    NEXT_PUBLIC_GRAFANA_URL=http://localhost:3001
    GRAFANA_API_KEY=your_grafana_api_key_here
    NEXTAUTH_SECRET=your_nextauth_secret_here
@@ -161,13 +205,58 @@ The frontend communicates with the backend through REST API calls. The backend p
 - Configure database connection and environment variables
 - Ensure PostgreSQL database is accessible
 
+## Key Features
+
+### Frontend Features
+- **Grafana Integration**: Full integration with Grafana API for dashboard and user management
+- **Multi-Organization Support**: Manage multiple Grafana organizations
+- **User Management**: Create, edit, and manage user accounts with role-based access
+- **Dashboard Management**: View, organize, and manage Grafana dashboards
+- **Team Management**: Organize users into teams with specific permissions
+- **Folder Management**: Organize dashboards into folders
+- **Modern UI**: Built with Tailwind CSS and Radix UI components
+- **Responsive Design**: Works on desktop and mobile devices
+- **Dark/Light Theme**: Toggle between themes
+
+### Backend Features
+- **Authentication**: JWT-based authentication with captcha verification
+- **User Management**: Complete user lifecycle management
+- **Security**: Password hashing, JWT tokens, and captcha protection
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **API Documentation**: Auto-generated Swagger/OpenAPI documentation
+- **Email Services**: User verification and notifications
+- **RESTful API**: Clean and well-documented API endpoints
+
+## Technology Stack
+
+### Frontend
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **State Management**: Zustand
+- **HTTP Client**: Axios
+- **Icons**: Lucide React
+
+### Backend
+- **Framework**: FastAPI
+- **Language**: Python 3.10+
+- **Database**: PostgreSQL
+- **ORM**: SQLAlchemy
+- **Authentication**: JWT with Python-JOSE
+- **Password Hashing**: bcrypt
+- **Email**: FastAPI-Mail
+- **Validation**: Pydantic
+
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
 4. Test both frontend and backend
-5. Submit a pull request
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
 
 ## License
 
