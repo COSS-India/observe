@@ -37,18 +37,20 @@ interface UserTableProps {
 function UserTeamsBadge({ userId }: { userId: number }) {
   const { teams, loading, fetchUserTeams } = useUserTeams(userId);
   const [expanded, setExpanded] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
-    if (expanded && teams.length === 0 && !loading) {
+    if (expanded && !hasFetched && !loading) {
       fetchUserTeams();
+      setHasFetched(true);
     }
-  }, [expanded, teams.length, loading, fetchUserTeams]);
+  }, [expanded, hasFetched, loading, fetchUserTeams]);
 
   if (loading) {
     return <Badge variant="outline">Loading...</Badge>;
   }
 
-  if (teams.length === 0 && !expanded) {
+  if (teams.length === 0 && !hasFetched) {
     return (
       <Button
         variant="ghost"
@@ -62,7 +64,7 @@ function UserTeamsBadge({ userId }: { userId: number }) {
     );
   }
 
-  if (teams.length === 0 && expanded) {
+  if (teams.length === 0 && hasFetched) {
     return <Badge variant="outline">No teams</Badge>;
   }
 
@@ -79,7 +81,7 @@ function UserTeamsBadge({ userId }: { userId: number }) {
         <ChevronRight className="h-3 w-3 ml-1" />
       </Button>
       ) : (
-      <>
+      <div className='flex'>
         {teams.map((team) => (
         <Badge key={team.id} variant="secondary" className="text-xs px-2 py-1 mr-1 mb-1">
           {team.name}
@@ -94,7 +96,7 @@ function UserTeamsBadge({ userId }: { userId: number }) {
         Hide
         <ChevronDown className="h-3 w-3 ml-1" />
         </Button>
-      </>
+      </div>
       )}
     </div>
   );

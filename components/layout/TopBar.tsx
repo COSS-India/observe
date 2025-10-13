@@ -50,7 +50,7 @@ export function TopBar({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => 
         <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
           {/* Primary Greeting */}
           <h1 className="text-xl sm:text-2xl font-semibold text-foreground leading-none tracking-tight">
-            Hello, {user?.username || 'User'}
+            Hello, {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1) : 'User'}
           </h1>
           {/* Role Badge with improved styling */}
           {isUserSuperAdmin ? (
