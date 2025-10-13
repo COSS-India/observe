@@ -33,7 +33,7 @@ export function DashboardGrid({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {dashboards.map((dashboard) => (
-        <Card key={dashboard.uid} className="card-widget hover:shadow-sm bg-card dark:bg-transparent">
+        <Card key={dashboard.uid} className="card-widget hover:shadow-sm bg-card bg-gray-100/40 dark:bg-gray-800/50">
           <CardHeader className="pb-3">
             <CardTitle className="!text-xs font-medium text-muted-foreground uppercase tracking-wide flex justify-end items-center text-end">
 

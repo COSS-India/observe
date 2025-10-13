@@ -141,7 +141,7 @@ export default function AllDashboardsPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-border bg-background mb-4 lg:mb-4">
+      <div className="flex-shrink-0 bg-background mb-4 lg:mb-4">
         <div className="">
           <div className="flex items-center justify-between">
             <div className="flex items-center w-full ">
