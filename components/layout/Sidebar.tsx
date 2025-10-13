@@ -40,12 +40,6 @@ const navigation = [
   //   icon: Users,
   //   requiresSuperAdmin: true,
   // },
-  {
-    name: "Groups",
-    href: "/dashboard/teams",
-    icon: UsersRound,
-    requiresSuperAdmin: true,
-  },
   // {
   //   name: "Organizations",
   //   href: "/dashboard/organizations",
@@ -53,7 +47,13 @@ const navigation = [
   //   requiresSuperAdmin: true,
   // },
   {
-    name: "Segments",
+    name: "Teams",
+    href: "/dashboard/teams",
+    icon: UsersRound,
+    requiresSuperAdmin: true,
+  },
+  {
+    name: "Folders",
     href: "/dashboard/folders",
     icon: FolderOpen,
     requiresSuperAdmin: true,

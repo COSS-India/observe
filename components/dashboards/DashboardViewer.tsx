@@ -71,7 +71,7 @@ export function DashboardViewer({ dashboardUid, title }: DashboardViewerProps) {
               />
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* <div className="flex items-center gap-2 w-full sm:w-auto">
               <Label htmlFor="refresh" className="text-xs sm:text-sm whitespace-nowrap">Auto Refresh</Label>
               <Select
                 value={config.refresh || 'none'}
@@ -91,10 +91,10 @@ export function DashboardViewer({ dashboardUid, title }: DashboardViewerProps) {
                   <SelectItem value="5m">5 minutes</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
 
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             onClick={toggleFullscreen}
@@ -105,7 +105,7 @@ export function DashboardViewer({ dashboardUid, title }: DashboardViewerProps) {
             ) : (
               <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />
             )}
-          </Button>
+          </Button> */}
         </div>
       </Card>
 
