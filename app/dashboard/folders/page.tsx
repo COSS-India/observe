@@ -154,9 +154,9 @@ export default function FoldersPage() {
     <div className="space-y-4 sm:space-y-6 lg:space-y-8 w-full overflow-hidden">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
         <div className="space-y-1 sm:space-y-2 w-full">
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Segments</h1>
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground">Folders</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Manage your Grafana Segments
+            Manage your Grafana Folders
           </p>
           {/* Organization Selector for Super Admin */}
           {isUserSuperAdmin && (

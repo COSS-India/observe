@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,6 +49,13 @@ export function FolderFormDialog({
       title: folder?.title || '',
     },
   });
+
+  // Reset form when folder changes
+  useEffect(() => {
+    form.reset({
+      title: folder?.title || '',
+    });
+  }, [folder, form]);
 
   const handleSubmit = async (data: FolderFormValues) => {
     await onSubmit(data);

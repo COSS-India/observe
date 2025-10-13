@@ -246,7 +246,7 @@ export function DashboardPanelExtractor({ folders, dashboards, organizationName 
               
               // Pass organization name as customer variable
               if (organizationName) {
-                params.set('var-customer', organizationName);
+                params.set('var-organization', organizationName);
               }
               params.set('var-app', '$__all');
               

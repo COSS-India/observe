@@ -36,6 +36,9 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, UserPlus, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { grafanaAPI } from '@/lib/api/grafana';
+import { useAuth } from '@/hooks/useAuth';
+import { useOrgContextStore } from '@/lib/store/orgContextStore';
+import { isSuperAdmin } from '@/lib/utils/permissions';
 import type { Team, TeamMember, GrafanaUser } from '@/types/grafana';
 
 interface TeamMembersPageProps {
@@ -44,16 +47,23 @@ interface TeamMembersPageProps {
 }
 
 export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
+  const { user } = useAuth();
+  const { selectedOrgId } = useOrgContextStore();
+  const isUserSuperAdmin = isSuperAdmin(user);
+  
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [allUsers, setAllUsers] = useState<GrafanaUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
 
+  // Determine the effective organization ID to use
+  const effectiveOrgId = isUserSuperAdmin ? selectedOrgId : team.orgId;
+
   const fetchMembers = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await grafanaAPI.getTeamMembers(team.id, team.orgId);
+      const data = await grafanaAPI.getTeamMembers(team.id, effectiveOrgId ?? undefined);
       setMembers(data);
     } catch (error) {
       toast.error('Failed to fetch team members');
@@ -61,21 +71,21 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
     } finally {
       setLoading(false);
     }
-  }, [team.id, team.orgId]);
+  }, [team.id, effectiveOrgId]);
 
-  const fetchAllUsers = async () => {
+  const fetchAllUsers = useCallback(async () => {
     try {
-      const data = await grafanaAPI.listUsers();
+      const data = await grafanaAPI.listUsers(effectiveOrgId ?? undefined);
       setAllUsers(data);
     } catch (error) {
       console.error('Failed to fetch users:', error);
     }
-  };
+  }, [effectiveOrgId]);
 
   useEffect(() => {
     fetchMembers();
     fetchAllUsers();
-  }, [fetchMembers]);
+  }, [fetchMembers, fetchAllUsers]);
 
   const handleAddMember = async () => {
     if (!selectedUserId) {
@@ -85,7 +95,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
 
     try {
       setLoading(true);
-      await grafanaAPI.addUserToTeam(team.id, parseInt(selectedUserId), team.orgId);
+      await grafanaAPI.addUserToTeam(team.id, parseInt(selectedUserId), effectiveOrgId ?? undefined);
       toast.success('Member added successfully');
       setIsAddDialogOpen(false);
       setSelectedUserId('');
@@ -103,7 +113,7 @@ export function TeamMembersManager({ team, onBack }: TeamMembersPageProps) {
   const handleRemoveMember = async (userId: number) => {
     try {
       setLoading(true);
-      await grafanaAPI.removeUserFromTeam(team.id, userId, team.orgId);
+      await grafanaAPI.removeUserFromTeam(team.id, userId, effectiveOrgId ?? undefined);
       toast.success('Member removed successfully');
       await fetchMembers();
     } catch (error: unknown) {
