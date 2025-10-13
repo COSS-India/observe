@@ -145,10 +145,10 @@ export function FolderDashboardsManager({ folder, onBack }: FolderDashboardsMana
             <Button
               onClick={handleAddDashboard}
               disabled={movingDashboard !== null || !selectedDashboard}
-              className="h-9 sm:h-10 md:!h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm font-medium rounded-lg w-full sm:w-auto whitespace-nowrap col-span-2"
+              className="h-9 sm:h-10 md:!h-11 px-4 sm:px-5 md:px-6 text-xs sm:text-sm font-medium rounded-lg w-full sm:w-auto whitespace-nowrap col-span-2 text-white bg-primary hover:bg-primary/90"
             >
               {movingDashboard === selectedDashboard ? (
-                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin text-white" />
               ) : (
                 <>
                   Add
