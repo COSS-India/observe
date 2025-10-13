@@ -51,11 +51,11 @@ export function FolderTable({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="flex-1 h-10 text-body border-border hover:bg-accent rounded-lg"
+                    className="flex-1 h-10 text-foreground border-border hover:bg-accent rounded-lg"
                     onClick={() => onManageTeams(folder)}
                     title="Manage Team Access"
                   >
-                    <Users className="h-4 w-4 mr-2" />
+                    <Users className="h-4 w-4 mr-2 text-foreground" />
                     Teams
                   </Button>
                 )}
@@ -63,11 +63,11 @@ export function FolderTable({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="flex-1 h-10 text-body border-border hover:bg-accent rounded-lg"
+                    className="flex-1 h-10 text-foreground border-border hover:bg-accent rounded-lg"
                     onClick={() => onManageDashboards(folder)}
                     title="Manage Dashboards"
                   >
-                    <Layout className="h-4 w-4 mr-2" />
+                    <Layout className="h-4 w-4 mr-2 text-foreground" />
                     Dashboards
                   </Button>
                 )}
@@ -77,11 +77,11 @@ export function FolderTable({
                   {onEdit && (
                     <Button
                       size="sm"
-                      className="flex-1 h-10 text-body rounded-lg"
+                      className="flex-1 h-10 text-white rounded-lg bg-primary hover:bg-primary/90"
                       onClick={() => onEdit(folder)}
                       title="Edit Folder"
                     >
-                      <Pencil className="h-4 w-4 mr-2" />
+                      <Pencil className="h-4 w-4 mr-2 text-white" />
                       Edit
                     </Button>
                   )}
@@ -93,7 +93,7 @@ export function FolderTable({
                       onClick={() => onDelete(folder)}
                       title="Delete Folder"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-red-600" />
                     </Button>
                   )}
                 </div>

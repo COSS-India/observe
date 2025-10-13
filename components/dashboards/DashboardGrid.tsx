@@ -68,20 +68,20 @@ export function DashboardGrid({
               <div className="flex gap-3 mt-4">
                 <Button
                   size="sm"
-                  className="flex-1 h-10 text-body rounded-lg"
+                  className="flex-1 h-10 text-white rounded-lg bg-primary hover:bg-primary/90"
                   onClick={() => onView(dashboard)}
                 >
-                  <Eye className="h-4 w-4 mr-2" />
+                  <Eye className="h-4 w-4 mr-2 text-white" />
                   View
                 </Button>
                 {isSuperAdmin(user) && (
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-10 px-4 border-border hover:bg-accent rounded-lg"
+                    className="h-10 px-4 border-border hover:bg-accent rounded-lg text-foreground hover:text-foreground"
                     onClick={() => onDelete(dashboard)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 text-foreground" />
                   </Button>
                 )}
               </div>
