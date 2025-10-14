@@ -57,11 +57,22 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
-    // Update user using organization-scoped endpoint
-    // Note: For updating org user role, use PATCH /api/org/users/{orgUserId}
-    // This updates the user's role within the organization
-    const response = await grafanaClient.patch(`/api/org/users/${id}`, body);
-    return NextResponse.json(response.data);
+    // Separate role update from other user properties
+    const { role, ...userDetails } = body;
+    
+    // Update user details if provided (name, email, login)
+    if (Object.keys(userDetails).length > 0) {
+      await grafanaClient.put(`/api/users/${id}`, userDetails);
+    }
+    
+    // Update user role in organization if provided
+    if (role) {
+      await grafanaClient.patch(`/api/org/users/${id}`, { role });
+    }
+    
+    return NextResponse.json({ 
+      message: 'User updated successfully' 
+    });
   } catch (error) {
     console.error('Error updating user:', error);
     if (axios.isAxiosError(error)) {
