@@ -8,7 +8,6 @@ import { PlusCircle, Search } from 'lucide-react';
 import { useGrafanaTeams } from '@/hooks/useGrafanaTeams';
 import { TeamTable } from '@/components/teams/TeamTable';
 import { TeamFormDialog } from '@/components/teams/TeamFormDialog';
-import { TeamMembersManager } from '@/components/teams/TeamMembersManager';
 import { Pagination } from '@/components/ui/pagination';
 import type { Team } from '@/types/grafana';
 import { GrafanaSetupError } from '@/components/GrafanaSetupError';
@@ -19,7 +18,6 @@ export default function TeamsPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-  const [managingMembersTeam, setManagingMembersTeam] = useState<Team | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -63,23 +61,6 @@ export default function TeamsPage() {
   const handleDelete = async (id: number) => {
     await deleteTeam(id);
   };
-
-  const handleManageMembers = (team: Team) => {
-    setManagingMembersTeam(team);
-  };
-
-  // Show team members manager if a team is selected
-  if (managingMembersTeam) {
-    return (
-      <TeamMembersManager
-        team={managingMembersTeam}
-        onBack={() => {
-          setManagingMembersTeam(null);
-          fetchTeams(); // Refresh to update member counts
-        }}
-      />
-    );
-  }
 
   // Show error component if there's a setup issue
   if (error && error.includes('configuration')) {
@@ -138,7 +119,6 @@ export default function TeamsPage() {
                     teams={paginatedTeams}
                     onDelete={handleDelete}
                     onEdit={handleEdit}
-                    onManageMembers={handleManageMembers}
                     loading={loading}
                   />
                   {totalPages > 1 && (
