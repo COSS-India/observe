@@ -200,7 +200,7 @@ The frontend communicates with the backend through REST API calls. The backend p
 
 High-level view of the observability setup and data flow:
 
-![Observability](Observability.png)
+<img src="Observability.png" alt="Observability" width="520" />
 
 ## Deployment
 
