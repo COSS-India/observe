@@ -60,6 +60,49 @@ export async function POST(request: NextRequest) {
         const backendUser = backendResponse.data;
         console.log('✅ FastAPI authentication successful:', { email: backendUser.email, role: backendUser.role });
 
+        // Extract user ID from JWT token
+        let userId = null;
+        if (backendUser.token) {
+          try {
+            // Decode JWT token to get user ID (sub field)
+            const tokenPayload = JSON.parse(Buffer.from(backendUser.token.split('.')[1], 'base64').toString());
+            userId = tokenPayload.sub;
+            console.log(`🔍 Extracted user ID from token: ${userId}`);
+          } catch (tokenError) {
+            console.error('❌ Error decoding token:', tokenError);
+          }
+        }
+
+        // Fetch complete user details using the user ID
+        let userDetails = null;
+        if (userId) {
+          try {
+            console.log(`🔄 Fetching user details for ID: ${userId}`);
+            const userDetailsResponse = await axios.get(`${BACKEND_URL}/v1/users/${userId}`);
+            userDetails = userDetailsResponse.data;
+            console.log('✅ User details fetched successfully:', {
+              orgName: userDetails.org?.org_name,
+              orgType: userDetails.org?.org_type
+            });
+          } catch (userError) {
+            console.error('❌ Error fetching user details:', userError);
+          }
+        }
+        console.log("User details",backendUser)
+        // Extract organization name from user details or fallback to backend user data
+        const organizationName = userDetails?.org?.org_name || 
+                                backendUser.organization || 
+                                backendUser.org?.org_name || 
+                                'Unknown Organization';
+        
+        console.log('🏢 Organization mapping:', {
+          fromUserDetails: userDetails?.org?.org_name,
+          fromBackendUser: backendUser.organization,
+          fromBackendUserOrg: backendUser.org?.org_name,
+          finalOrganization: organizationName,
+          orgType: userDetails?.org?.org_type || backendUser.org_type
+        });
+
         // Map backend user to frontend format
         const user = {
           id: backendUser.email, // Use email as ID for simplicity
@@ -67,10 +110,16 @@ export async function POST(request: NextRequest) {
           email: backendUser.email,
           role: backendUser.role === 'superadmin' ? 'superadmin' : 
                 backendUser.role === 'admin' ? 'admin' : 'viewer',
-          organization: backendUser.org_type || 'Unknown Organization'
+          organization: organizationName,
+          orgType: userDetails?.org?.org_type || backendUser.org_type,
+          userType: userDetails?.user_type || [],
+          firstName: userDetails?.first_name || backendUser.first_name,
+          lastName: userDetails?.last_name || backendUser.last_name,
+          designation: userDetails?.designation,
+          status: userDetails?.status
         };
 
-        // Fetch Grafana TEAM ID based on organization
+        // Fetch Grafana TEAM ID based on organization name
         const grafanaData = await fetchTeamByOrganization(user.organization);
 
         return NextResponse.json({
