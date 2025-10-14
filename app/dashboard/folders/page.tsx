@@ -45,7 +45,7 @@ export default function FoldersPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [managingFolder, setManagingFolder] = useState<DashboardFolder | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(9);
 
   useEffect(() => {
     fetchFolders();
