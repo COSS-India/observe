@@ -97,7 +97,7 @@ def verify_captcha(db: Session, captcha_id: str, captcha_text: str) -> bool:
     if not captcha:
         return False
     
-    if captcha.captcha_text.upper() != captcha_text.upper():
+    if captcha.captcha_text != captcha_text:
         return False
     
     # Mark as used
