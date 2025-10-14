@@ -55,10 +55,34 @@ export function useGrafanaUsers() {
       toast.success(result.message || 'User created successfully');
       await fetchUsers();
       return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create user';
+    } catch (err: unknown) {
+      let message = 'Failed to create user';
+      
+      // Handle axios error response
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      if (error.response?.data) {
+        message = error.response.data.error || error.response.data.message || message;
+        
+        // Show hint for specific errors
+        if (error.response.data.hint) {
+          toast.error(message, {
+            description: error.response.data.hint,
+            duration: 10000,
+          });
+        } else {
+          toast.error(message, {
+            duration: 8000,
+          });
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+        toast.error(message);
+      } else {
+        toast.error(message);
+      }
+      
       setError(message);
-      toast.error(message);
       throw err;
     } finally {
       setLoading(false);
@@ -73,10 +97,34 @@ export function useGrafanaUsers() {
       toast.success(result.message || 'User updated successfully');
       await fetchUsers();
       return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to update user';
+    } catch (err: unknown) {
+      let message = 'Failed to update user';
+      
+      // Handle axios error response
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      if (error.response?.data) {
+        message = error.response.data.error || error.response.data.message || message;
+        
+        // Show hint for specific errors
+        if (error.response.data.hint) {
+          toast.error(message, {
+            description: error.response.data.hint,
+            duration: 10000,
+          });
+        } else {
+          toast.error(message, {
+            duration: 8000,
+          });
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+        toast.error(message);
+      } else {
+        toast.error(message);
+      }
+      
       setError(message);
-      toast.error(message);
       throw err;
     } finally {
       setLoading(false);
@@ -91,10 +139,34 @@ export function useGrafanaUsers() {
       toast.success(result.message || 'User deleted successfully');
       await fetchUsers();
       return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to delete user';
+    } catch (err: unknown) {
+      let message = 'Failed to delete user';
+      
+      // Handle axios error response
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      if (error.response?.data) {
+        message = error.response.data.error || error.response.data.message || message;
+        
+        // Show hint for specific errors
+        if (error.response.data.hint) {
+          toast.error(message, {
+            description: error.response.data.hint,
+            duration: 10000,
+          });
+        } else {
+          toast.error(message, {
+            duration: 8000,
+          });
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+        toast.error(message);
+      } else {
+        toast.error(message);
+      }
+      
       setError(message);
-      toast.error(message);
       throw err;
     } finally {
       setLoading(false);
@@ -111,10 +183,34 @@ export function useGrafanaUsers() {
       toast.success(result.message || `User ${isDisabled ? 'enabled' : 'disabled'} successfully`);
       await fetchUsers();
       return result;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to toggle user status';
+    } catch (err: unknown) {
+      let message = 'Failed to toggle user status';
+      
+      // Handle axios error response
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error = err as any;
+      if (error.response?.data) {
+        message = error.response.data.error || error.response.data.message || message;
+        
+        // Show hint for specific errors
+        if (error.response.data.hint) {
+          toast.error(message, {
+            description: error.response.data.hint,
+            duration: 10000,
+          });
+        } else {
+          toast.error(message, {
+            duration: 8000,
+          });
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+        toast.error(message);
+      } else {
+        toast.error(message);
+      }
+      
       setError(message);
-      toast.error(message);
       throw err;
     } finally {
       setLoading(false);

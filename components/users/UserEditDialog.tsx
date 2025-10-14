@@ -72,7 +72,7 @@ export function UserEditDialog({
         name: user.name,
         email: user.email,
         login: user.login,
-        role: user.isGrafanaAdmin ? 'Admin' : 'Viewer',
+        role: (user.role || 'Viewer') as 'Admin' | 'Editor' | 'Viewer',
       });
     }
   }, [open, user, form]);

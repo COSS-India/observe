@@ -28,6 +28,7 @@ export interface UpdateGrafanaUserPayload {
   name?: string;
   login?: string;
   theme?: string;
+  role?: string;
 }
 
 export interface Organization {
