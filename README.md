@@ -6,39 +6,39 @@ A comprehensive monorepo containing both frontend and backend applications for t
 
 ```
 AI4Voice_Portal/
-├── app/                    # Next.js Frontend Application
-│   ├── api/                # API Routes
-│   ├── dashboard/          # Dashboard Pages
-│   └── login/             # Authentication Pages
-├── components/             # React Components
-│   ├── dashboards/         # Dashboard Components
-│   ├── folders/           # Folder Management Components
-│   ├── layout/            # Layout Components
-│   ├── organizations/      # Organization Components
-│   ├── teams/             # Team Management Components
-│   ├── ui/                # UI Components
-│   └── users/             # User Management Components
-├── hooks/                  # Custom React Hooks
-├── lib/                    # Frontend Utilities & API Clients
-│   ├── api/              # API Client Functions
-│   ├── store/             # State Management
-│   └── utils/             # Utility Functions
-├── types/                  # TypeScript Type Definitions
-├── data/                   # Demo Data Files
-├── backend/                # FastAPI Backend Services
-│   ├── app/               # FastAPI Application
-│   │   ├── api/           # API Endpoints
-│   │   ├── core/          # Core Configuration
-│   │   ├── models/        # Database Models
-│   │   ├── schemas/       # Pydantic Schemas
-│   │   ├── services/      # Business Logic
-│   │   └── utils/         # Utility Functions
-│   ├── requirements.txt   # Python Dependencies
-│   └── README.md          # Backend Documentation
-├── package.json            # Frontend Dependencies
-├── next.config.ts          # Next.js Configuration
-├── run.sh                  # Project Runner Script
-└── README.md               # This file
+├── app/                     # Next.js Frontend Application
+│   ├── api/                 # API Routes
+│   ├── dashboard/           # Dashboard Pages
+│   └── login/               # Authentication Pages
+├── components/              # React Components
+│   ├── dashboards/          # Dashboard Components
+│   ├── folders/             # Folder Management Components
+│   ├── layout/              # Layout Components
+│   ├── organizations/       # Organization Components
+│   ├── teams/               # Team Management Components
+│   ├── ui/                  # UI Components
+│   └── users/               # User Management Components
+├── hooks/                   # Custom React Hooks
+├── lib/                     # Frontend Utilities & API Clients
+│   ├── api/                 # API Client Functions
+│   ├── store/               # State Management
+│   └── utils/               # Utility Functions
+├── types/                   # TypeScript Type Definitions
+├── data/                    # Demo Data Files
+├── backend/                 # FastAPI Backend Services
+│   ├── app/                 # FastAPI Application
+│   │   ├── api/             # API Endpoints
+│   │   ├── core/            # Core Configuration
+│   │   ├── models/          # Database Models
+│   │   ├── schemas/         # Pydantic Schemas
+│   │   ├── services/        # Business Logic
+│   │   └── utils/           # Utility Functions
+│   ├── requirements.txt     # Python Dependencies
+│   └── README.md            # Backend Documentation
+├── package.json             # Frontend Dependencies
+├── next.config.ts           # Next.js Configuration
+├── run.sh                   # Project Runner Script
+└── README.md                # This file
 ```
 
 ## Frontend (Next.js)
@@ -70,7 +70,7 @@ The frontend is a Next.js application providing a Grafana administration portal 
 
 - **Grafana Integration**: Manage dashboards, folders, teams, and users
 - **User Management**: Create, edit, and manage user accounts
-- **Organization Management**: Handle multiple organizations
+- **Organization Management**: Single org by default; multi-org requires Grafana Server Admin API key
 - **Team Management**: Organize users into teams
 - **Dashboard Management**: View and organize Grafana dashboards
 - **Modern UI**: Built with Tailwind CSS and Radix UI components
@@ -181,6 +181,8 @@ Alternatively, you can use the provided runner script for easier management:
    NEXTAUTH_URL=http://localhost:3000
    ```
 
+   Note: For multi-organization operations (list/create/delete across orgs), `GRAFANA_API_KEY` must have Grafana Server Admin permissions. With an Org Admin key, only the current organization is accessible and updatable.
+
 3. **For production deployment:**
    - Set environment variables in your deployment platform (Vercel, Netlify, etc.)
    - Update `BACKEND_URL` to your production backend URL
@@ -193,6 +195,12 @@ Alternatively, you can use the provided runner script for easier management:
 ## API Integration
 
 The frontend communicates with the backend through REST API calls. The backend provides authentication endpoints that the frontend uses for user management.
+
+## Observability
+
+High-level view of the observability setup and data flow:
+
+![Observability](Observability.png)
 
 ## Deployment
 
@@ -208,8 +216,8 @@ The frontend communicates with the backend through REST API calls. The backend p
 ## Key Features
 
 ### Frontend Features
-- **Grafana Integration**: Full integration with Grafana API for dashboard and user management
-- **Multi-Organization Support**: Manage multiple Grafana organizations
+ - **Grafana Integration**: Full integration with Grafana API for dashboard and user management
+ - **Multi-Organization Support**: Conditional; requires Grafana Server Admin API key
 - **User Management**: Create, edit, and manage user accounts with role-based access
 - **Dashboard Management**: View, organize, and manage Grafana dashboards
 - **Team Management**: Organize users into teams with specific permissions
