@@ -47,6 +47,7 @@ export default function FoldersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(9);
 
+  
   useEffect(() => {
     fetchFolders();
   }, [fetchFolders]);
