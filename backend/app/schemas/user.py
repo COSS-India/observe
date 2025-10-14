@@ -1,6 +1,24 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator, Field
 from typing import Optional, Dict, Any, List
 from datetime import datetime
+
+
+# Validation helper functions
+def validate_not_placeholder(value: str, field_name: str) -> str:
+    """Validate that a string field is not a placeholder value like 'string'"""
+    if not value or value.strip() == "":
+        raise ValueError(f"{field_name} cannot be empty")
+    
+    # Check for common placeholder values
+    placeholder_values = ["string", "String", "STRING", "text", "Text", "TEXT", "value", "Value", "VALUE"]
+    if value.strip() in placeholder_values:
+        raise ValueError(f"{field_name} must be a meaningful value, not a placeholder like '{value}'")
+    
+    # Check minimum length
+    if len(value.strip()) < 2:
+        raise ValueError(f"{field_name} must be at least 2 characters long")
+    
+    return value.strip()
 
 
 # Signin schemas
@@ -33,26 +51,56 @@ class SigninResponse(BaseModel):
 
 # Signup schemas
 class OrgDetails(BaseModel):
-    industry_type: str
+    industry_type: str = Field(..., min_length=2, description="Industry type must be meaningful")
     is_startup: bool
     is_dpiit_certified: bool
     is_interested_in_api_integration: bool
+    
+    @validator('industry_type')
+    def validate_industry_type(cls, v):
+        return validate_not_placeholder(v, "Industry type")
 
 
 class Org(BaseModel):
-    org_type: str
-    org_name: str
+    org_type: str = Field(..., min_length=2, description="Organization type must be meaningful")
+    org_name: str = Field(..., min_length=2, description="Organization name must be meaningful")
     org_details: OrgDetails
+    
+    @validator('org_type')
+    def validate_org_type(cls, v):
+        return validate_not_placeholder(v, "Organization type")
+    
+    @validator('org_name')
+    def validate_org_name(cls, v):
+        return validate_not_placeholder(v, "Organization name")
 
 
 class SignupRequest(BaseModel):
-    first_name: str
-    last_name: str
+    first_name: str = Field(..., min_length=2, description="First name must be meaningful")
+    last_name: str = Field(..., min_length=2, description="Last name must be meaningful")
     email_id: EmailStr
     role: str = "customer"
     org: Org
-    tnc_url: str
+    tnc_url: str = Field(..., min_length=2, description="Terms and conditions URL must be meaningful")
     password: Optional[str] = None
+    
+    @validator('first_name')
+    def validate_first_name(cls, v):
+        return validate_not_placeholder(v, "First name")
+    
+    @validator('last_name')
+    def validate_last_name(cls, v):
+        return validate_not_placeholder(v, "Last name")
+    
+    @validator('tnc_url')
+    def validate_tnc_url(cls, v):
+        return validate_not_placeholder(v, "Terms and conditions URL")
+    
+    @validator('password')
+    def validate_password(cls, v):
+        if v is not None:
+            return validate_not_placeholder(v, "Password")
+        return v
 
 
 class SignupResponse(BaseModel):
