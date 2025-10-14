@@ -58,12 +58,12 @@ const navigation = [
     icon: FolderOpen,
     requiresSuperAdmin: true,
   },
-  {
-    name: "User Management",
-    href: "/dashboard/users",
-    icon: Users,
-    requiresSuperAdmin: true,
-  },
+  // {
+  //   name: "User Management",
+  //   href: "/dashboard/users",
+  //   icon: Users,
+  //   requiresSuperAdmin: true,
+  // },
   {
     name: "Settings",
     href: "/dashboard/settings",
