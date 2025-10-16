@@ -1,4 +1,4 @@
-# Observability Portal
+# Observe Portal
 
 ## Overview
 
@@ -15,7 +15,7 @@ A standalone observability interface that can be deployed by Adopters who alread
 
 ## Architecture
 
-The observability portal has two main components:
+The observe portal has two main components:
 
 1. **Frontend (Next.js)**: Web interface for portal administration
 2. **Backend (FastAPI)**: Authentication service with PostgreSQL database
