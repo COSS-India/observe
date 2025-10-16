@@ -2,7 +2,8 @@
 
 ## Overview
 
-**Observe** is an open-source observability platform that provides role-based access to Grafana dashboards based on specific metrics. This guide will help you set up and deploy the platform in your organization.
+**Observe** is an open-source building block, designed for platforms that serve AI models, and need to monitor system health, model performance, and usage across multiple customer organizations. Observe provides complete visibility and control in a multi-tenant environment. 
+
 
 ## What You'll Get
 
