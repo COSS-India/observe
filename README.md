@@ -2,13 +2,12 @@
 
 ## Overview
 
-**Observe** is an open-source building block, designed for platforms that serve AI models, and need to monitor system health, model performance, and usage across multiple customer organizations. Observe provides complete visibility and control in a multi-tenant environment. 
+A standalone observability interface that can be deployed by Adopters who already have metrics available and need multi-tenant visualization, and administrative control over dashboards and access. 
 
 
 ## What You'll Get
 
 - **Grafana Integration**: Centralized dashboard, folder, team, and user management
-- **User Management**: Complete user account administration with role-based access
 - **Organization Management**: Multi-tenant support for different organizations
 - **Team Management**: Organize users into teams with specific access levels
 - **Secure Authentication**: Bhashini-integrated authentication with captcha and JWT tokens
@@ -16,7 +15,7 @@
 
 ## Architecture
 
-The platform consists of two main components:
+The observability portal has two main components:
 
 1. **Frontend (Next.js)**: Web interface for portal administration
 2. **Backend (FastAPI)**: Authentication service with PostgreSQL database
