@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import engine, Base
 from app.api.v1.auth import router as auth_router
+from app.api.v1.organizations import router as organizations_router
+from app.api.v1.teams import router as teams_router
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -25,6 +27,8 @@ app.add_middleware(
 
 # Include routers
 app.include_router(auth_router, prefix="/v1", tags=["Authentication"])
+app.include_router(organizations_router, prefix="/v1/organizations", tags=["Organizations"])
+app.include_router(teams_router, prefix="/v1/teams", tags=["Teams"])
 
 
 @app.get("/")
