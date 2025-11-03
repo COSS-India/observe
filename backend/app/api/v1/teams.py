@@ -249,7 +249,31 @@ async def get_teams_by_organization_id(org_id: int, db: Session = Depends(get_db
 @router.get("/organizations", response_model=List[OrganizationListItem])
 async def list_organizations(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
-    List all organizations for dropdown selection during team creation
+    List all unique organizations for dropdown selection during team creation.
+    Returns distinct organizations by org_name to avoid duplicates.
+    Uses DISTINCT ON for efficient querying.
     """
-    organizations = db.query(Organization).offset(skip).limit(limit).all()
+    from sqlalchemy import func, distinct
+
+    # Query distinct organizations by org_name, org_type
+    # Get the first organization for each unique org_name
+    subquery = (
+        db.query(
+            Organization.org_name,
+            func.min(Organization.id).label('min_id')
+        )
+        .group_by(Organization.org_name, Organization.org_type)
+        .subquery()
+    )
+
+    # Get the full organization records
+    organizations = (
+        db.query(Organization)
+        .join(subquery, Organization.id == subquery.c.min_id)
+        .order_by(Organization.org_name)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
     return organizations
