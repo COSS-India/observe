@@ -165,3 +165,30 @@ class Captcha(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=False)
     is_used = Column(Boolean, default=False)
+
+
+class Team(Base):
+    __tablename__ = "teams"
+
+    id = Column(Integer, primary_key=True, index=True)
+    grafana_team_id = Column(Integer, nullable=False, unique=True, index=True)
+    team_name = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relationships
+    team_organizations = relationship("TeamOrganization", back_populates="team", cascade="all, delete-orphan")
+
+
+class TeamOrganization(Base):
+    __tablename__ = "team_organizations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    team_id = Column(Integer, ForeignKey("teams.id", ondelete="CASCADE"), nullable=False)
+    organization_id = Column(Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    team = relationship("Team", back_populates="team_organizations")
+    organization = relationship("Organization")

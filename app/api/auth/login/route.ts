@@ -122,13 +122,46 @@ export async function POST(request: NextRequest) {
         status: userDetails?.status
       };
 
-      // Fetch Grafana TEAM ID based on organization name
-      const grafanaData = await fetchTeamByOrganization(user.organization);
+      // Fetch teams for this organization from backend
+      let teams = [];
+      let defaultGrafanaTeamId;
+
+      try {
+        console.log(`🔄 Fetching teams for organization: "${user.organization}"`);
+        const teamsResponse = await axios.get(
+          `${BACKEND_URL}/v1/organizations/${encodeURIComponent(user.organization)}/teams`
+        );
+        teams = teamsResponse.data || [];
+        console.log(`✅ Found ${teams.length} teams for organization "${user.organization}"`);
+
+        // Set default team (first team if available)
+        if (teams.length > 0) {
+          defaultGrafanaTeamId = teams[0].grafanaTeamId;
+          console.log(`📌 Default team selected: ${teams[0].name} (Grafana ID: ${defaultGrafanaTeamId})`);
+        }
+      } catch (teamsError) {
+        console.error('❌ Failed to fetch teams from backend:', teamsError);
+
+        // Fallback: try to fetch team using old name-matching logic
+        console.log('🔄 Falling back to Grafana name-matching...');
+        const grafanaData = await fetchTeamByOrganization(user.organization);
+        if (grafanaData.teamId) {
+          console.log(`✅ Fallback successful: Found team via name-matching (ID: ${grafanaData.teamId})`);
+          defaultGrafanaTeamId = grafanaData.teamId;
+          // Create a pseudo-team object for consistency
+          teams = [{
+            id: 0,
+            name: user.organization,
+            grafanaTeamId: grafanaData.teamId
+          }];
+        }
+      }
 
       return NextResponse.json({
         user: {
           ...user,
-          grafanaTeamId: grafanaData.teamId,
+          teams: teams,
+          grafanaTeamId: defaultGrafanaTeamId,
         },
         token: backendUser.token, // Use backend token
       });

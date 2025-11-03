@@ -12,7 +12,7 @@ import {
 
 export function useAuth() {
   const router = useRouter();
-  const { user, token, isAuthenticated, login: loginStore, logout: logoutStore, setUser, setToken } = useAuthStore();
+  const { user, token, isAuthenticated, login: loginStore, logout: logoutStore, setUser, updateUser, setToken } = useAuthStore();
 
   // Check and restore auth state on mount if needed
   useEffect(() => {
@@ -68,6 +68,7 @@ export function useAuth() {
     login,
     logout,
     setUser,
+    updateUser,
     setToken,
   };
 }

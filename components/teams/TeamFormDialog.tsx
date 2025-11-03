@@ -22,11 +22,13 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { OrganizationSelect } from './OrganizationSelect';
 import type { Team } from '@/types/grafana';
 
 const teamSchema = z.object({
   name: z.string().min(1, 'Team name is required'),
   email: z.string().email('Invalid email address').optional().or(z.literal('')),
+  organizationId: z.string().min(1, 'Organization is required'),
 });
 
 type TeamFormData = z.infer<typeof teamSchema>;
@@ -55,6 +57,7 @@ export function TeamFormDialog({
     defaultValues: {
       name: '',
       email: '',
+      organizationId: '',
     },
   });
 
@@ -65,11 +68,13 @@ export function TeamFormDialog({
         form.reset({
           name: team.name,
           email: team.email || '',
+          organizationId: '', // Teams don't store org ID during edit
         });
       } else {
         form.reset({
           name: '',
           email: '',
+          organizationId: '',
         });
       }
     }
@@ -99,6 +104,24 @@ export function TeamFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {!team && (
+              <FormField
+                control={form.control}
+                name="organizationId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <OrganizationSelect
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        error={form.formState.errors.organizationId?.message}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="name"
