@@ -33,19 +33,18 @@ const navigation = [
     icon: LayoutGrid,
     requiresSuperAdmin: true,
   },
-  
-  // {
-  //   name: "Organization Users",
-  //   href: "/dashboard/organization-users",
-  //   icon: Users,
-  //   requiresSuperAdmin: true,
-  // },
-  // {
-  //   name: "Organizations",
-  //   href: "/dashboard/organizations",
-  //   icon: Building2,
-  //   requiresSuperAdmin: true,
-  // },
+//   {
+//     name: "Organization Users",
+//     href: "/dashboard/organization-users",
+//     icon: Users,
+//     requiresSuperAdmin: true,
+//   },
+//   {
+//     name: "Organizations",
+//     href: "/dashboard/organizations",
+//     icon: Users,
+//     requiresSuperAdmin: true,
+//   },
   {
     name: "Teams",
     href: "/dashboard/teams",
@@ -58,12 +57,12 @@ const navigation = [
     icon: FolderOpen,
     requiresSuperAdmin: true,
   },
-  // {
-  //   name: "User Management",
-  //   href: "/dashboard/users",
-  //   icon: Users,
-  //   requiresSuperAdmin: true,
-  // },
+  {
+    name: "User Management",
+    href: "/dashboard/users",
+    icon: Users,
+    requiresSuperAdmin: true,
+  },
   {
     name: "Settings",
     href: "/dashboard/settings",

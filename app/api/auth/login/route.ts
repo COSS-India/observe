@@ -140,6 +140,7 @@ export async function POST(request: NextRequest) {
 
       // Fetch teams for this organization from backend
       let teams = [];
+      
       let defaultGrafanaTeamId;
 
       try {
