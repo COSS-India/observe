@@ -138,38 +138,149 @@ export async function POST(request: NextRequest) {
         status: userDetails?.status
       };
 
-      // Fetch teams for this organization from backend
+      // Fetch user's teams directly from Grafana (this is the primary source of truth)
       let teams = [];
       let defaultGrafanaTeamId;
+      let userGrafanaTeams = [];
 
       try {
-        console.log(`🔄 Fetching teams for organization: "${user.organization}"`);
-        const teamsResponse = await axios.get(
-          `${BACKEND_URL}/v1/organizations/${encodeURIComponent(user.organization)}/teams`
-        );
-        teams = teamsResponse.data || [];
-        console.log(`✅ Found ${teams.length} teams for organization "${user.organization}"`);
+        console.log(`🔍 Looking up Grafana user by email: ${user.email}`);
+        const lookupResponse = await grafanaClient.get(`/api/users/lookup?loginOrEmail=${encodeURIComponent(user.email)}`);
+        const grafanaUser = lookupResponse.data;
+        console.log(`✅ Found Grafana user: ${grafanaUser.id}, ${grafanaUser.email}`);
+
+        // Get teams for this Grafana user - this is the authoritative source
+        const userTeamsResponse = await grafanaClient.get(`/api/users/${grafanaUser.id}/teams`);
+        userGrafanaTeams = userTeamsResponse.data || [];
+        console.log(`✅ User is a member of ${userGrafanaTeams.length} teams in Grafana`);
+
+        // Handle team fetching based on role
+        if (user.role === 'superadmin') {
+          // For superadmin, try to fetch organization teams from backend
+          try {
+            console.log(`🔄 Fetching teams for organization: "${user.organization}" (superadmin)`);
+            const teamsResponse = await axios.get(
+              `${BACKEND_URL}/v1/organizations/${encodeURIComponent(user.organization)}/teams`
+            );
+            teams = teamsResponse.data || [];
+            console.log(`✅ Found ${teams.length} teams for organization "${user.organization}"`);
+          } catch (orgTeamsError) {
+            console.error('❌ Failed to fetch organization teams for superadmin:', orgTeamsError);
+            // Fallback to user's Grafana teams even for superadmin
+            teams = userGrafanaTeams.map((grafanaTeam: any) => ({
+              id: grafanaTeam.id,
+              name: grafanaTeam.name,
+              grafanaTeamId: grafanaTeam.id,
+              email: grafanaTeam.email || ''
+            }));
+            console.log(`⚠️ Fallback: Using user's ${teams.length} Grafana teams directly`);
+          }
+        } else if (user.role === 'viewer') {
+          // For customer/viewer role: intersect backend organization teams with Grafana user teams
+          try {
+            console.log(`🔄 Fetching organization teams from backend for customer/viewer role...`);
+            const orgTeamsResponse = await axios.get(
+              `${BACKEND_URL}/v1/organizations/${encodeURIComponent(user.organization)}/teams`
+            );
+            const orgTeams = orgTeamsResponse.data || [];
+            console.log(`✅ Found ${orgTeams.length} teams for organization "${user.organization}" in backend`);
+
+            // Create a map of Grafana team IDs that the user has access to
+            const userGrafanaTeamIds = new Set(userGrafanaTeams.map((team: any) => team.id));
+            console.log(`📋 User has access to Grafana team IDs: ${Array.from(userGrafanaTeamIds).join(', ')}`);
+            console.log(`📋 Backend org teams have grafanaTeamIds: ${orgTeams.map((t: any) => t.grafanaTeamId).join(', ')}`);
+
+            // Filter organization teams to only include those the user has access to in Grafana
+            teams = orgTeams.filter((orgTeam: any) => {
+              const hasAccess = userGrafanaTeamIds.has(orgTeam.grafanaTeamId);
+              if (hasAccess) {
+                console.log(`✅ Team "${orgTeam.name}" (Grafana ID: ${orgTeam.grafanaTeamId}) is mapped in backend and user has access`);
+              } else {
+                console.log(`❌ Team "${orgTeam.name}" (Grafana ID: ${orgTeam.grafanaTeamId}) is in backend but user doesn't have Grafana access`);
+              }
+              return hasAccess;
+            });
+
+            console.log(`🔒 Customer/Viewer role: Showing ${teams.length} teams (intersection of ${orgTeams.length} org teams and ${userGrafanaTeams.length} user Grafana teams)`);
+
+            // If no intersection found, use Grafana teams as fallback
+            if (teams.length === 0 && userGrafanaTeams.length > 0) {
+              console.log(`⚠️ No intersection found, falling back to Grafana teams`);
+              teams = userGrafanaTeams.map((grafanaTeam: any) => ({
+                id: grafanaTeam.id,
+                name: grafanaTeam.name,
+                grafanaTeamId: grafanaTeam.id,
+                email: grafanaTeam.email || ''
+              }));
+            }
+          } catch (orgTeamsError) {
+            console.error('❌ Failed to fetch organization teams for customer role:', orgTeamsError);
+            // Fallback to user's Grafana teams if backend call fails
+            teams = userGrafanaTeams.map((grafanaTeam: any) => ({
+              id: grafanaTeam.id,
+              name: grafanaTeam.name,
+              grafanaTeamId: grafanaTeam.id,
+              email: grafanaTeam.email || ''
+            }));
+            console.log(`⚠️ Fallback: Using user's ${teams.length} Grafana teams directly`);
+          }
+        } else {
+          // For admin and other roles, use their actual Grafana teams
+          teams = userGrafanaTeams.map((grafanaTeam: any) => ({
+            id: grafanaTeam.id, // Use Grafana team ID as the ID
+            name: grafanaTeam.name,
+            grafanaTeamId: grafanaTeam.id,
+            email: grafanaTeam.email || ''
+          }));
+          console.log(`🔒 Admin role: Using user's ${teams.length} Grafana teams directly`);
+        }
 
         // Set default team (first team if available)
         if (teams.length > 0) {
           defaultGrafanaTeamId = teams[0].grafanaTeamId;
           console.log(`📌 Default team selected: ${teams[0].name} (Grafana ID: ${defaultGrafanaTeamId})`);
+        } else {
+          console.log(`⚠️ No teams available for user`);
         }
       } catch (teamsError) {
-        console.error('❌ Failed to fetch teams from backend:', teamsError);
+        console.error('❌ Failed to fetch teams:', teamsError);
 
         // Fallback: try to fetch team using old name-matching logic
         console.log('🔄 Falling back to Grafana name-matching...');
         const grafanaData = await fetchTeamByOrganization(user.organization);
         if (grafanaData.teamId) {
           console.log(`✅ Fallback successful: Found team via name-matching (ID: ${grafanaData.teamId})`);
-          defaultGrafanaTeamId = grafanaData.teamId;
-          // Create a pseudo-team object for consistency
-          teams = [{
-            id: 0,
-            name: user.organization,
-            grafanaTeamId: grafanaData.teamId
-          }];
+          
+          // Even in fallback, check if user is member of this team
+          let isUserMemberOfFallbackTeam = false;
+          if (user.role !== 'superadmin') {
+            try {
+              const lookupResponse = await grafanaClient.get(`/api/users/lookup?loginOrEmail=${encodeURIComponent(user.email)}`);
+              const grafanaUser = lookupResponse.data;
+              const userTeamsResponse = await grafanaClient.get(`/api/users/${grafanaUser.id}/teams`);
+              const userGrafanaTeams = userTeamsResponse.data || [];
+              isUserMemberOfFallbackTeam = userGrafanaTeams.some((team: any) => team.id === grafanaData.teamId);
+            } catch (fallbackCheckError) {
+              console.error('❌ Error checking user membership for fallback team:', fallbackCheckError);
+              isUserMemberOfFallbackTeam = false;
+            }
+          } else {
+            isUserMemberOfFallbackTeam = true; // Superadmin has access to all teams
+          }
+
+          if (isUserMemberOfFallbackTeam) {
+            defaultGrafanaTeamId = grafanaData.teamId;
+            // Create a pseudo-team object for consistency
+            teams = [{
+              id: 0,
+              name: user.organization,
+              grafanaTeamId: grafanaData.teamId
+            }];
+            console.log(`✅ User has access to fallback team`);
+          } else {
+            console.log(`❌ User does not have access to fallback team`);
+            teams = [];
+          }
         }
       }
 
