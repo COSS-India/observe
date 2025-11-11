@@ -1,3 +1,10 @@
+export interface Team {
+  id: number;
+  name: string;
+  email?: string;
+  grafanaTeamId: number;
+}
+
 export interface User {
   id: string;
   username: string;
@@ -10,7 +17,8 @@ export interface User {
   lastName?: string;
   designation?: string;
   status?: string;
-  grafanaTeamId?: number; // Grafana team ID for team-based folder access
+  grafanaTeamId?: number; // Currently selected team's Grafana ID
+  teams?: Team[]; // Array of teams user can access via organization
   createdAt?: string;
 }
 

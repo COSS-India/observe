@@ -2,6 +2,9 @@ import { useState, useCallback } from 'react';
 import { grafanaAPI } from '@/lib/api/grafana';
 import type { Team } from '@/types/grafana';
 import { toast } from 'sonner';
+import axios from 'axios';
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:9010';
 
 export function useGrafanaTeams() {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -59,12 +62,41 @@ export function useGrafanaTeams() {
     }
   }, [fetchTeams]);
 
-  const createTeam = useCallback(async (teamData: { name: string; email?: string }) => {
+  const createTeam = useCallback(async (teamData: { name: string; email?: string; organizationId?: string }) => {
     try {
-      const response = await grafanaAPI.createTeam(teamData);
-      toast.success('Team created successfully');
+      // Step 1: Create team in Grafana
+      console.log('🔄 Creating team in Grafana:', teamData.name);
+      const grafanaResponse = await grafanaAPI.createTeam({
+        name: teamData.name,
+        email: teamData.email,
+      });
+
+      const grafanaTeamId = grafanaResponse.teamId;
+      console.log('✅ Team created in Grafana with ID:', grafanaTeamId);
+
+      // Step 2: Store team in backend with organization mapping (if organizationId provided)
+      if (teamData.organizationId) {
+        try {
+          console.log('🔄 Storing team in backend with organization mapping...');
+          await axios.post(`${BACKEND_URL}/v1/teams`, {
+            team_name: teamData.name,
+            email: teamData.email || null,
+            grafana_team_id: grafanaTeamId,
+            organization_id: parseInt(teamData.organizationId),
+          });
+          console.log('✅ Team stored in backend successfully');
+          toast.success('Team created and mapped to organization');
+        } catch (backendError) {
+          console.error('❌ Failed to store team in backend:', backendError);
+          // Show warning but don't fail the operation
+          toast.warning('Team created in Grafana but failed to map to organization in backend');
+        }
+      } else {
+        toast.success('Team created successfully');
+      }
+
       await fetchTeams();
-      return response;
+      return grafanaResponse;
     } catch (err: unknown) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error = err as any;

@@ -91,13 +91,14 @@ export async function POST(request: NextRequest) {
           console.error('❌ Error fetching user details:', userError);
         }
       }
-      console.log("User details",backendUser)
+      console.log("📋 Backend User Response:", backendUser);
+
       // Extract organization name from user details or fallback to backend user data
-      const organizationName = userDetails?.org?.org_name || 
-                              backendUser.organization || 
-                              backendUser.org?.org_name || 
+      const organizationName = userDetails?.org?.org_name ||
+                              backendUser.organization ||
+                              backendUser.org?.org_name ||
                               'Unknown Organization';
-      
+
       console.log('🏢 Organization mapping:', {
         fromUserDetails: userDetails?.org?.org_name,
         fromBackendUser: backendUser.organization,
@@ -106,13 +107,28 @@ export async function POST(request: NextRequest) {
         orgType: userDetails?.org?.org_type || backendUser.org_type
       });
 
+      // Map role with detailed logging (case-insensitive comparison)
+      const normalizedRole = (backendUser.role || '').toLowerCase().replace(/\s+/g, '');
+
+      console.log('🔑 Role mapping:', {
+        backendRole: backendUser.role,
+        normalizedRole: normalizedRole,
+        backendRoleType: typeof backendUser.role,
+        isSuperadmin: normalizedRole === 'superadmin',
+        isAdmin: normalizedRole === 'admin',
+      });
+
+      const mappedRole = normalizedRole === 'superadmin' ? 'superadmin' :
+                        normalizedRole === 'admin' ? 'admin' : 'viewer';
+
+      console.log('✅ Mapped role:', mappedRole);
+
       // Map backend user to frontend format
       const user = {
         id: backendUser.email, // Use email as ID for simplicity
         username: backendUser.username || backendUser.email.split('@')[0],
         email: backendUser.email,
-        role: backendUser.role === 'superadmin' ? 'superadmin' : 
-              backendUser.role === 'admin' ? 'admin' : 'viewer',
+        role: mappedRole as 'superadmin' | 'admin' | 'viewer',
         organization: organizationName,
         orgType: userDetails?.org?.org_type || backendUser.org_type,
         userType: userDetails?.user_type || [],
@@ -122,13 +138,46 @@ export async function POST(request: NextRequest) {
         status: userDetails?.status
       };
 
-      // Fetch Grafana TEAM ID based on organization name
-      const grafanaData = await fetchTeamByOrganization(user.organization);
+      // Fetch teams for this organization from backend
+      let teams = [];
+      let defaultGrafanaTeamId;
+
+      try {
+        console.log(`🔄 Fetching teams for organization: "${user.organization}"`);
+        const teamsResponse = await axios.get(
+          `${BACKEND_URL}/v1/organizations/${encodeURIComponent(user.organization)}/teams`
+        );
+        teams = teamsResponse.data || [];
+        console.log(`✅ Found ${teams.length} teams for organization "${user.organization}"`);
+
+        // Set default team (first team if available)
+        if (teams.length > 0) {
+          defaultGrafanaTeamId = teams[0].grafanaTeamId;
+          console.log(`📌 Default team selected: ${teams[0].name} (Grafana ID: ${defaultGrafanaTeamId})`);
+        }
+      } catch (teamsError) {
+        console.error('❌ Failed to fetch teams from backend:', teamsError);
+
+        // Fallback: try to fetch team using old name-matching logic
+        console.log('🔄 Falling back to Grafana name-matching...');
+        const grafanaData = await fetchTeamByOrganization(user.organization);
+        if (grafanaData.teamId) {
+          console.log(`✅ Fallback successful: Found team via name-matching (ID: ${grafanaData.teamId})`);
+          defaultGrafanaTeamId = grafanaData.teamId;
+          // Create a pseudo-team object for consistency
+          teams = [{
+            id: 0,
+            name: user.organization,
+            grafanaTeamId: grafanaData.teamId
+          }];
+        }
+      }
 
       return NextResponse.json({
         user: {
           ...user,
-          grafanaTeamId: grafanaData.teamId,
+          teams: teams,
+          grafanaTeamId: defaultGrafanaTeamId,
         },
         token: backendUser.token, // Use backend token
       });

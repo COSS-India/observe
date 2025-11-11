@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { DashboardPanelExtractor } from "@/components/dashboards/DashboardPanelExtractor";
 import { useTeamDashboards } from "@/hooks/useTeamDashboards";
 import { useTeamFolders } from "@/hooks/useTeamFolders";
 import { useAuth } from "@/hooks/useAuth";
+import { TeamSelector } from "@/components/teams/TeamSelector";
+import type { Team } from "@/types/auth";
 
 function MyDashboardsPage(): React.ReactElement {
   const { user } = useAuth();
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const {
     dashboards,
     loading: dashboardsLoading,
@@ -29,16 +32,28 @@ function MyDashboardsPage(): React.ReactElement {
     [folders]
   );
 
-  // Fetch team-based dashboards and folders when user has a team ID
+  // Initialize selected team when user loads or teams change
   useEffect(() => {
-    if (user?.grafanaTeamId) {
-      console.log(
-        `🔄 Fetching team-based dashboards and folders for Team ID: ${user.grafanaTeamId}`
-      );
-      fetchTeamDashboards(user.grafanaTeamId);
-      fetchTeamFolders(user.grafanaTeamId);
+    if (user?.teams && user.teams.length > 0) {
+      // Find the team matching the current grafanaTeamId, or use first team
+      const defaultTeam = user.teams.find(
+        (t) => t.grafanaTeamId === user.grafanaTeamId
+      ) || user.teams[0];
+      setSelectedTeam(defaultTeam);
+      console.log('📌 Default team set:', defaultTeam.name);
     }
-  }, [user?.grafanaTeamId, fetchTeamDashboards, fetchTeamFolders]);
+  }, [user?.teams, user?.grafanaTeamId]);
+
+  // Fetch team-based dashboards and folders when selected team changes
+  useEffect(() => {
+    if (selectedTeam?.grafanaTeamId) {
+      console.log(
+        `🔄 Fetching team-based dashboards and folders for Team: ${selectedTeam.name} (ID: ${selectedTeam.grafanaTeamId})`
+      );
+      fetchTeamDashboards(selectedTeam.grafanaTeamId);
+      fetchTeamFolders(selectedTeam.grafanaTeamId);
+    }
+  }, [selectedTeam, fetchTeamDashboards, fetchTeamFolders]);
 
   // Debug: Log dashboards and folders when they change
   useEffect(() => {
@@ -47,6 +62,15 @@ function MyDashboardsPage(): React.ReactElement {
   }, [dashboards, folders]);
 
   const isLoading = dashboardsLoading || foldersLoading;
+
+  const handleTeamChange = (team: Team) => {
+    console.log('👥 Team changed to:', team.name);
+    setSelectedTeam(team);
+  };
+
+  // Check if user has teams
+  const hasTeams = user?.teams && user.teams.length > 0;
+  const hasMultipleTeams = user?.teams && user.teams.length > 1;
 
   return (
     <div className="space-normal w-full overflow-hidden">
@@ -61,7 +85,16 @@ function MyDashboardsPage(): React.ReactElement {
         </div>
       </div>
 
-      {!user?.grafanaTeamId && (
+      {/* Team Selector - show only if user has multiple teams */}
+      {hasMultipleTeams && user.teams && (
+        <TeamSelector
+          teams={user.teams}
+          selectedTeam={selectedTeam}
+          onTeamChange={handleTeamChange}
+        />
+      )}
+
+      {!hasTeams && (
         <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-body text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
           <div>
             <p className="font-medium">Team Mapping Required</p>
@@ -79,9 +112,13 @@ function MyDashboardsPage(): React.ReactElement {
         <div className="text-center py-8 text-muted-foreground">
           Loading dashboards and folders...
         </div>
-      ) : !user?.grafanaTeamId ? (
+      ) : !hasTeams ? (
         <div className="text-center py-8 text-muted-foreground">
           Please configure your team mapping to view dashboards.
+        </div>
+      ) : !selectedTeam ? (
+        <div className="text-center py-8 text-muted-foreground">
+          Please select a team to view dashboards.
         </div>
       ) : uniqueFolders.length === 0 ? (
         <div className="text-center py-8">
