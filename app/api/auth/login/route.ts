@@ -203,26 +203,47 @@ export async function POST(request: NextRequest) {
 
             console.log(`🔒 Customer/Viewer role: Showing ${teams.length} teams (intersection of ${orgTeams.length} org teams and ${userGrafanaTeams.length} user Grafana teams)`);
 
-            // If no intersection found, use Grafana teams as fallback
+            // If no intersection found, use Grafana teams as fallback (but still filter by organization if possible)
             if (teams.length === 0 && userGrafanaTeams.length > 0) {
-              console.log(`⚠️ No intersection found, falling back to Grafana teams`);
-              teams = userGrafanaTeams.map((grafanaTeam: any) => ({
+              console.log(`⚠️ No intersection found, falling back to Grafana teams with organization filtering`);
+              // Even in fallback, try to filter by organization name if team names match organization
+              const orgNameLower = user.organization.toLowerCase();
+              teams = userGrafanaTeams
+                .filter((grafanaTeam: any) => {
+                  // Only include teams that match organization name or are explicitly in org teams
+                  return grafanaTeam.name.toLowerCase().includes(orgNameLower) || 
+                         orgTeams.some((ot: any) => ot.grafanaTeamId === grafanaTeam.id);
+                })
+                .map((grafanaTeam: any) => ({
+                  id: grafanaTeam.id,
+                  name: grafanaTeam.name,
+                  grafanaTeamId: grafanaTeam.id,
+                  email: grafanaTeam.email || ''
+                }));
+              
+              // If still no teams after filtering, log warning but don't show all teams
+              if (teams.length === 0) {
+                console.log(`⚠️ No organization-filtered teams found for customer/viewer`);
+              }
+            }
+          } catch (orgTeamsError) {
+            console.error('❌ Failed to fetch organization teams for customer role:', orgTeamsError);
+            // Fallback to user's Grafana teams if backend call fails
+            // But still try to filter by organization name
+            const orgNameLower = user.organization.toLowerCase();
+            teams = userGrafanaTeams
+              .filter((grafanaTeam: any) => {
+                // Filter teams by organization name match
+                return grafanaTeam.name.toLowerCase().includes(orgNameLower);
+              })
+              .map((grafanaTeam: any) => ({
                 id: grafanaTeam.id,
                 name: grafanaTeam.name,
                 grafanaTeamId: grafanaTeam.id,
                 email: grafanaTeam.email || ''
               }));
-            }
-          } catch (orgTeamsError) {
-            console.error('❌ Failed to fetch organization teams for customer role:', orgTeamsError);
-            // Fallback to user's Grafana teams if backend call fails
-            teams = userGrafanaTeams.map((grafanaTeam: any) => ({
-              id: grafanaTeam.id,
-              name: grafanaTeam.name,
-              grafanaTeamId: grafanaTeam.id,
-              email: grafanaTeam.email || ''
-            }));
-            console.log(`⚠️ Fallback: Using user's ${teams.length} Grafana teams directly`);
+            
+            console.log(`⚠️ Fallback: Using ${teams.length} organization-filtered Grafana teams for customer/viewer`);
           }
         } else {
           // For admin and other roles, use their actual Grafana teams
