@@ -10,7 +10,7 @@ A standalone observability interface that can be deployed by Adopters who alread
 - **Grafana Integration**: Centralized dashboard, folder, team, and user management
 - **Organization Management**: Multi-tenant support for different organizations
 - **Team Management**: Organize users into teams with specific access levels
-- **Secure Authentication**: Bhashini-integrated authentication with captcha and JWT tokens
+- **Secure Authentication**: Adopter-integrated authentication with captcha and JWT tokens (done via Simulator)
 - **Modern Interface**: Clean, responsive UI built with Next.js and Tailwind CSS
 
 ## Architecture
