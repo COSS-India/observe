@@ -128,6 +128,28 @@ export function DashboardPanelExtractor({ folders, dashboards }: DashboardPanelE
     }
   }, [selectedDashboard, fetchDashboardPanels]);
 
+  // Clear panels when selected folder has no dashboards
+  useEffect(() => {
+    if (selectedFolder && filteredDashboards.length === 0) {
+      setPanels([]);
+      setSelectedDashboard('');
+    }
+  }, [selectedFolder, filteredDashboards.length]);
+
+  // Early return if no dashboards are available
+  if (dashboards.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground mb-2">
+          No dashboards available in the selected folders.
+        </p>
+        <p className="text-body text-muted-foreground">
+          Please contact your administrator to add dashboards to the folders assigned to your team.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-xl w-full">
       {/* All Filters in Single Row */}
@@ -207,13 +229,19 @@ export function DashboardPanelExtractor({ folders, dashboards }: DashboardPanelE
         </div>
       )}
 
-      {!loading && selectedDashboard && panels.length === 0 && (
+      {!loading && selectedFolder && filteredDashboards.length === 0 && (
+        <div className="text-center py-8 text-body text-muted-foreground">
+          No dashboards available in the selected folder.
+        </div>
+      )}
+
+      {!loading && selectedDashboard && filteredDashboards.length > 0 && panels.length === 0 && (
         <div className="text-center py-8 text-body text-muted-foreground">
           No panels found in this dashboard
         </div>
       )}
 
-      {!loading && panels.length > 0 && (
+      {!loading && panels.length > 0 && filteredDashboards.length > 0 && selectedDashboard && (
         <div className="space-normal">
           {/* <div className="text-body text-muted-foreground">
             Found {panels.length} panel{panels.length !== 1 ? 's' : ''} in this dashboard

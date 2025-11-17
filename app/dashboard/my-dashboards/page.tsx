@@ -32,6 +32,25 @@ function MyDashboardsPage(): React.ReactElement {
     [folders]
   );
 
+  // Map folders to their dashboards and identify empty folders
+  const folderDashboardMap = useMemo(() => {
+    const map = new Map<string, typeof dashboards>();
+    const emptyFolders: typeof uniqueFolders = [];
+
+    uniqueFolders.forEach((folder) => {
+      const folderDashboards = dashboards.filter(
+        (dash) => dash.folderUid === folder.uid
+      );
+      map.set(folder.uid, folderDashboards);
+      
+      if (folderDashboards.length === 0) {
+        emptyFolders.push(folder);
+      }
+    });
+
+    return { map, emptyFolders };
+  }, [uniqueFolders, dashboards]);
+
   // Initialize selected team when user loads or teams change
   useEffect(() => {
     if (user?.teams && user.teams.length > 0) {
@@ -59,7 +78,8 @@ function MyDashboardsPage(): React.ReactElement {
   useEffect(() => {
     console.log("📊 Dashboards loaded:", dashboards.length, dashboards);
     console.log("📁 Folders loaded:", folders.length, folders);
-  }, [dashboards, folders]);
+    console.log("📁 Empty folders:", folderDashboardMap.emptyFolders.length);
+  }, [dashboards, folders, folderDashboardMap.emptyFolders.length]);
 
   const isLoading = dashboardsLoading || foldersLoading;
 
@@ -121,25 +141,37 @@ function MyDashboardsPage(): React.ReactElement {
           Please select a team to view dashboards.
         </div>
       ) : uniqueFolders.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-2">
-            No folders available for your team.
-          </p>
-          <p className="text-body text-muted-foreground">
-            Contact your administrator to grant folder permissions to your team.
-          </p>
-        </div>
-      ) : dashboards.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-2">
-            No dashboards found in your team&apos;s folders.
-          </p>
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-body text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
+          <div>
+            <p className="font-medium">No folders available for your team.</p>
+            <p className="mt-1">
+              Contact your administrator to grant folder permissions to your team.
+            </p>
+          </div>
         </div>
       ) : (
-        <DashboardPanelExtractor
-          folders={uniqueFolders}
-          dashboards={dashboards}
-        />
+        <>
+          {/* Only show DashboardPanelExtractor if there are folders with dashboards */}
+          {dashboards.length === 0 || uniqueFolders.filter(
+            (folder) => (folderDashboardMap.map.get(folder.uid)?.length || 0) > 0
+          ).length === 0 ? (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-body text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-200">
+              <div>
+                <p className="font-medium">No dashboards found in your team&apos;s folders.</p>
+                <p className="mt-1">
+                  Please contact your administrator to add dashboards to the folders assigned to your team.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <DashboardPanelExtractor
+              folders={uniqueFolders.filter(
+                (folder) => (folderDashboardMap.map.get(folder.uid)?.length || 0) > 0
+              )}
+              dashboards={dashboards}
+            />
+          )}
+        </>
       )}
     </div>
   );
