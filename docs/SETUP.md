@@ -27,11 +27,11 @@ Before you begin, ensure you have the following installed:
 
 ### System Requirements
 
-- **Node.js**: Version 16.x or higher
-- **Python**: Version 3.8 or higher (`python3`)
-- **PostgreSQL**: Version 12 or higher
-- **Grafana**: Version 8.x or higher (running instance)
-- **Git**: For cloning the repository
+- **[Node.js](https://nodejs.org/en/download)**: Version 16.x or higher (LTS recommended)
+- **[Python](https://www.python.org/downloads/)**: Version 3.8 or higher (`python3`)
+- **[PostgreSQL](https://www.postgresql.org/download/)**: Version 12 or higher
+- **[Grafana](https://grafana.com/grafana/download)**: Version 8.x or higher (running instance)
+- **[Git](https://git-scm.com/downloads)**: For cloning the repository
 
 ### Required Access
 
