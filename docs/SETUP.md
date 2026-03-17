@@ -222,6 +222,7 @@ Add the following configuration:
 BACKEND_URL=http://localhost:9010
 
 # Grafana Configuration
+# This should point to the existing Grafana instance where your observability data is already configured.
 NEXT_PUBLIC_GRAFANA_URL=http://localhost:3000
 
 # Grafana Basic Auth (preferred — works across all orgs with admin privileges)
@@ -242,7 +243,7 @@ openssl rand -base64 32
 ```
 
 **How to get Grafana API Key (if using API key auth):**
-1. Log in to your Grafana instance
+1. Log in to the **existing Grafana instance where your observability data is already configured** (the same Grafana this portal will manage)
 2. Go to **Configuration → API Keys**
 3. Click **New API Key**
 4. Set name as "Observe Portal" with **Admin** role
@@ -262,7 +263,7 @@ The frontend will be available at **`http://localhost:3005`** (not 3000 — the 
 
 1. **Check Backend**: Visit `http://localhost:9010/docs` — you should see the FastAPI API documentation
 2. **Check Frontend**: Visit `http://localhost:3005` — you should see the login page
-3. **Check Grafana**: Ensure your Grafana instance is running at the configured URL
+3. **Check Grafana**: Ensure the existing Grafana instance (where your observability data lives) is running at the configured URL
 
 ---
 
