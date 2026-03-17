@@ -33,7 +33,7 @@ def create_sample_user():
         sample_user = User(
             first_name="Test",
             last_name="User",
-            email="test@karmayogi.in",
+            email="test@example.in",
             password_hash=get_password_hash("test1234"),
             role="customer",
             username="test",

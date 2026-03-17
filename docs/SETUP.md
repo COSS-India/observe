@@ -274,7 +274,7 @@ A test user is automatically created during database initialization:
 
 | Field    | Value                 |
 |----------|-----------------------|
-| Email    | `test@karmayogi.in`   |
+| Email    | `test@example.in`     |
 | Password | `test1234`            |
 | Role     | `customer`            |
 
@@ -286,6 +286,72 @@ The platform connects to Grafana using the credentials you configured in `.env.l
 - Manage users and teams
 - Create and organize dashboards
 - Set up role-based access controls
+
+---
+
+## Next Steps After Successful Setup
+
+Once the platform is running and connected to Grafana, you can begin onboarding your teams and organizing access.
+
+### User Onboarding
+
+- Create user accounts for your team members.
+- Assign appropriate roles (e.g., Super Admin, Org Admin, Team Member).
+- Ensure users can log in and access their assigned dashboards.
+
+### Dashboard & Monitoring Configuration
+
+- Import or create Grafana dashboards relevant to your organization.
+- Group dashboards into logical folders for easier navigation.
+- Set up monitoring and alerting for the Observe platform itself (backend, frontend, and database health).
+
+### Backup Strategy
+
+- Configure and schedule **regular database backups** (see the **Maintenance → Database Backups** section below for reference commands).
+- Store backups securely and periodically test restore procedures.
+
+---
+
+## Team and Dashboard Provisioning (Super Admin)
+
+Super Admins are responsible for mapping organizations, teams, folders, and dashboards to enforce proper access control.
+
+### Team Creation
+
+- Navigate to the **Team Management** page.
+- Click on the **Create Team** button.
+- Fill in the team details (e.g., **name**, **email**) and submit the form.
+- The newly created team will be associated with the selected organization, enabling better hierarchy and management of users.
+
+### Folder and Dashboard Management
+
+Super Admins can provision dashboards for teams by creating folders, assigning teams to those folders, and adding dashboards.
+
+#### Creating Folders
+
+- Navigate to the **Folder Management** page.
+- Click on the **Create Folder** button.
+- Provide a title for the folder and submit the form.
+
+#### Assigning Teams to Folders
+
+- From the **Folder Management** page, select a folder.
+- Use the **Manage Teams** option to assign teams to the folder.
+- Choose the team and set the appropriate permissions: **View**, **Edit**, or **Admin**.
+
+#### Adding Dashboards to Folders
+
+- From the **Folder Management** page, select a folder.
+- Use the **Manage Dashboards** option to add dashboards to the folder.
+- Select dashboards from the list and assign them to the folder for quick access by the mapped teams.
+
+### Key Features of Provisioning
+
+- **Team Mapping**: Teams are mapped to organizations for better hierarchy and management.
+- **Folder Permissions**: Teams can be granted specific permissions (**View**, **Edit**, **Admin**) per folder.
+- **Dashboard Organization**: Dashboards can be grouped into folders for secure, efficient access and management.
+
+This setup ensures that dashboards are securely and efficiently provisioned to the right teams, enabling seamless collaboration and fine-grained access control.
 
 ---
 
@@ -465,10 +531,3 @@ psql -U observe_user -d observe_db < backup_20240101.sql
 ```
 
 ---
-
-## Support
-
-- **GitHub Issues**: [https://github.com/COSS-India/observe/issues](https://github.com/COSS-India/observe/issues)
-- **Video Tutorials**:
-  - [Observe Building Block v1.0](https://www.youtube.com/playlist?list=PLnvlKntxa4FpHX6yIqr4hpFm-wc5qHUPP)
-  - [Observe Building Block v1.1](https://youtu.be/sABEDKOrO-Q)
