@@ -28,10 +28,20 @@ Before you begin, ensure you have the following installed:
 ### System Requirements
 
 - **[Node.js](https://nodejs.org/en/download)**: Version 16.x or higher (LTS recommended)
-- **[Python](https://www.python.org/downloads/)**: Version 3.8 or higher (`python3`)
+- **[Python](https://www.python.org/downloads/)**: **Version 3.11** (`python3`)
 - **[PostgreSQL](https://www.postgresql.org/download/)**: Version 12 or higher
 - **[Grafana](https://grafana.com/grafana/download)**: Version 8.x or higher (running instance)
 - **[Git](https://git-scm.com/downloads)**: For cloning the repository
+
+### Notes
+
+- **Java 8 (JRE/JDK)**: If your PostgreSQL installation path uses Java-based tooling/installers (some GUI installers and admin tools do), install **Java 1.8** to avoid “Java 1.8 missing” errors during PostgreSQL setup.
+  - **Ubuntu/Debian**:
+    ```bash
+    sudo apt update
+    sudo apt install -y openjdk-8-jre
+    ```
+  - **Other OS**: Install “Java 8” from an OpenJDK distribution (for example, [Adoptium Temurin 8](https://adoptium.net/temurin/releases/?version=8)).
 
 ### Required Access
 
@@ -160,7 +170,7 @@ Run `init_db.py` from the `backend/` directory (where the script lives):
 python3 init_db.py
 ```
 
-This creates the necessary database tables and a sample test user.
+This creates the necessary database tables.
 
 If successful, you will see:
 
@@ -170,8 +180,6 @@ Initializing Adopter Login API Database...
 Creating database tables...
 Database tables created successfully!
 Sample user created successfully!
-Email: test@karmayogi.in
-Password: test1234
 ==================================================
 Database initialization completed successfully!
 ```
@@ -268,16 +276,6 @@ The frontend will be available at **`http://localhost:3005`** (not 3000 — the 
 ---
 
 ## First Time Setup
-
-### Sample User (Created by init_db.py)
-
-A test user is automatically created during database initialization:
-
-| Field    | Value                 |
-|----------|-----------------------|
-| Email    | `test@example.in`     |
-| Password | `test1234`            |
-| Role     | `customer`            |
 
 ### Connect to Grafana
 

@@ -94,8 +94,8 @@ app/
 - **Request Body**:
   ```json
   {
-    "email": "test@karmayogi.in",
-    "password": "test@1234",
+    "email": "user@example.com",
+    "password": "your_password",
     "captcha_text": "IN945v",
     "captcha_id": "zk9JKKIv1b"
   }
@@ -103,7 +103,7 @@ app/
 - **Response**:
   ```json
   {
-    "email": "test@karmayogi.in",
+    "email": "user@example.com",
     "token": "sssssssssss.hsjsddkd.GrO_1tGuWlIYDM1m7m-KFZE9Zr9bOUxQt9_eKz0yJxI",
     "role": "customer",
     "username": "test",
@@ -186,11 +186,6 @@ DEBUG=True
 
 ## Testing
 
-### Sample User Credentials
-After running `init_db.py`, you can use these credentials for testing:
-- **Email**: `test@karmayogi.in`
-- **Password**: `test@1234`
-
 ### API Testing with curl
 
 1. **Get Captcha**:
@@ -203,8 +198,8 @@ After running `init_db.py`, you can use these credentials for testing:
    curl -X POST "http://localhost:8000/v1/signin" \
      -H "Content-Type: application/json" \
      -d '{
-       "email": "test@karmayogi.in",
-       "password": "test@1234",
+       "email": "user@example.com",
+       "password": "your_password",
        "captcha_text": "CAPTCHA_TEXT_FROM_PREVIOUS_RESPONSE",
        "captcha_id": "CAPTCHA_ID_FROM_PREVIOUS_RESPONSE"
      }'
