@@ -54,8 +54,6 @@ def create_sample_user():
         db.add(sample_user)
         db.commit()
         print("Sample user created successfully!")
-        print("Email: test@example.com")
-        print("Password: test1234")
         
     except Exception as e:
         print(f"Error creating sample user: {e}")

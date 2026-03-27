@@ -99,14 +99,14 @@ cd backend
 > **Linux/macOS:** Use `python3` (not `python`).
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 **On Windows:**
 ```bash
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 #### 2.3 Install Python Dependencies
@@ -126,6 +126,21 @@ Ensure PostgreSQL is running, then create a dedicated user and database:
 ```bash
 # Connect to PostgreSQL as the superuser
 sudo -u postgres psql
+```
+
+**On Windows:**
+
+Open **SQL Shell (psql)** from the Start menu and connect with:
+- Server: `localhost`
+- Database: `postgres`
+- Port: `5432`
+- Username: `postgres`
+- Password: your PostgreSQL superuser password
+
+Alternatively, in Command Prompt or PowerShell (if `psql` is available in `PATH`):
+
+```bat
+psql -U postgres -h localhost -p 5432 -d postgres
 ```
 
 Inside the `psql` prompt, run:
@@ -155,19 +170,17 @@ Open `.env` and update the `DATABASE_URL` with the credentials you just created 
 DATABASE_URL=postgresql://observe_user:observe_pass@localhost:5432/observe_db
 ```
 
-The rest of the file has sensible defaults. The only other values to update are your email credentials if you want the email service to work:
-
-```env
-SMTP_USERNAME=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
-```
-
 #### 2.6 Initialize the Database
 
 Run `init_db.py` from the `backend/` directory (where the script lives):
 
 ```bash
 python3 init_db.py
+```
+
+**On Windows:**
+```bash
+python init_db.py
 ```
 
 This creates the necessary database tables.
@@ -187,7 +200,7 @@ Database initialization completed successfully!
 #### 2.7 Start the Backend Server
 
 ```bash
-python3 -m uvicorn app.main:app --reload --host 0.0.0.0 --port 9010
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 9010
 ```
 
 The backend API will be available at `http://localhost:9010`
@@ -223,11 +236,21 @@ Create a `.env.local` file in the root directory:
 touch .env.local
 ```
 
+**On Windows (PowerShell):**
+```powershell
+New-Item .env.local -ItemType File -Force
+```
+
+**On Windows (Command Prompt):**
+```bat
+type nul > .env.local
+```
+
 Add the following configuration:
 
 ```env
 # Backend API URL  (server-side: no NEXT_PUBLIC_ prefix)
-BACKEND_URL=http://localhost:9010
+BACKEND_URL=http://127.0.0.1:9010
 
 # Grafana Configuration
 # This should point to the existing Grafana instance where your observability data is already configured.
@@ -245,10 +268,6 @@ NEXTAUTH_SECRET=generate-a-random-secret-here
 NEXTAUTH_URL=http://localhost:3005
 ```
 
-**Generate `NEXTAUTH_SECRET`:**
-```bash
-openssl rand -base64 32
-```
 
 **How to get Grafana API Key (if using API key auth):**
 1. Log in to the **existing Grafana instance where your observability data is already configured** (the same Grafana this portal will manage)
@@ -263,7 +282,7 @@ openssl rand -base64 32
 npm run dev
 ```
 
-The frontend will be available at **`http://localhost:3005`** (not 3000 — the dev script is configured to use port 3005).
+The frontend will be available at **`http://localhost:3005`** 
 
 ---
 
@@ -384,9 +403,17 @@ pip install -r requirements.txt
 **Fix:** Use `python3` everywhere:
 
 ```bash
-python3 -m venv venv
+python3 -m venv .venv
 python3 init_db.py
 python3 -m uvicorn app.main:app --reload --port 9010
+```
+
+**On Windows, use `python`:**
+
+```bash
+python -m venv .venv
+python init_db.py
+python -m uvicorn app.main:app --reload --port 9010
 ```
 
 ### Database Connection Error
@@ -449,7 +476,7 @@ docker run -p 9010:9010 --env-file .env observe-backend
 #### Option 2: Systemd / Direct
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 9010 --workers 4
+uvicorn app.main:app --host 127.0.0.1 --port 9010 --workers 4
 ```
 
 ### Frontend
@@ -511,7 +538,7 @@ Update `DATABASE_URL` in your backend `.env` file with the production connection
 ```bash
 # Backend
 cd backend
-source venv/bin/activate
+source .venv/bin/activate
 pip install -r requirements.txt --upgrade
 
 # Frontend

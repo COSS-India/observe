@@ -72,7 +72,7 @@ app/
 
 6. **Run the application**
    ```bash
-   python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+   python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
    ```
 
 ## API Endpoints
@@ -251,7 +251,7 @@ Once the server is running, visit:
 
 ### Running in Development Mode
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 ### Database Migrations
