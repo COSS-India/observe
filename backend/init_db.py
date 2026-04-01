@@ -24,7 +24,7 @@ def create_sample_user():
     db = SessionLocal()
     try:
         # Check if sample user already exists
-        existing_user = db.query(User).filter(User.email == "test@karmayogi.in").first()
+        existing_user = db.query(User).filter(User.email == "test@example.com").first()
         if existing_user:
             print("Sample user already exists!")
             return
@@ -33,7 +33,7 @@ def create_sample_user():
         sample_user = User(
             first_name="Test",
             last_name="User",
-            email="test@example.in",
+            email="test@example.com",
             password_hash=get_password_hash("test1234"),
             role="customer",
             username="test",
@@ -54,8 +54,6 @@ def create_sample_user():
         db.add(sample_user)
         db.commit()
         print("Sample user created successfully!")
-        print("Email: test@karmayogi.in")
-        print("Password: test1234")
         
     except Exception as e:
         print(f"Error creating sample user: {e}")
